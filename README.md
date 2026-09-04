@@ -21,14 +21,40 @@
 ---
 
 ## 📑 목차 (Table of Contents)
-1. [✨ 주요 기능 (Key Features)](#-주요-기능-key-features)
-2. [🏛️ 시스템 아키텍처 (Architecture)](#️-시스템-아키텍처-architecture)
-3. [⚙️ 사전 요구사항 (Prerequisites)](#️-사전-요구사항-prerequisites)
-4. [📦 설치 및 실행 방법 (Installation & Getting Started)](#-설치-및-실행-방법-installation--getting-started)
-5. [💡 사용 예시 (Usage Guide)](#-사용-예시-usage-guide)
-6. [⚠️ 한계점 및 유의사항 (Limitations & Considerations)](#️-한계점-및-유의사항-limitations--considerations)
-7. [🔮 로드맵 및 향후 계획 (Future Roadmap)](#-로드맵-및-향후-계획-future-roadmap)
-8. [👨‍💻 작성자 및 라이선스 (Author & License)](#-작성자-및-라이선스-author--license)
+1. [📥 앱 다운로드 및 지원 환경 (Download & OS Support)](#-앱-다운로드-및-지원-환경-download--os-support)
+2. [✨ 주요 기능 (Key Features)](#-주요-기능-key-features)
+3. [🏛️ 시스템 아키텍처 (Architecture)](#️-시스템-아키텍처-architecture)
+4. [⚙️ 사전 요구사항 (Prerequisites)](#️-사전-요구사항-prerequisites)
+5. [📦 설치 및 직접 빌드 방법 (Installation & Build)](#-설치-및-직접-빌드-방법-installation--build)
+6. [💡 사용 예시 (Usage Guide)](#-사용-예시-usage-guide)
+7. [⚠️ 한계점 및 유의사항 (Limitations & Considerations)](#️-한계점-및-유의사항-limitations--considerations)
+8. [🔮 로드맵 및 향후 계획 (Future Roadmap)](#-로드맵-및-향후-계획-future-roadmap)
+9. [👨‍💻 작성자 및 라이선스 (Author & License)](#-작성자-및-라이선스-author--license)
+
+---
+
+## 📥 앱 다운로드 및 지원 환경 (Download & OS Support)
+
+최신 빌드 파일(`.dmg`)은 **[GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest)**에서 바로 다운로드하실 수 있습니다.
+
+### 💻 플랫폼별 지원 현황
+| 플랫폼 | 지원 여부 | 다운로드 파일 | 비고 |
+| :--- | :---: | :--- | :--- |
+| **macOS (Apple Silicon)** | **공식 지원** | `*.dmg` (`aarch64`) | M1 / M2 / M3 / M4 Mac 전용 |
+| **macOS (Intel x86_64)** | ⏳ 준비 중 | - | 소스코드 직접 빌드 가능 |
+| **Windows** | ⏳ 준비 중 | - | 패키징 작업 진행 중 |
+| **Linux** | ⏳ 준비 중 | - | 소스코드 직접 빌드 가능 |
+
+> [!IMPORTANT]
+> **현재 릴리즈는 macOS (Apple Silicon: M1 / M2 / M3 / M4) 환경을 공식 지원합니다.**  
+> Windows 및 Intel Mac용 실행 파일은 추후 배포 버전에서 순차적으로 지원될 예정입니다.
+
+#### 💡 macOS에서 처음 실행 시 ("확인되지 않은 개발자" 안내 해결법)
+Apple 개발자 유료 인증서(Notarization)를 거치지 않은 오픈소스 앱이므로, macOS 보안 정책(Gatekeeper)에 의해 첫 실행 시 *"개발자를 확인할 수 없기 때문에 열 수 없습니다"* 경고창이 나타날 수 있습니다.
+1. 다운로드한 `.dmg` 파일을 열고, 앱 아이콘을 `Applications(응용 프로그램)` 폴더로 드래그하여 설치합니다.
+2. 응용 프로그램 폴더에서 앱을 **마우스 우클릭(또는 Control + 클릭) $\rightarrow$ [열기]**를 선택합니다.
+3. 나타나는 보안 팝업에서 **[열기]** 버튼을 클릭하시면 이후부터 정상적으로 실행됩니다.  
+*(또는 **시스템 설정** $\rightarrow$ **개인정보 보호 및 보안** $\rightarrow$ 화면 하단의 **"확인 없이 열기"** 버튼 클릭)*
 
 ---
 

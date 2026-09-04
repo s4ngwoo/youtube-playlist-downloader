@@ -52,8 +52,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: 'Youtube Playlist Downloader ${{ github.ref_name }}'
-          releaseBody: '자동 배포 릴리즈입니다.'
+          releaseBody: |
+            ### 🎵 YouTube Playlist & Audio Downloader ${{ github.ref_name }}
+
+            #### 🍏 지원 환경 (Supported Platforms)
+            - **macOS (Apple Silicon: M1 / M2 / M3 / M4)**: `Youtube.Playlist.Downloader_*_aarch64.dmg` 다운로드
+            - *(Windows 및 Intel Mac용 빌드는 현재 패키징 준비 중입니다)*
+
+            #### 💡 macOS 첫 실행 시 ("확인되지 않은 개발자" 해결법)
+            1. 다운로드한 `.dmg` 파일을 열고 앱을 `Applications`로 드래그합니다.
+            2. 응용 프로그램 폴더에서 앱을 **마우스 우클릭 -> [열기]** 클릭 후 팝업에서 **[열기]**를 선택합니다.
+            3. 또는 **시스템 설정 -> 개인정보 보호 및 보안 -> '확인 없이 열기'**를 클릭합니다.
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
