@@ -271,7 +271,7 @@ npm run tauri build
 
 ## 👨‍💻 작성자 및 라이선스 (Author & License)
 
-- **개발자**: Sangwoo Lee
+- **개발자**: Lee SangWoo
 - **이메일**: [s4ngwoo.lee@gmail.com](mailto:s4ngwoo.lee@gmail.com)
 - **GitHub**: [@s4ngwoo](https://github.com/s4ngwoo)
 

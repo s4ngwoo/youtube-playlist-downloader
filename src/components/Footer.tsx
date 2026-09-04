@@ -10,7 +10,7 @@ export function Footer() {
         <span className="inline-block w-1 h-1 rounded-full bg-neutral-700" />
         <span>
           Developed by{" "}
-          <span className="text-neutral-300 font-medium">Sangwoo Lee</span>
+          <span className="text-neutral-300 font-medium">Lee SangWoo</span>
         </span>
       </div>
 

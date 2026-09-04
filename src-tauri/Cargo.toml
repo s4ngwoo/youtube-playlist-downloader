@@ -2,7 +2,7 @@
 name = "tauri-app"
 version = "0.1.0"
 description = "YouTube Playlist & Audio Downloader"
-authors = ["Sangwoo Lee <s4ngwoo.lee@gmail.com>"]
+authors = ["Lee SangWoo <s4ngwoo.lee@gmail.com>"]
 homepage = "https://github.com/s4ngwoo"
 edition = "2021"
 license = "GPL-3.0-or-later"
