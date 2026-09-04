@@ -67,14 +67,21 @@ pub async fn download_audio(
     }
 
     // Deno JavaScript 런타임 경로 자동 탐지 및 지정 (YouTube EJS 경고 및 속도 저하 해결)
-    for path in [
-        "/opt/homebrew/bin/deno",
-        "/usr/local/bin/deno",
-        "/Users/s4ngwoo/.deno/bin/deno",
-    ] {
-        if std::path::Path::new(path).exists() {
+    let mut candidate_deno_paths = vec![
+        std::path::PathBuf::from("/opt/homebrew/bin/deno"),
+        std::path::PathBuf::from("/usr/local/bin/deno"),
+    ];
+    if let Ok(home) = std::env::var("HOME") {
+        candidate_deno_paths.push(std::path::PathBuf::from(home).join(".deno/bin/deno"));
+    }
+    if let Ok(userprofile) = std::env::var("USERPROFILE") {
+        candidate_deno_paths.push(std::path::PathBuf::from(userprofile).join(".deno/bin/deno.exe"));
+    }
+
+    for path in candidate_deno_paths {
+        if path.exists() {
             yt_dlp_args.push("--js-runtimes".into());
-            yt_dlp_args.push(format!("deno:{}", path));
+            yt_dlp_args.push(format!("deno:{}", path.display()));
             break;
         }
     }
