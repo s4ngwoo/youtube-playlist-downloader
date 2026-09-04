@@ -1,0 +1,12 @@
+# yt-dlp binary placeholder
+이곳에 대상 플랫폼에 맞는 yt-dlp 실행 바이너리를 배치하세요.
+
+Target Triple 명명 규칙:
+- macOS (Apple Silicon M-series): yt-dlp-aarch64-apple-darwin
+- macOS (Intel x86_64): yt-dlp-x86_64-apple-darwin
+- Windows (64-bit): yt-dlp-x86_64-pc-windows-msvc.exe
+- Linux (64-bit): yt-dlp-x86_64-unknown-linux-gnu
+
+주의:
+- macOS 및 Linux 환경에서는 다운로드 후 실행 권한(chmod +x)을 부여해야 합니다.
+  예: chmod +x src-tauri/bin/yt-dlp-aarch64-apple-darwin
