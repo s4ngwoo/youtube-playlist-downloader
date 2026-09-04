@@ -5,6 +5,7 @@ description = "YouTube Playlist & Audio Downloader"
 authors = ["Sangwoo Lee <s4ngwoo.lee@gmail.com>"]
 homepage = "https://github.com/s4ngwoo"
 edition = "2021"
+license = "GPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

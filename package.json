@@ -2,6 +2,7 @@
   "name": "youtube-playlist-downloader",
   "private": true,
   "version": "0.1.0",
+  "license": "GPL-3.0-or-later",
   "type": "module",
   "author": "Sangwoo Lee <s4ngwoo.lee@gmail.com> (https://github.com/s4ngwoo)",
   "homepage": "https://github.com/s4ngwoo",

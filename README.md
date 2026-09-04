@@ -9,7 +9,7 @@
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 <p align="center">
   유튜브 단일 영상뿐 아니라 <b>대규모 재생목록(Playlist)</b>까지 한 번의 클릭으로 최고 음질(AAC <code>.m4a</code>)로 일괄 추출하고,<br>
@@ -250,4 +250,4 @@ npm run tauri build
 - **이메일**: [s4ngwoo.lee@gmail.com](mailto:s4ngwoo.lee@gmail.com)
 - **GitHub**: [@s4ngwoo](https://github.com/s4ngwoo)
 
-본 프로젝트는 **[MIT License](LICENSE)** 하에 자유롭게 수정 및 배포가 가능합니다.
+본 프로젝트는 **[GNU General Public License v3.0 (GPL-3.0)](LICENSE)** 하에 배포됩니다. 누구나 소스코드를 자유롭게 열람, 수정, 재배포할 수 있으나, 이를 활용한 2차적 저작물 역시 동일하게 소스코드를 공개(GPL-3.0)해야 하므로 무단 독점 상업화 및 유료 판매가 방지됩니다.
