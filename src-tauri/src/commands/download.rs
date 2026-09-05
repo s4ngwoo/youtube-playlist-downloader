@@ -54,6 +54,7 @@ pub async fn fetch_metadata(app: tauri::AppHandle, url: String) -> Result<Playli
 
     let dump_args = vec![
         "--flat-playlist".into(),
+        "--ignore-errors".into(),
         "-J".into(),
         url.clone(),
     ];
@@ -63,13 +64,17 @@ pub async fn fetch_metadata(app: tauri::AppHandle, url: String) -> Result<Playli
         
     let output = dump_cmd.output().await.map_err(|e| crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {e}")))?;
     
-    if !output.status.success() {
-        let err = String::from_utf8_lossy(&output.stderr);
-        return Err(crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {}", err)));
-    }
-    
     let json_str = String::from_utf8_lossy(&output.stdout);
-    let dump: YtDlpDump = serde_json::from_str(&json_str).map_err(|e| crate::AppError::DownloadError(format!("메타데이터 파싱 실패: {e}")))?;
+    let dump = match serde_json::from_str::<YtDlpDump>(&json_str) {
+        Ok(d) => d,
+        Err(e) => {
+            if !output.status.success() {
+                let err = String::from_utf8_lossy(&output.stderr);
+                return Err(crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {}", err)));
+            }
+            return Err(crate::AppError::DownloadError(format!("메타데이터 파싱 실패: {e}")));
+        }
+    };
     
     let mut tracks = Vec::new();
     let playlist_title = dump.title.unwrap_or_else(|| "Unknown".to_string());
@@ -138,6 +143,7 @@ pub async fn download_audio(
     // Phase 1: 메타데이터 가져오기
     let dump_args = vec![
         "--flat-playlist".into(),
+        "--ignore-errors".into(),
         "-J".into(),
         url.clone(),
     ];
@@ -147,13 +153,17 @@ pub async fn download_audio(
         
     let output = dump_cmd.output().await.map_err(|e| crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {e}")))?;
     
-    if !output.status.success() {
-        let err = String::from_utf8_lossy(&output.stderr);
-        return Err(crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {}", err)));
-    }
-    
     let json_str = String::from_utf8_lossy(&output.stdout);
-    let dump: YtDlpDump = serde_json::from_str(&json_str).map_err(|e| crate::AppError::DownloadError(format!("메타데이터 파싱 실패: {e}")))?;
+    let dump = match serde_json::from_str::<YtDlpDump>(&json_str) {
+        Ok(d) => d,
+        Err(e) => {
+            if !output.status.success() {
+                let err = String::from_utf8_lossy(&output.stderr);
+                return Err(crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {}", err)));
+            }
+            return Err(crate::AppError::DownloadError(format!("메타데이터 파싱 실패: {e}")));
+        }
+    };
     
     let mut tasks = Vec::new();
     let playlist_title = dump.title;
@@ -248,6 +258,7 @@ pub async fn download_audio(
 fn build_ytdlp_args(task: &DownloadTask, actual_download_dir: &str) -> Vec<String> {
     let mut yt_dlp_args: Vec<String> = vec![
         "--no-playlist".into(),
+        "--ignore-errors".into(),
         "--no-colors".into(),
         "-x".into(),
         "--audio-format".into(),
