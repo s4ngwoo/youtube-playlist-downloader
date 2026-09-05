@@ -57,3 +57,20 @@ export interface WindowResizeOptions {
   threshold?: number;
   debounceMs?: number;
 }
+
+// 오디오 메타데이터 (Lofty 연동용)
+export interface AudioMetadata {
+  title?: string;
+  artist?: string;
+  album?: string;
+  lyrics?: string;
+  cover_art_base64?: string;
+  comment?: string;
+  custom_tags?: Record<string, string>;
+}
+
+export interface AudioFileEntry {
+  file_name: string;
+  file_path: string;
+  metadata: AudioMetadata;
+}

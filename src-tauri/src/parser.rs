@@ -39,6 +39,12 @@ pub struct DownloadRegexes {
     pub re_eta: Regex,
 }
 
+impl Default for DownloadRegexes {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DownloadRegexes {
     pub fn new() -> Self {
         Self {

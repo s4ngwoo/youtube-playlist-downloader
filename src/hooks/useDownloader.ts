@@ -1,41 +1,17 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
-import {
-  ProgressPayload,
-  TrackItem,
-  LogItem,
-  DownloadStatus,
-} from "../types/download";
+import { ProgressPayload, TrackItem } from "../types/download";
+import { useDownloadStore } from "../store/downloadStore";
 
 export function useDownloader() {
-  const [url, setUrl] = useState("");
-  const [downloadDir, setDownloadDir] = useState<string>("");
-  const [status, setStatus] = useState<DownloadStatus>("idle");
-  const [statusMessage, setStatusMessage] = useState<string>("다운로드 대기 중");
-
-  // 플레이리스트 및 트랙 관리 상태
-  const [playlistTitle, setPlaylistTitle] = useState<string>("");
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const [tracks, setTracks] = useState<Map<number, TrackItem>>(new Map());
-
-  // 현재 활성 트랙 메트릭
-  const [currentSpeed, setCurrentSpeed] = useState<string>("");
-  const [currentEta, setCurrentEta] = useState<string>("");
-
-  // 콘솔 로그 및 뷰 옵션
-  const [logs, setLogs] = useState<LogItem[]>([]);
-  const [autoScroll, setAutoScroll] = useState<boolean>(true);
-  const [isConsoleCollapsed, setIsConsoleCollapsed] = useState<boolean>(false);
-
-  // ZIP 압축 상태
-  const [isZipping, setIsZipping] = useState<boolean>(false);
+  const store = useDownloadStore();
 
   // 1. 전체 완료율 및 트랙 리스트 계산
   const trackList = useMemo(() => {
-    return Array.from(tracks.values()).sort((a, b) => a.index - b.index);
-  }, [tracks]);
+    return Array.from(store.tracks.values()).sort((a, b) => a.index - b.index);
+  }, [store.tracks]);
 
   const completedCount = useMemo(() => {
     return trackList.filter((t) => t.status === "completed").length;
@@ -43,10 +19,10 @@ export function useDownloader() {
 
   // 플레이리스트 종합 진행률 계산 (완료된 곡 수 + 현재 진행 중인 곡의 진행률 가중치)
   const overallPercent = useMemo(() => {
-    if (totalItems <= 0) return 0;
+    if (store.totalItems <= 0) return 0;
     let totalProgressSum = 0;
-    for (let i = 1; i <= totalItems; i++) {
-      const track = tracks.get(i);
+    for (let i = 1; i <= store.totalItems; i++) {
+      const track = store.tracks.get(i);
       if (track) {
         if (track.status === "completed") {
           totalProgressSum += 100;
@@ -55,25 +31,25 @@ export function useDownloader() {
         }
       }
     }
-    return Math.min(100, Math.max(0, totalProgressSum / totalItems));
-  }, [tracks, totalItems]);
+    return Math.min(100, Math.max(0, totalProgressSum / store.totalItems));
+  }, [store.tracks, store.totalItems]);
 
   // 2. 저장 폴더 초기 설정 (로컬 스토리지 확인 또는 OS 기본 다운로드 디렉토리 로드)
   useEffect(() => {
     const saved = localStorage.getItem("yt_download_dir");
     if (saved) {
-      setDownloadDir(saved);
+      store.setDownloadDir(saved);
     } else {
       invoke<string>("get_default_download_dir")
         .then((dir) => {
           if (dir) {
-            setDownloadDir(dir);
+            store.setDownloadDir(dir);
             localStorage.setItem("yt_download_dir", dir);
           }
         })
         .catch((err) => console.error("기본 저장 폴더 조회 실패:", err));
     }
-  }, []);
+  }, []); // 빈 의존성 배열로 한 번만 실행되도록 유지
 
   // 3. Tauri "download-progress" 실시간 이벤트 리스닝 및 클린업
   useEffect(() => {
@@ -98,32 +74,30 @@ export function useDownloader() {
               .toString()
               .padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}`;
 
-            setLogs((prev) => [
-              ...prev,
-              {
-                id: Date.now() + Math.random(),
-                text: rawText,
-                isError,
-                timestamp: timeStr,
-              },
-            ]);
+            // zustand store에서 직접 상태 업데이트
+            // setState는 항상 최신 상태를 기반으로 업데이트할 수 있습니다.
+            useDownloadStore.getState().addLog({
+              text: rawText,
+              isError,
+              timestamp: timeStr,
+            });
 
             // 플레이리스트 메타데이터 업데이트
             if (payload.playlist_title) {
-              setPlaylistTitle(payload.playlist_title);
+              useDownloadStore.getState().setPlaylistTitle(payload.playlist_title);
             }
 
             if (payload.total_items && payload.total_items > 0) {
-              setTotalItems(payload.total_items);
+              useDownloadStore.getState().setTotalItems(payload.total_items);
             }
 
-            if (payload.speed) setCurrentSpeed(payload.speed);
-            if (payload.eta) setCurrentEta(payload.eta);
+            if (payload.speed) useDownloadStore.getState().setCurrentSpeed(payload.speed);
+            if (payload.eta) useDownloadStore.getState().setCurrentEta(payload.eta);
 
             // 개별 트랙 상태 및 진행률 업데이트
             const idx = payload.item_index;
             if (idx !== undefined && idx !== null && idx > 0) {
-              setTracks((prev) => {
+              useDownloadStore.getState().setTracks((prev) => {
                 const next = new Map(prev);
                 const existing = next.get(idx);
 
@@ -167,7 +141,7 @@ export function useDownloader() {
                 return next;
               });
 
-              setStatusMessage(
+              useDownloadStore.getState().setStatusMessage(
                 payload.item_title
                   ? `[${idx}/${payload.total_items || "?"}] "${payload.item_title}" 처리 중...`
                   : `트랙 ${idx}/${payload.total_items || "?"} 다운로드 중...`
@@ -200,11 +174,11 @@ export function useDownloader() {
       const selected = await open({
         directory: true,
         multiple: false,
-        defaultPath: downloadDir || undefined,
+        defaultPath: store.downloadDir || undefined,
         title: "오디오 저장 폴더 선택",
       });
       if (selected && typeof selected === "string") {
-        setDownloadDir(selected);
+        store.setDownloadDir(selected);
         localStorage.setItem("yt_download_dir", selected);
       }
     } catch (err) {
@@ -212,48 +186,66 @@ export function useDownloader() {
     }
   };
 
-  // 5. 다운로드 시작 핸들러
+  // 다운로드 시작 핸들러
   const handleStartDownload = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const targetUrl = url.trim();
+    const targetUrl = store.url.trim();
 
     if (!targetUrl) {
       alert("다운로드할 YouTube 링크 또는 플레이리스트 URL을 입력해 주세요.");
       return;
     }
 
-    setStatus("downloading");
-    setTracks(new Map());
-    setPlaylistTitle("");
-    setTotalItems(0);
-    setCurrentSpeed("");
-    setCurrentEta("");
-    setStatusMessage("플레이리스트 및 음원 정보를 분석하는 중...");
+    try {
+      const { load } = await import("@tauri-apps/plugin-store");
+      const storePl = await load("history.json");
+      const hasDownloaded = await storePl.get(targetUrl);
+      
+      if (hasDownloaded) {
+        const confirmResult = window.confirm("이미 다운로드한 기록이 있습니다. 다시 다운로드 하시겠습니까?");
+        if (!confirmResult) {
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("히스토리 확인 실패:", err);
+    }
+
+    store.resetState();
 
     try {
       const result = await invoke<string>("download_audio", {
         url: targetUrl,
-        downloadDir: downloadDir || null,
+        downloadDir: store.downloadDir || null,
       });
-      setStatus("completed");
-      setStatusMessage(result || "모든 다운로드가 성공적으로 완료되었습니다!");
+      store.setStatus("completed");
+      store.setStatusMessage(result || "모든 다운로드가 성공적으로 완료되었습니다!");
+      
+      try {
+        const { load } = await import("@tauri-apps/plugin-store");
+        const storePl = await load("history.json");
+        await storePl.set(targetUrl, { url: targetUrl, date: new Date().toISOString() });
+        await storePl.save();
+      } catch (err) {
+        console.warn("히스토리 저장 실패:", err);
+      }
     } catch (err: unknown) {
       console.error("다운로드 에러:", err);
-      setStatus("error");
+      store.setStatus("error");
       const errorMessage = typeof err === "string" ? err : String(err);
-      setStatusMessage(`오류 발생: ${errorMessage}`);
+      store.setStatusMessage(`오류 발생: ${errorMessage}`);
     }
   };
 
   // 6. 다운로드 취소 핸들러
   const handleCancelDownload = async () => {
     try {
-      setStatusMessage("다운로드를 취소하고 백엔드 프로세스를 종료 중...");
+      store.setStatusMessage("다운로드를 취소하고 백엔드 프로세스를 종료 중...");
       const msg = await invoke<string>("cancel_download");
-      setStatus("cancelled");
-      setStatusMessage(msg || "다운로드가 중단되었습니다.");
-      setCurrentSpeed("");
-      setCurrentEta("");
+      store.setStatus("cancelled");
+      store.setStatusMessage(msg || "다운로드가 중단되었습니다.");
+      store.setCurrentSpeed("");
+      store.setCurrentEta("");
     } catch (err) {
       console.error("취소 처리 실패:", err);
     }
@@ -261,49 +253,49 @@ export function useDownloader() {
 
   // 7. 모바일 호환 ZIP 압축 핸들러
   const handleCreateZip = async () => {
-    if (!downloadDir) {
+    if (!store.downloadDir) {
       alert("다운로드 폴더가 설정되지 않았습니다.");
       return;
     }
-    setIsZipping(true);
-    setStatusMessage("모바일 호환 ZIP 압축 파일 생성 중...");
+    store.setIsZipping(true);
+    store.setStatusMessage("모바일 호환 ZIP 압축 파일 생성 중...");
     try {
       const result = await invoke<string>("create_mobile_zip", {
-        downloadDir,
+        downloadDir: store.downloadDir,
       });
       alert(result);
-      setStatusMessage("ZIP 압축 완료");
+      store.setStatusMessage("ZIP 압축 완료");
     } catch (err: unknown) {
       console.error("ZIP 생성 에러:", err);
       const errorMessage = typeof err === "string" ? err : String(err);
       alert(`ZIP 압축 실패: ${errorMessage}`);
-      setStatusMessage(`오류 발생: ${errorMessage}`);
+      store.setStatusMessage(`오류 발생: ${errorMessage}`);
     } finally {
-      setIsZipping(false);
+      store.setIsZipping(false);
     }
   };
 
   return {
-    url,
-    setUrl,
-    downloadDir,
-    status,
-    statusMessage,
-    playlistTitle,
-    totalItems,
-    tracks,
+    url: store.url,
+    setUrl: store.setUrl,
+    downloadDir: store.downloadDir,
+    status: store.status,
+    statusMessage: store.statusMessage,
+    playlistTitle: store.playlistTitle,
+    totalItems: store.totalItems,
+    tracks: store.tracks,
     trackList,
     completedCount,
     overallPercent,
-    currentSpeed,
-    currentEta,
-    logs,
-    setLogs,
-    autoScroll,
-    setAutoScroll,
-    isConsoleCollapsed,
-    setIsConsoleCollapsed,
-    isZipping,
+    currentSpeed: store.currentSpeed,
+    currentEta: store.currentEta,
+    logs: store.logs,
+    setLogs: store.setLogs,
+    autoScroll: store.autoScroll,
+    setAutoScroll: store.setAutoScroll,
+    isConsoleCollapsed: store.isConsoleCollapsed,
+    setIsConsoleCollapsed: store.setIsConsoleCollapsed,
+    isZipping: store.isZipping,
     handleSelectFolder,
     handleStartDownload,
     handleCancelDownload,

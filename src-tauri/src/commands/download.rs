@@ -1,45 +1,30 @@
-use tauri::{Emitter, Manager};
+use tauri::Emitter;
 use tauri_plugin_shell::process::CommandEvent;
 use tauri_plugin_shell::ShellExt;
 
 use crate::models::ProgressPayload;
 use crate::parser::{clean_title_from_destination, DownloadRegexes};
 use crate::process::AppState;
-
-/// OS 기본 다운로드 디렉토리 경로 반환 커맨드
-#[tauri::command]
-pub fn get_default_download_dir(app: tauri::AppHandle) -> Result<String, String> {
-    app.path()
-        .download_dir()
-        .map(|p| p.to_string_lossy().to_string())
-        .map_err(|e| e.to_string())
-}
+use crate::commands::utils::get_default_download_dir;
 
 /// 프론트엔드에서 사용자가 다운로드를 즉시 취소할 수 있는 Command
 #[tauri::command]
-pub fn cancel_download(state: tauri::State<'_, AppState>) -> Result<String, String> {
+pub fn cancel_download(state: tauri::State<'_, AppState>) -> Result<String, crate::AppError> {
     state.kill_all();
     Ok("진행 중인 모든 다운로드 작업이 중단되었습니다.".into())
 }
 
 /// 비동기 오디오(m4a) 다운로드 Command (플레이리스트 및 사용자 지정 다운로드 경로 지원)
-///
-/// 1. 프론트엔드로부터 `url` 및 `download_dir` 경로를 인자로 전달받음
-/// 2. `--yes-playlist` 옵션으로 단일 영상뿐 아니라 재생목록 전체를 순차 다운로드
-/// 3. `--embed-thumbnail`로 커버아트만 m4a 파일에 내장하고 별도 이미지 파일은 저장하지 않음
-/// 4. Deno JS 런타임을 지정하여 YouTube EJS 경고 및 다운로드 속도 제한 방지
-/// 5. stdout 스트림에서 플레이리스트 트랙 정보([download] Downloading item X of Y, Destination, ExtractAudio 등) 파싱
-/// 6. 트랙별 상태와 진행률을 `ProgressPayload`에 구조화하여 `download-progress` 이벤트로 실시간 emit
 #[tauri::command]
 pub async fn download_audio(
     app: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
     url: String,
     download_dir: Option<String>,
-) -> Result<String, String> {
+) -> Result<String, crate::AppError> {
     // 1. URL 유효성 검사
     if url.trim().is_empty() {
-        return Err("다운로드할 URL을 입력해 주세요.".into());
+        return Err(crate::AppError::DownloadError("다운로드할 URL을 입력해 주세요.".into()));
     }
 
     // 2. yt-dlp 사이드카 커맨드 생성
@@ -55,16 +40,25 @@ pub async fn download_audio(
         "--convert-thumbnails".into(),
         "jpg".into(),
         "--embed-metadata".into(),
+        "--write-subs".into(),
+        "--embed-subs".into(),
+        "--sub-langs".into(),
+        "all,-live_chat".into(),
         "--newline".into(),
     ];
 
     // 사용자가 GUI에서 설정한 다운로드 디렉토리 지정 (-P / --paths)
-    if let Some(dir) = download_dir.as_ref() {
+    let actual_download_dir = if let Some(dir) = download_dir.as_ref() {
         if !dir.trim().is_empty() {
             yt_dlp_args.push("-P".into());
             yt_dlp_args.push(dir.trim().into());
+            dir.clone()
+        } else {
+            get_default_download_dir(app.clone()).unwrap_or_else(|_| "".into())
         }
-    }
+    } else {
+        get_default_download_dir(app.clone()).unwrap_or_else(|_| "".into())
+    };
 
     // Deno JavaScript 런타임 경로 자동 탐지 및 지정 (YouTube EJS 경고 및 속도 저하 해결)
     let mut candidate_deno_paths = vec![
@@ -97,16 +91,16 @@ pub async fn download_audio(
 
     yt_dlp_args.push(url);
 
-    let sidecar_command = app
+    let command = app
         .shell()
         .sidecar("yt-dlp")
-        .map_err(|e| format!("yt-dlp 사이드카 생성 실패: {e}"))?
+        .map_err(|e| crate::AppError::DownloadError(format!("yt-dlp 사이드카 생성 실패: {e}")))?
         .args(yt_dlp_args);
 
     // 3. 자식 프로세스 실행 (spawn)
-    let (mut rx, child) = sidecar_command
+    let (mut rx, child) = command
         .spawn()
-        .map_err(|e| format!("yt-dlp 프로세스 실행 실패: {e}"))?;
+        .map_err(|e| crate::AppError::DownloadError(format!("yt-dlp 프로세스 실행 실패: {e}")))?;
 
     let pid = child.pid();
     // 프로세스 추적 목록에 등록 (앱 비정상/강제 종료 시 클린업 대상)
@@ -283,84 +277,14 @@ pub async fn download_audio(
 
     // 7. 최종 실행 결과 반환
     if exit_success {
+        if !actual_download_dir.is_empty() {
+            let _ = crate::nfc::normalize_directory_nfc(std::path::Path::new(&actual_download_dir));
+        }
         Ok("플레이리스트 및 오디오 다운로드가 완료되었습니다.".into())
     } else {
-        Err(format!(
+        Err(crate::AppError::DownloadError(format!(
             "다운로드 실패 (종료 코드: {:?})",
             exit_code.unwrap_or(-1)
-        ))
+        )))
     }
-}
-
-/// 모바일 호환(Android/Windows)을 위한 NFC 정규화 ZIP 생성 Command
-/// macOS의 NFD 파일명을 NFC로 변환하여 ZIP으로 압축합니다.
-#[tauri::command]
-pub async fn create_mobile_zip(download_dir: String) -> Result<String, String> {
-    use std::fs::File;
-    use std::io::{Read, Write};
-    use std::path::Path;
-    use unicode_normalization::UnicodeNormalization;
-    use zip::write::SimpleFileOptions;
-    use zip::ZipWriter;
-
-    let dir_path = Path::new(&download_dir);
-    if !dir_path.exists() || !dir_path.is_dir() {
-        return Err("유효하지 않은 다운로드 디렉토리입니다.".into());
-    }
-
-    let zip_path = dir_path.join("Mobile_Export.zip");
-    let zip_file = File::create(&zip_path).map_err(|e| format!("ZIP 파일 생성 실패: {}", e))?;
-    let mut zip = ZipWriter::new(zip_file);
-
-    let options = SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Deflated)
-        .unix_permissions(0o755);
-
-    let entries = std::fs::read_dir(dir_path).map_err(|e| format!("디렉토리 읽기 실패: {}", e))?;
-    
-    let mut file_count = 0;
-
-    for entry in entries {
-        let entry = match entry {
-            Ok(e) => e,
-            Err(_) => continue,
-        };
-        
-        let path = entry.path();
-        
-        if path.is_dir() || path == zip_path {
-            continue;
-        }
-
-        if path.extension().and_then(|s| s.to_str()) != Some("m4a") {
-            continue;
-        }
-
-        let file_name = match path.file_name().and_then(|n| n.to_str()) {
-            Some(n) => n,
-            None => continue,
-        };
-
-        let normalized_name = file_name.nfc().collect::<String>();
-
-        let mut f = File::open(&path).map_err(|e| format!("파일 열기 실패 ({}): {}", file_name, e))?;
-        let mut buffer = Vec::new();
-        f.read_to_end(&mut buffer).map_err(|e| format!("파일 읽기 실패 ({}): {}", file_name, e))?;
-
-        zip.start_file(normalized_name, options.clone())
-            .map_err(|e| format!("ZIP 항목 생성 실패: {}", e))?;
-        zip.write_all(&buffer)
-            .map_err(|e| format!("ZIP 쓰기 실패: {}", e))?;
-
-        file_count += 1;
-    }
-
-    zip.finish().map_err(|e| format!("ZIP 파일 완성 실패: {}", e))?;
-
-    if file_count == 0 {
-        let _ = std::fs::remove_file(zip_path);
-        return Err("압축할 .m4a 오디오 파일이 없습니다.".into());
-    }
-
-    Ok(format!("{}개의 파일이 Mobile_Export.zip으로 압축되었습니다.", file_count))
 }

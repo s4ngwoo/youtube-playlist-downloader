@@ -1,13 +1,14 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Mail, CheckCircle2, AlertCircle, ListMusic } from "lucide-react";
+import { Mail, CheckCircle2, AlertCircle, ListMusic, Edit3 } from "lucide-react";
 import { GithubIcon } from "./icons/GithubIcon";
 import { DownloadStatus } from "../types/download";
 
 interface HeaderProps {
   status: DownloadStatus;
+  onOpenMetadataEditor?: () => void;
 }
 
-export function Header({ status }: HeaderProps) {
+export function Header({ status, onOpenMetadataEditor }: HeaderProps) {
   return (
     <header
       data-tauri-drag-region
@@ -35,7 +36,7 @@ export function Header({ status }: HeaderProps) {
             <span>Tauri v2 + yt-dlp 사이드카</span>
             <span className="inline-block w-1 h-1 rounded-full bg-neutral-600" />
             <span className="text-rose-400 font-medium">
-              m4a 고음질 인코딩 & 앨범아트(커버) 자동 내장
+              m4a 고음질 인코딩 & 앨범아트 자동 내장
             </span>
           </p>
         </div>
@@ -46,6 +47,18 @@ export function Header({ status }: HeaderProps) {
         data-tauri-drag-region="false"
         className="flex items-center gap-2.5 shrink-0"
       >
+        {onOpenMetadataEditor && (
+          <button
+            type="button"
+            onClick={onOpenMetadataEditor}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900/80 border border-neutral-800 shadow-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-all cursor-pointer text-xs font-semibold"
+            title="메타데이터 에디터 열기"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            메타데이터 에디터
+          </button>
+        )}
+
         {/* 개발자 프로필 및 이메일 링크 */}
         <div
           data-tauri-drag-region="false"

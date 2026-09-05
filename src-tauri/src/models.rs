@@ -26,3 +26,21 @@ pub struct ProgressPayload {
     /// 예상 남은 시간 (예: "00:15")
     pub eta: Option<String>,
 }
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+pub struct AudioMetadata {
+    pub title: Option<String>,
+    pub artist: Option<String>,
+    pub album: Option<String>,
+    pub lyrics: Option<String>,
+    pub cover_art_base64: Option<String>,
+    pub comment: Option<String>,
+    pub custom_tags: Option<std::collections::HashMap<String, String>>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+pub struct AudioFileEntry {
+    pub file_name: String,
+    pub file_path: String,
+    pub metadata: AudioMetadata,
+}

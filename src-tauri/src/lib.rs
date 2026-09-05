@@ -1,8 +1,11 @@
 pub mod commands;
+pub mod error;
 pub mod models;
+pub mod nfc;
 pub mod parser;
 pub mod process;
 
+pub use error::AppError;
 pub use models::ProgressPayload;
 pub use process::AppState;
 
@@ -21,7 +24,7 @@ fn set_dock_icon() {
         let data: id = msg_send![
             class!(NSData),
             dataWithBytes: ICON_BYTES.as_ptr() as *const std::ffi::c_void
-            length: ICON_BYTES.len() as usize
+            length: ICON_BYTES.len()
         ];
         if !data.is_null() {
             let ns_image: id = msg_send![class!(NSImage), alloc];
@@ -42,6 +45,8 @@ pub fn run() {
             set_dock_icon();
             Ok(())
         })
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_opener::init())
@@ -49,10 +54,13 @@ pub fn run() {
         .manage(process::AppState::default())
         // 프론트엔드에서 호출 가능한 IPC 커맨드 핸들러 등록
         .invoke_handler(tauri::generate_handler![
-            commands::download_audio,
-            commands::cancel_download,
-            commands::get_default_download_dir,
-            commands::create_mobile_zip
+            commands::download::download_audio,
+            commands::download::cancel_download,
+            commands::utils::get_default_download_dir,
+            commands::utils::create_mobile_zip,
+            commands::metadata::read_metadata,
+            commands::metadata::write_metadata,
+            commands::metadata::list_audio_files
         ])
         // 윈도우 이벤트 훅: 창 닫기(X 버튼) 감지 시 활성 자식 프로세스 클린업
         .on_window_event(|window, event| {
