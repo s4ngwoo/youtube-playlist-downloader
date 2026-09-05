@@ -8,6 +8,7 @@ import { TerminalLog } from "./components/TerminalLog";
 import { Footer } from "./components/Footer";
 import { MetadataEditorModal } from "./components/metadata/MetadataEditorModal";
 import { TrackSelectionModal } from "./components/TrackSelectionModal";
+import { HistoryTab } from "./components/HistoryTab";
 import "./App.css";
 
 export default function App() {
@@ -47,12 +48,19 @@ export default function App() {
     failedCount,
   } = useDownloader();
 
+  const [activeTab, setActiveTab] = useState<"download" | "history">("download");
+
   // 동적 윈도우 리사이징 활성화 (트랙 수 변화, 콘솔 접기/펼치기, 다운로드 상태 전환 시 자동 반응)
   useDynamicWindowResize(
     contentRef,
-    [trackList.length, isConsoleCollapsed, status],
+    [trackList.length, isConsoleCollapsed, status, activeTab],
     { padding: 68 }
   );
+
+  const handleLoadUrlFromHistory = (historyUrl: string) => {
+    setUrl(historyUrl);
+    setActiveTab("download");
+  };
 
   return (
     <>
@@ -67,42 +75,63 @@ export default function App() {
         >
           <Header status={status} onOpenMetadataEditor={() => setIsMetadataEditorOpen(true)} />
 
+          <div className="w-full flex gap-2">
+            <button 
+              onClick={() => setActiveTab("download")} 
+              className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'download' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
+            >
+              다운로드
+            </button>
+            <button 
+              onClick={() => setActiveTab("history")} 
+              className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'history' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
+            >
+              다운로드 기록
+            </button>
+          </div>
+
           <main className="w-full max-w-5xl flex flex-col gap-5">
-            <DownloadForm
-              url={url}
-              setUrl={setUrl}
-              downloadDir={downloadDir}
-              status={status}
-              statusMessage={statusMessage}
-              totalItems={totalItems}
-              completedCount={completedCount}
-              overallPercent={overallPercent}
-              currentSpeed={currentSpeed}
-              currentEta={currentEta}
-              isZipping={isZipping}
-              isFetchingMetadata={isFetchingMetadata}
-              onSelectFolder={handleSelectFolder}
-              onFetchMetadata={handleFetchMetadata}
-              onCancelDownload={handleCancelDownload}
-              onCreateZip={handleCreateZip}
-            />
+            {activeTab === "download" ? (
+              <>
+                <DownloadForm
+                  url={url}
+                  setUrl={setUrl}
+                  downloadDir={downloadDir}
+                  status={status}
+                  statusMessage={statusMessage}
+                  totalItems={totalItems}
+                  completedCount={completedCount}
+                  overallPercent={overallPercent}
+                  currentSpeed={currentSpeed}
+                  currentEta={currentEta}
+                  isZipping={isZipping}
+                  isFetchingMetadata={isFetchingMetadata}
+                  onSelectFolder={handleSelectFolder}
+                  onFetchMetadata={handleFetchMetadata}
+                  onCancelDownload={handleCancelDownload}
+                  onCreateZip={handleCreateZip}
+                />
 
-            <TrackList
-              playlistTitle={playlistTitle}
-              totalItems={totalItems}
-              trackList={trackList}
-              failedCount={failedCount}
-              onRetryFailed={handleRetryFailedDownloads}
-            />
+                <TrackList
+                  playlistTitle={playlistTitle}
+                  totalItems={totalItems}
+                  trackList={trackList}
+                  failedCount={failedCount}
+                  onRetryFailed={handleRetryFailedDownloads}
+                />
 
-            <TerminalLog
-              logs={logs}
-              autoScroll={autoScroll}
-              isConsoleCollapsed={isConsoleCollapsed}
-              onToggleAutoScroll={setAutoScroll}
-              onClearLogs={() => setLogs([])}
-              onToggleCollapse={() => setIsConsoleCollapsed(!isConsoleCollapsed)}
-            />
+                <TerminalLog
+                  logs={logs}
+                  autoScroll={autoScroll}
+                  isConsoleCollapsed={isConsoleCollapsed}
+                  onToggleAutoScroll={setAutoScroll}
+                  onClearLogs={() => setLogs([])}
+                  onToggleCollapse={() => setIsConsoleCollapsed(!isConsoleCollapsed)}
+                />
+              </>
+            ) : (
+              <HistoryTab onLoadUrl={handleLoadUrlFromHistory} />
+            )}
           </main>
 
           <Footer />

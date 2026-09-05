@@ -254,7 +254,11 @@ export function useDownloader() {
       try {
         const { load } = await import("@tauri-apps/plugin-store");
         const storePl = await load("history.json");
-        await storePl.set(targetUrl, { url: targetUrl, date: new Date().toISOString() });
+        await storePl.set(targetUrl, { 
+          url: targetUrl, 
+          title: store.playlistTitle || "Unknown Title",
+          date: new Date().toISOString() 
+        });
         await storePl.save();
       } catch (err) {
         console.warn("히스토리 저장 실패:", err);
