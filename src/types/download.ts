@@ -75,3 +75,15 @@ export interface AudioFileEntry {
   file_path: string;
   metadata: AudioMetadata;
 }
+
+export interface TrackMetadata {
+  index: number;
+  title: string;
+  id: string;
+  url: string;
+}
+
+export interface PlaylistMetadata {
+  title: string;
+  tracks: TrackMetadata[];
+}

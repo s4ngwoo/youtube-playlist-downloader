@@ -1,4 +1,4 @@
-use serde::Deserialize;
+
 use std::sync::Arc;
 use futures::stream::{self, StreamExt};
 use tauri::{Emitter, Manager};
@@ -10,7 +10,7 @@ use crate::parser::{clean_title_from_destination, DownloadRegexes};
 use crate::process::AppState;
 use crate::commands::utils::get_default_download_dir;
 
-#[derive(Deserialize, Debug)]
+#[derive(serde::Deserialize, Debug)]
 struct YtDlpDump {
     #[serde(rename = "_type")]
     _type: Option<String>,
@@ -18,10 +18,11 @@ struct YtDlpDump {
     entries: Option<Vec<YtDlpEntry>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(serde::Deserialize, Debug)]
 struct YtDlpEntry {
     url: Option<String>,
     id: Option<String>,
+    title: Option<String>,
 }
 
 #[derive(Clone)]
@@ -30,6 +31,79 @@ struct DownloadTask {
     item_index: usize,
     total_items: usize,
 }
+
+#[derive(serde::Serialize)]
+pub struct TrackMetadata {
+    pub index: usize,
+    pub title: String,
+    pub id: String,
+    pub url: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct PlaylistMetadata {
+    pub title: String,
+    pub tracks: Vec<TrackMetadata>,
+}
+
+#[tauri::command]
+pub async fn fetch_metadata(app: tauri::AppHandle, url: String) -> Result<PlaylistMetadata, crate::AppError> {
+    if url.trim().is_empty() {
+        return Err(crate::AppError::DownloadError("URL을 입력해 주세요.".into()));
+    }
+
+    let dump_args = vec![
+        "--flat-playlist".into(),
+        "-J".into(),
+        url.clone(),
+    ];
+    let dump_cmd = app.shell().sidecar("yt-dlp")
+        .map_err(|e| crate::AppError::DownloadError(format!("yt-dlp 사이드카 생성 실패: {e}")))?
+        .args(dump_args);
+        
+    let output = dump_cmd.output().await.map_err(|e| crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {e}")))?;
+    
+    if !output.status.success() {
+        let err = String::from_utf8_lossy(&output.stderr);
+        return Err(crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {}", err)));
+    }
+    
+    let json_str = String::from_utf8_lossy(&output.stdout);
+    let dump: YtDlpDump = serde_json::from_str(&json_str).map_err(|e| crate::AppError::DownloadError(format!("메타데이터 파싱 실패: {e}")))?;
+    
+    let mut tracks = Vec::new();
+    let playlist_title = dump.title.unwrap_or_else(|| "Unknown".to_string());
+    
+    if dump._type.as_deref() == Some("playlist") {
+        if let Some(entries) = dump.entries {
+            for (idx, entry) in entries.into_iter().enumerate() {
+                let id = entry.id.unwrap_or_else(|| "".into());
+                let track_url = entry.url.unwrap_or_else(|| format!("https://www.youtube.com/watch?v={}", id));
+                tracks.push(TrackMetadata {
+                    index: idx + 1,
+                    title: entry.title.unwrap_or_else(|| format!("Track {}", idx + 1)),
+                    id,
+                    url: track_url,
+                });
+            }
+        }
+    } else {
+        // 단일 비디오
+        tracks.push(TrackMetadata {
+            index: 1,
+            title: playlist_title.clone(),
+            id: "".into(),
+            url: url.clone(),
+        });
+    }
+
+    Ok(PlaylistMetadata {
+        title: playlist_title,
+        tracks,
+    })
+}
+
+
 
 /// 프론트엔드에서 사용자가 다운로드를 즉시 취소할 수 있는 Command
 #[tauri::command]

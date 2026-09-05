@@ -7,6 +7,7 @@ import { TrackList } from "./components/TrackList";
 import { TerminalLog } from "./components/TerminalLog";
 import { Footer } from "./components/Footer";
 import { MetadataEditorModal } from "./components/metadata/MetadataEditorModal";
+import { TrackSelectionModal } from "./components/TrackSelectionModal";
 import "./App.css";
 
 export default function App() {
@@ -34,7 +35,12 @@ export default function App() {
     setIsConsoleCollapsed,
     isZipping,
     handleSelectFolder,
-    handleStartDownload,
+    handleFetchMetadata,
+    handleDownloadSelected,
+    isFetchingMetadata,
+    isSelectionModalOpen,
+    setIsSelectionModalOpen,
+    fetchedPlaylist,
     handleCancelDownload,
     handleCreateZip,
     handleRetryFailedDownloads,
@@ -74,8 +80,9 @@ export default function App() {
               currentSpeed={currentSpeed}
               currentEta={currentEta}
               isZipping={isZipping}
+              isFetchingMetadata={isFetchingMetadata}
               onSelectFolder={handleSelectFolder}
-              onStartDownload={handleStartDownload}
+              onFetchMetadata={handleFetchMetadata}
               onCancelDownload={handleCancelDownload}
               onCreateZip={handleCreateZip}
             />
@@ -104,6 +111,16 @@ export default function App() {
 
       {isMetadataEditorOpen && (
         <MetadataEditorModal onClose={() => setIsMetadataEditorOpen(false)} downloadDir={downloadDir} />
+      )}
+      
+      {fetchedPlaylist && (
+        <TrackSelectionModal
+          isOpen={isSelectionModalOpen}
+          playlistTitle={fetchedPlaylist.title}
+          tracks={fetchedPlaylist.tracks}
+          onClose={() => setIsSelectionModalOpen(false)}
+          onDownloadSelected={handleDownloadSelected}
+        />
       )}
     </>
   );

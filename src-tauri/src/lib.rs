@@ -55,6 +55,7 @@ pub fn run() {
         // 프론트엔드에서 호출 가능한 IPC 커맨드 핸들러 등록
         .invoke_handler(tauri::generate_handler![
             commands::download::download_audio,
+            commands::download::fetch_metadata,
             commands::download::cancel_download,
             commands::utils::get_default_download_dir,
             commands::utils::create_mobile_zip,

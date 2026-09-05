@@ -22,8 +22,9 @@ interface DownloadFormProps {
   currentSpeed: string;
   currentEta: string;
   isZipping: boolean;
+  isFetchingMetadata: boolean;
   onSelectFolder: () => void;
-  onStartDownload: (e?: React.FormEvent) => void;
+  onFetchMetadata: (e?: React.FormEvent) => void;
   onCancelDownload: () => void;
   onCreateZip: () => void;
 }
@@ -40,8 +41,9 @@ export function DownloadForm({
   currentSpeed,
   currentEta,
   isZipping,
+  isFetchingMetadata,
   onSelectFolder,
-  onStartDownload,
+  onFetchMetadata,
   onCancelDownload,
   onCreateZip,
 }: DownloadFormProps) {
@@ -66,7 +68,7 @@ export function DownloadForm({
           <button
             type="button"
             onClick={onCreateZip}
-            disabled={status === "downloading" || isZipping || !downloadDir}
+            disabled={status === "downloading" || isZipping || isFetchingMetadata || !downloadDir}
             className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800/90 hover:bg-neutral-700/80 text-neutral-200 border border-neutral-700/70 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
           >
             <Archive className={`w-3.5 h-3.5 text-blue-400 ${isZipping ? "animate-pulse" : ""}`} />
@@ -76,7 +78,7 @@ export function DownloadForm({
           <button
             type="button"
             onClick={onSelectFolder}
-            disabled={status === "downloading" || isZipping}
+            disabled={status === "downloading" || isZipping || isFetchingMetadata}
             className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800/90 hover:bg-neutral-700/80 text-neutral-200 border border-neutral-700/70 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
           >
             <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
@@ -85,14 +87,14 @@ export function DownloadForm({
         </div>
       </div>
 
-      <form onSubmit={onStartDownload} className="flex flex-col sm:flex-row gap-3">
+      <form onSubmit={onFetchMetadata} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <input
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="유튜브 단일 영상 또는 재생목록(Playlist) URL을 입력하세요"
-            disabled={status === "downloading"}
+            disabled={status === "downloading" || isFetchingMetadata}
             className="w-full h-12 bg-neutral-950/80 border border-neutral-700/80 rounded-xl px-4 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
@@ -110,11 +112,20 @@ export function DownloadForm({
           ) : (
             <button
               type="submit"
-              disabled={!url.trim()}
+              disabled={!url.trim() || isFetchingMetadata}
               className="h-12 px-6 rounded-xl font-medium text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white shadow-lg shadow-rose-600/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer"
             >
-              <Download className="w-4 h-4" />
-              다운로드 시작
+              {isFetchingMetadata ? (
+                <>
+                  <Sparkles className="w-4 h-4 animate-spin" />
+                  정보 불러오는 중...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  다운로드 시작
+                </>
+              )}
             </button>
           )}
         </div>

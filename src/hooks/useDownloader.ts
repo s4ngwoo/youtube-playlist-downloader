@@ -1,12 +1,16 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
-import { ProgressPayload, TrackItem } from "../types/download";
+import { ProgressPayload, TrackItem, PlaylistMetadata } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 
 export function useDownloader() {
   const store = useDownloadStore();
+
+  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
+  const [fetchedPlaylist, setFetchedPlaylist] = useState<PlaylistMetadata | null>(null);
+  const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
 
   // 1. 전체 완료율 및 트랙 리스트 계산
   const trackList = useMemo(() => {
@@ -187,8 +191,8 @@ export function useDownloader() {
     }
   };
 
-  // 다운로드 시작 핸들러
-  const handleStartDownload = async (e?: React.FormEvent) => {
+  // 다운로드 시작 대신 메타데이터 가져오기 핸들러 (모달 띄우기)
+  const handleFetchMetadata = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const targetUrl = store.url.trim();
 
@@ -212,12 +216,37 @@ export function useDownloader() {
       console.warn("히스토리 확인 실패:", err);
     }
 
+    setIsFetchingMetadata(true);
+    store.setStatusMessage("플레이리스트 정보를 불러오는 중...");
+
+    try {
+      const metadata = await invoke<PlaylistMetadata>("fetch_metadata", {
+        url: targetUrl,
+      });
+      setFetchedPlaylist(metadata);
+      setIsSelectionModalOpen(true);
+      store.setStatusMessage("다운로드할 항목을 선택해 주세요.");
+    } catch (err: unknown) {
+      console.error("메타데이터 가져오기 실패:", err);
+      const errorMessage = typeof err === "string" ? err : String(err);
+      store.setStatusMessage(`정보 불러오기 실패: ${errorMessage}`);
+      alert(`정보 불러오기 실패: ${errorMessage}`);
+    } finally {
+      setIsFetchingMetadata(false);
+    }
+  };
+
+  // 모달에서 선택한 항목들만 다운로드 시작
+  const handleDownloadSelected = async (selectedIndices: number[]) => {
+    setIsSelectionModalOpen(false);
+    const targetUrl = store.url.trim();
     store.resetState();
 
     try {
       const result = await invoke<string>("download_audio", {
         url: targetUrl,
         downloadDir: store.downloadDir || null,
+        playlistItems: selectedIndices.join(","),
       });
       store.setStatus("completed");
       store.setStatusMessage(result || "모든 다운로드가 성공적으로 완료되었습니다!");
@@ -339,7 +368,12 @@ export function useDownloader() {
     setIsConsoleCollapsed: store.setIsConsoleCollapsed,
     isZipping: store.isZipping,
     handleSelectFolder,
-    handleStartDownload,
+    handleFetchMetadata,
+    handleDownloadSelected,
+    isFetchingMetadata,
+    isSelectionModalOpen,
+    setIsSelectionModalOpen,
+    fetchedPlaylist,
     handleCancelDownload,
     handleCreateZip,
     handleRetryFailedDownloads,
