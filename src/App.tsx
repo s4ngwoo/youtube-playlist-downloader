@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { useDownloader } from "./hooks/useDownloader";
-import { useDynamicWindowResize } from "./hooks/useDynamicWindowResize";
 import { Header } from "./components/Header";
 import { DownloadForm } from "./components/DownloadForm";
 import { TrackList } from "./components/TrackList";
@@ -49,13 +48,6 @@ export default function App() {
   } = useDownloader();
 
   const [activeTab, setActiveTab] = useState<"download" | "history">("download");
-
-  // 동적 윈도우 리사이징 활성화 (트랙 수 변화, 콘솔 접기/펼치기, 다운로드 상태 전환 시 자동 반응)
-  useDynamicWindowResize(
-    contentRef,
-    [trackList.length, isConsoleCollapsed, status, activeTab],
-    { padding: 68 }
-  );
 
   const handleLoadUrlFromHistory = (historyUrl: string) => {
     setUrl(historyUrl);
