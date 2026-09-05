@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { X, CheckSquare, Square, Download } from "lucide-react";
 import { TrackMetadata } from "../types/download";
+import { TrackSelectionItem } from "./TrackSelectionItem";
 
 interface TrackSelectionModalProps {
   isOpen: boolean;
@@ -26,8 +27,6 @@ export function TrackSelectionModal({
     }
   }, [isOpen, tracks]);
 
-  if (!isOpen) return null;
-
   const handleToggleSelectAll = () => {
     if (selectedIndices.size === tracks.length) {
       setSelectedIndices(new Set());
@@ -36,15 +35,19 @@ export function TrackSelectionModal({
     }
   };
 
-  const handleToggleTrack = (index: number) => {
-    const newSet = new Set(selectedIndices);
-    if (newSet.has(index)) {
-      newSet.delete(index);
-    } else {
-      newSet.add(index);
-    }
-    setSelectedIndices(newSet);
-  };
+  const handleToggleTrack = useCallback((index: number) => {
+    setSelectedIndices((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  }, []);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -91,32 +94,14 @@ export function TrackSelectionModal({
 
         {/* Track List */}
         <div className="flex-1 overflow-y-auto p-2">
-          {tracks.map((track) => {
-            const isSelected = selectedIndices.has(track.index);
-            return (
-              <div
-                key={track.index}
-                onClick={() => handleToggleTrack(track.index)}
-                className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
-                  isSelected
-                    ? "bg-rose-500/10 border border-rose-500/20"
-                    : "hover:bg-neutral-800 border border-transparent"
-                }`}
-              >
-                {isSelected ? (
-                  <CheckSquare className="w-4 h-4 text-rose-500 shrink-0" />
-                ) : (
-                  <Square className="w-4 h-4 text-neutral-500 shrink-0" />
-                )}
-                <span className="text-xs font-mono text-neutral-500 w-6 shrink-0">
-                  {track.index.toString().padStart(2, "0")}
-                </span>
-                <span className={`text-sm truncate flex-1 ${isSelected ? "text-rose-100" : "text-neutral-300"}`}>
-                  {track.title}
-                </span>
-              </div>
-            );
-          })}
+          {tracks.map((track) => (
+            <TrackSelectionItem
+              key={track.index}
+              track={track}
+              isSelected={selectedIndices.has(track.index)}
+              onToggle={handleToggleTrack}
+            />
+          ))}
         </div>
 
         {/* Footer */}

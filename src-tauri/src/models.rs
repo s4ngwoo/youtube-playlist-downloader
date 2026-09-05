@@ -46,3 +46,39 @@ pub struct AudioFileEntry {
     pub file_path: String,
     pub metadata: AudioMetadata,
 }
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+pub struct TrackMetadata {
+    pub index: usize,
+    pub title: String,
+    pub id: String,
+    pub url: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+pub struct PlaylistMetadata {
+    pub title: String,
+    pub tracks: Vec<TrackMetadata>,
+}
+
+#[derive(serde::Deserialize, Debug, Clone)]
+pub struct YtDlpDump {
+    #[serde(rename = "_type")]
+    pub _type: Option<String>,
+    pub title: Option<String>,
+    pub entries: Option<Vec<YtDlpEntry>>,
+}
+
+#[derive(serde::Deserialize, Debug, Clone)]
+pub struct YtDlpEntry {
+    pub url: Option<String>,
+    pub id: Option<String>,
+    pub title: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+pub struct DownloadTask {
+    pub url: String,
+    pub item_index: usize,
+    pub total_items: usize,
+}

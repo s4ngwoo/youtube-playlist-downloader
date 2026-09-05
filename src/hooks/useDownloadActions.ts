@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { PlaylistMetadata } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
+import { historyService } from "../services/historyService";
 
 export function useDownloadActions() {
   const store = useDownloadStore();
@@ -39,19 +40,12 @@ export function useDownloadActions() {
       return;
     }
 
-    try {
-      const { load } = await import("@tauri-apps/plugin-store");
-      const storePl = await load("history.json");
-      const hasDownloaded = await storePl.get(targetUrl);
-      
-      if (hasDownloaded) {
-        const confirmResult = window.confirm("이미 다운로드한 기록이 있습니다. 다시 다운로드 하시겠습니까?");
-        if (!confirmResult) {
-          return;
-        }
+    const hasDownloaded = await historyService.hasHistory(targetUrl);
+    if (hasDownloaded) {
+      const confirmResult = window.confirm("이미 다운로드한 기록이 있습니다. 다시 다운로드 하시겠습니까?");
+      if (!confirmResult) {
+        return;
       }
-    } catch (err) {
-      console.warn("히스토리 확인 실패:", err);
     }
 
     setIsFetchingMetadata(true);
@@ -89,18 +83,10 @@ export function useDownloadActions() {
       store.setStatus("completed");
       store.setStatusMessage(result || "모든 다운로드가 성공적으로 완료되었습니다!");
       
-      try {
-        const { load } = await import("@tauri-apps/plugin-store");
-        const storePl = await load("history.json");
-        await storePl.set(targetUrl, { 
-          url: targetUrl, 
-          title: store.playlistTitle || "Unknown Title",
-          date: new Date().toISOString() 
-        });
-        await storePl.save();
-      } catch (err) {
-        console.warn("히스토리 저장 실패:", err);
-      }
+      await historyService.saveHistory(
+        targetUrl,
+        store.playlistTitle || "Unknown Title"
+      );
     } catch (err: unknown) {
       console.error("다운로드 에러:", err);
       store.setStatus("error");

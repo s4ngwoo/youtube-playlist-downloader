@@ -4,6 +4,7 @@ pub mod models;
 pub mod nfc;
 pub mod parser;
 pub mod process;
+pub mod services;
 
 pub use error::AppError;
 pub use models::ProgressPayload;

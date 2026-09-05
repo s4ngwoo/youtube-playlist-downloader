@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { DownloadHistoryItem } from "../types/history";
 import { Trash2, Download, Clock } from "lucide-react";
+import { historyService } from "../services/historyService";
 
 interface HistoryTabProps {
   onLoadUrl: (url: string) => void;
@@ -16,32 +17,16 @@ export function HistoryTab({ onLoadUrl }: HistoryTabProps) {
 
   const loadHistory = async () => {
     setIsLoading(true);
-    try {
-      const { load } = await import("@tauri-apps/plugin-store");
-      const storePl = await load("history.json");
-      const entries = await storePl.entries<DownloadHistoryItem>();
-      
-      const items = entries.map(([_, value]) => value);
-      items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      
-      setHistoryItems(items);
-    } catch (err) {
-      console.error("히스토리 불러오기 실패:", err);
-    } finally {
-      setIsLoading(false);
-    }
+    const items = await historyService.getHistory();
+    setHistoryItems(items);
+    setIsLoading(false);
   };
 
   const handleDelete = async (url: string) => {
-    try {
-      const { load } = await import("@tauri-apps/plugin-store");
-      const storePl = await load("history.json");
-      await storePl.delete(url);
-      await storePl.save();
-      
+    const success = await historyService.deleteHistory(url);
+    if (success) {
       setHistoryItems((prev) => prev.filter((item) => item.url !== url));
-    } catch (err) {
-      console.error("히스토리 삭제 실패:", err);
+    } else {
       alert("항목 삭제에 실패했습니다.");
     }
   };
