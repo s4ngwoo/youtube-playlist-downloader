@@ -11,12 +11,13 @@ export function TerminalLog() {
     setLogs, 
     setIsConsoleCollapsed 
   } = useDownloadStore();
-  const logEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // 콘솔 자동 스크롤 처리
   useEffect(() => {
-    if (autoScroll && !isConsoleCollapsed && logEndRef.current) {
-      logEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (autoScroll && !isConsoleCollapsed && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
     }
   }, [logs, autoScroll, isConsoleCollapsed]);
 
@@ -71,7 +72,7 @@ export function TerminalLog() {
 
       {/* 콘솔 본체 */}
       {!isConsoleCollapsed && (
-        <div className="h-52 sm:h-60 p-4 font-mono text-xs overflow-y-auto custom-scrollbar flex flex-col gap-1.5 bg-neutral-950/80">
+        <div ref={scrollContainerRef} className="h-52 sm:h-60 p-4 font-mono text-xs overflow-y-auto custom-scrollbar flex flex-col gap-1.5 bg-neutral-950/80">
           {logs.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-neutral-600 gap-2">
               <Terminal className="w-8 h-8 opacity-40" />
@@ -96,7 +97,6 @@ export function TerminalLog() {
               </div>
             ))
           )}
-          <div ref={logEndRef} />
         </div>
       )}
     </section>

@@ -58,11 +58,11 @@ export default function App() {
     <>
       <div
         data-tauri-drag-region
-        className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col items-center px-4 pb-6 pt-9 sm:px-6 sm:pb-8 sm:pt-11 selection:bg-rose-600 selection:text-white overflow-y-auto custom-scrollbar cursor-default"
+        className="h-screen w-full bg-neutral-950 text-neutral-100 px-4 pb-6 pt-9 sm:px-6 sm:pb-8 sm:pt-11 selection:bg-rose-600 selection:text-white overflow-y-auto custom-scrollbar cursor-default"
       >
         <div
           ref={contentRef}
-          className="w-full max-w-5xl flex flex-col items-center gap-5"
+          className="w-full max-w-5xl mx-auto flex flex-col gap-5"
         >
           <Header onOpenMetadataEditor={() => setIsMetadataEditorOpen(true)} />
 

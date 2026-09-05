@@ -12,7 +12,7 @@ export function Header({ onOpenMetadataEditor }: HeaderProps) {
   return (
     <header
       data-tauri-drag-region
-      className="w-full flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-neutral-800/80 gap-4 select-none cursor-default"
+      className="shrink-0 w-full flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-neutral-800/80 gap-4 select-none cursor-default"
     >
       {/* 좌측: 로고 및 타이틀 영역 (세로 중앙 정렬 및 드래그 영역 활성화) */}
       <div
