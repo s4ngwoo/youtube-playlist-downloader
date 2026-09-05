@@ -1,6 +1,4 @@
-import { openUrl } from "@tauri-apps/plugin-opener";
-import { Mail, CheckCircle2, AlertCircle, ListMusic, Edit3 } from "lucide-react";
-import { GithubIcon } from "./icons/GithubIcon";
+import { CheckCircle2, AlertCircle, ListMusic, Edit3 } from "lucide-react";
 import { useDownloadStore } from "../store/downloadStore";
 
 interface HeaderProps {
@@ -59,31 +57,7 @@ export function Header({ onOpenMetadataEditor }: HeaderProps) {
           </button>
         )}
 
-        {/* 개발자 프로필 및 이메일 링크 */}
-        <div
-          data-tauri-drag-region="false"
-          className="flex items-center gap-1 px-1.5 py-1 rounded-xl bg-neutral-900/80 border border-neutral-800 shadow-sm"
-        >
-          <button
-            type="button"
-            data-tauri-drag-region="false"
-            onClick={() => openUrl("mailto:s4ngwoo.lee@gmail.com")}
-            className="p-1 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-neutral-800 transition-all cursor-pointer"
-            title="개발자 이메일 (s4ngwoo.lee@gmail.com)"
-          >
-            <Mail className="w-3.5 h-3.5" />
-          </button>
-          <span className="w-px h-3 bg-neutral-800" />
-          <button
-            type="button"
-            data-tauri-drag-region="false"
-            onClick={() => openUrl("https://github.com/s4ngwoo")}
-            className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-all cursor-pointer"
-            title="GitHub 프로필 (github.com/s4ngwoo)"
-          >
-            <GithubIcon className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        {/* 개발자 프로필 및 이메일 링크 (Removed as requested, moved to footer) */}
 
         {status === "downloading" && (
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30 animate-pulse">

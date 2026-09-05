@@ -70,6 +70,7 @@ pub fn run() {
             commands::utils::get_app_log_path,
             commands::utils::read_app_logs,
             commands::utils::clear_app_logs,
+            commands::utils::open_log_window,
             commands::metadata::read_metadata,
             commands::metadata::write_metadata,
             commands::metadata::list_audio_files

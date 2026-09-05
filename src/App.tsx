@@ -3,7 +3,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { Header } from "./components/Header";
 import { DownloadForm } from "./components/DownloadForm";
 import { TrackList } from "./components/TrackList";
-import { TerminalLog } from "./components/TerminalLog";
 import { Footer } from "./components/Footer";
 import { MetadataEditorModal } from "./components/metadata/MetadataEditorModal";
 import { TrackSelectionModal } from "./components/TrackSelectionModal";
@@ -15,9 +14,11 @@ import { useDownloadActions } from "./hooks/useDownloadActions";
 import "./App.css";
 
 export default function App() {
+  const isLogWindow = window.location.search.includes("window=log");
+
   const contentRef = useRef<HTMLDivElement>(null);
   const [isMetadataEditorOpen, setIsMetadataEditorOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"download" | "history" | "logs">("download");
+  const [activeTab, setActiveTab] = useState<"download" | "history">("download");
 
   // 1. Initialize Events Listener
   useDownloadEvents();
@@ -38,6 +39,8 @@ export default function App() {
 
   // 4. Init Default Directory (Run once)
   useEffect(() => {
+    if (isLogWindow) return; // Skip for log window
+
     const saved = localStorage.getItem("yt_download_dir");
     if (saved) {
       useDownloadStore.getState().setDownloadDir(saved);
@@ -51,22 +54,30 @@ export default function App() {
         })
         .catch((err) => console.error("기본 저장 폴더 조회 실패:", err));
     }
-  }, []);
+  }, [isLogWindow]);
 
   const handleLoadUrlFromHistory = (historyUrl: string) => {
     setUrl(historyUrl);
     setActiveTab("download");
   };
 
+  if (isLogWindow) {
+    return (
+      <div className="h-screen w-full bg-neutral-950 text-neutral-100 flex flex-col p-4 sm:p-6 selection:bg-rose-600 selection:text-white cursor-default">
+        <AppLogViewer />
+      </div>
+    );
+  }
+
   return (
     <>
       <div
         data-tauri-drag-region
-        className="h-screen w-full bg-neutral-950 text-neutral-100 px-4 pb-6 pt-9 sm:px-6 sm:pb-8 sm:pt-11 selection:bg-rose-600 selection:text-white overflow-y-auto custom-scrollbar cursor-default"
+        className="h-screen w-full bg-neutral-950 text-neutral-100 px-4 pb-6 pt-9 sm:px-6 sm:pb-8 sm:pt-11 selection:bg-rose-600 selection:text-white overflow-y-auto custom-scrollbar cursor-default flex flex-col"
       >
         <div
           ref={contentRef}
-          className="w-full max-w-5xl mx-auto flex flex-col gap-5"
+          className="w-full max-w-5xl mx-auto flex flex-col gap-5 min-h-full flex-1"
         >
           <Header onOpenMetadataEditor={() => setIsMetadataEditorOpen(true)} />
 
@@ -83,25 +94,16 @@ export default function App() {
             >
               다운로드 기록
             </button>
-            <button 
-              onClick={() => setActiveTab("logs")} 
-              className={`px-4 py-2 rounded-lg transition-colors text-sm flex items-center gap-1.5 ${activeTab === 'logs' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
-            >
-              앱 로그
-            </button>
           </div>
 
-          <main className="w-full max-w-5xl flex flex-col gap-5">
+          <main className="w-full max-w-5xl flex flex-col gap-5 flex-1">
             {activeTab === "download" ? (
               <>
                 <DownloadForm />
                 <TrackList />
-                <TerminalLog />
               </>
-            ) : activeTab === "history" ? (
-              <HistoryTab onLoadUrl={handleLoadUrlFromHistory} />
             ) : (
-              <AppLogViewer />
+              <HistoryTab onLoadUrl={handleLoadUrlFromHistory} />
             )}
           </main>
 

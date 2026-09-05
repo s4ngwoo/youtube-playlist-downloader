@@ -74,8 +74,7 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
     }
   };
 
-  const handleAddCustomTag = () => {
-    const keyName = prompt("추가할 필드 이름을 입력하세요 (예: Genre, Composer):");
+  const handleAddCustomTag = (keyName: string) => {
     if (keyName && keyName.trim() !== "") {
       setActiveMetadata(prev => ({
         ...prev,

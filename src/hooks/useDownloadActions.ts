@@ -90,7 +90,7 @@ export function useDownloadActions() {
       
       await historyService.saveHistory(
         store.url.trim(),
-        store.playlistTitle || "Unknown Title"
+        store.fetchedPlaylist.title || "Unknown Title"
       );
     } catch (err: unknown) {
       console.error("다운로드 에러:", err);

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Image as ImageIcon, Plus, Trash2 } from "lucide-react";
 import { AudioMetadata } from "../../types/download";
 
@@ -6,7 +7,7 @@ interface MetadataSingleViewProps {
   metadata: AudioMetadata;
   onChange: (field: keyof AudioMetadata, value: any) => void;
   onSelectCover: () => void;
-  onAddCustomTag: () => void;
+  onAddCustomTag: (key: string) => void;
   onRemoveCustomTag: (key: string) => void;
 }
 
@@ -18,6 +19,17 @@ export function MetadataSingleView({
   onAddCustomTag,
   onRemoveCustomTag,
 }: MetadataSingleViewProps) {
+  const [isAddingTag, setIsAddingTag] = useState(false);
+  const [newTagName, setNewTagName] = useState("");
+
+  const handleConfirmAddTag = () => {
+    const trimmed = newTagName.trim();
+    if (!trimmed) return;
+    onAddCustomTag(trimmed);
+    setNewTagName("");
+    setIsAddingTag(false);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
       {/* Cover Art Section */}
@@ -109,13 +121,55 @@ export function MetadataSingleView({
         <div className="flex flex-col gap-3 mt-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-neutral-400 ml-1">사용자 정의 태그</label>
-            <button
-              onClick={onAddCustomTag}
-              className="text-xs flex items-center gap-1 text-rose-400 hover:text-rose-300 transition-colors px-2 py-1 bg-rose-500/10 rounded-lg"
-            >
-              <Plus className="w-3 h-3" /> 태그 추가
-            </button>
+            {!isAddingTag ? (
+              <button
+                type="button"
+                onClick={() => setIsAddingTag(true)}
+                className="text-xs flex items-center gap-1 text-rose-400 hover:text-rose-300 transition-colors px-2 py-1 bg-rose-500/10 rounded-lg cursor-pointer"
+              >
+                <Plus className="w-3 h-3" /> 태그 추가
+              </button>
+            ) : null}
           </div>
+
+          {isAddingTag && (
+            <div className="flex items-center gap-2 p-2.5 bg-neutral-900 border border-rose-500/30 rounded-xl">
+              <input
+                type="text"
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleConfirmAddTag();
+                  } else if (e.key === "Escape") {
+                    setIsAddingTag(false);
+                    setNewTagName("");
+                  }
+                }}
+                placeholder="추가할 태그 이름 (예: Genre, Composer)"
+                autoFocus
+                className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-1.5 text-sm text-white outline-none focus:border-rose-500/50"
+              />
+              <button
+                type="button"
+                onClick={handleConfirmAddTag}
+                className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer"
+              >
+                추가
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAddingTag(false);
+                  setNewTagName("");
+                }}
+                className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-xs font-medium rounded-lg transition-colors cursor-pointer"
+              >
+                취소
+              </button>
+            </div>
+          )}
           
           <div className="flex flex-col gap-2">
             {metadata.custom_tags && Object.entries(metadata.custom_tags).map(([key, value]) => (

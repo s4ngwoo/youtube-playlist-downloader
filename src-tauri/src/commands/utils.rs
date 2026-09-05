@@ -105,3 +105,23 @@ pub fn clear_app_logs() -> Result<String, crate::AppError> {
     logger::info("app", "사용자가 로그를 수동으로 초기화했습니다.");
     Ok("로그가 초기화되었습니다.".into())
 }
+
+/// 별도의 로그 뷰어 윈도우 열기 (또는 이미 열려있는 경우 포커스)
+#[tauri::command]
+pub async fn open_log_window(app: tauri::AppHandle) -> Result<(), crate::AppError> {
+    if let Some(window) = app.get_webview_window("log-viewer") {
+        let _ = window.show();
+        let _ = window.unminimize();
+        window.set_focus().map_err(|e| crate::AppError::Unknown(e.to_string()))?;
+    } else {
+        tauri::WebviewWindowBuilder::new(&app, "log-viewer", tauri::WebviewUrl::App("/?window=log".into()))
+            .title("Application Logs")
+            .inner_size(800.0, 600.0)
+            .min_inner_size(480.0, 360.0)
+            .center()
+            .build()
+            .map_err(|e| crate::AppError::Unknown(e.to_string()))?;
+    }
+    Ok(())
+}
+
