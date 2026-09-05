@@ -23,13 +23,16 @@ export default function App() {
   useDownloadEvents();
 
   // 2. Fetch Store States
-  const { setUrl, downloadDir } = useDownloadStore();
+  const { 
+    setUrl, 
+    downloadDir,
+    isSelectionModalOpen,
+    setIsSelectionModalOpen,
+    fetchedPlaylist
+  } = useDownloadStore();
 
   // 3. Actions
   const { 
-    isSelectionModalOpen, 
-    setIsSelectionModalOpen, 
-    fetchedPlaylist, 
     handleDownloadSelected 
   } = useDownloadActions();
 

@@ -33,7 +33,16 @@ interface DownloadState {
 
   isZipping: boolean;
   setIsZipping: (isZipping: boolean) => void;
+
+  isFetchingMetadata: boolean;
+  setIsFetchingMetadata: (v: boolean) => void;
   
+  isSelectionModalOpen: boolean;
+  setIsSelectionModalOpen: (v: boolean) => void;
+
+  fetchedPlaylist: import("../types/download").PlaylistMetadata | null;
+  setFetchedPlaylist: (v: import("../types/download").PlaylistMetadata | null) => void;
+
   resetState: () => void;
 }
 
@@ -72,6 +81,15 @@ export const useDownloadStore = create<DownloadState>((set) => ({
 
   isZipping: false,
   setIsZipping: (isZipping) => set({ isZipping }),
+
+  isFetchingMetadata: false,
+  setIsFetchingMetadata: (v) => set({ isFetchingMetadata: v }),
+
+  isSelectionModalOpen: false,
+  setIsSelectionModalOpen: (v) => set({ isSelectionModalOpen: v }),
+
+  fetchedPlaylist: null,
+  setFetchedPlaylist: (v) => set({ fetchedPlaylist: v }),
 
   resetState: () => set({
     status: "downloading",

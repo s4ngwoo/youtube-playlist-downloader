@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { PlaylistMetadata } from "../types/download";
@@ -7,10 +7,6 @@ import { historyService } from "../services/historyService";
 
 export function useDownloadActions() {
   const store = useDownloadStore();
-
-  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
-  const [fetchedPlaylist, setFetchedPlaylist] = useState<PlaylistMetadata | null>(null);
-  const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
 
   // 1. 다운로드 저장 폴더 선택 다이얼로그 핸들러
   const handleSelectFolder = async () => {
@@ -30,7 +26,7 @@ export function useDownloadActions() {
     }
   };
 
-  // 2. 다운로드 시작 대신 메타데이터 가져오기 핸들러 (모달 띄우기)
+  // 2. 메타데이터 가져오기 핸들러 (모달 띄우기)
   const handleFetchMetadata = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const targetUrl = store.url.trim();
@@ -48,15 +44,15 @@ export function useDownloadActions() {
       }
     }
 
-    setIsFetchingMetadata(true);
+    store.setIsFetchingMetadata(true);
     store.setStatusMessage("플레이리스트 정보를 불러오는 중...");
 
     try {
       const metadata = await invoke<PlaylistMetadata>("fetch_metadata", {
         url: targetUrl,
       });
-      setFetchedPlaylist(metadata);
-      setIsSelectionModalOpen(true);
+      store.setFetchedPlaylist(metadata);
+      store.setIsSelectionModalOpen(true);
       store.setStatusMessage("다운로드할 항목을 선택해 주세요.");
     } catch (err: unknown) {
       console.error("메타데이터 가져오기 실패:", err);
@@ -64,27 +60,36 @@ export function useDownloadActions() {
       store.setStatusMessage(`정보 불러오기 실패: ${errorMessage}`);
       alert(`정보 불러오기 실패: ${errorMessage}`);
     } finally {
-      setIsFetchingMetadata(false);
+      store.setIsFetchingMetadata(false);
     }
   };
 
   // 3. 모달에서 선택한 항목들만 다운로드 시작
   const handleDownloadSelected = async (selectedIndices: number[]) => {
-    setIsSelectionModalOpen(false);
-    const targetUrl = store.url.trim();
+    store.setIsSelectionModalOpen(false);
+
+    if (!store.fetchedPlaylist) return;
+
+    // 선택된 인덱스에 해당하는 트랙의 URL과 index를 추출
+    const selectedTracks = store.fetchedPlaylist.tracks
+      .filter((t) => selectedIndices.includes(t.index))
+      .map((t) => ({ url: t.url, index: t.index }));
+
     store.resetState();
+    store.setTotalItems(selectedTracks.length);
+    store.setPlaylistTitle(store.fetchedPlaylist.title);
 
     try {
       const result = await invoke<string>("download_audio", {
-        url: targetUrl,
         downloadDir: store.downloadDir || null,
-        playlistItems: selectedIndices.join(","),
+        playlistTitle: store.fetchedPlaylist.title,
+        selectedTracks,
       });
       store.setStatus("completed");
       store.setStatusMessage(result || "모든 다운로드가 성공적으로 완료되었습니다!");
       
       await historyService.saveHistory(
-        targetUrl,
+        store.url.trim(),
         store.playlistTitle || "Unknown Title"
       );
     } catch (err: unknown) {
@@ -135,16 +140,21 @@ export function useDownloadActions() {
 
   // 6. 실패한 다운로드 재시도 핸들러
   const handleRetryFailedDownloads = async (failedIndices: string, failedCount: number) => {
-    const targetUrl = store.url.trim();
+    if (!store.fetchedPlaylist) return;
+
+    const indicesArr = failedIndices.split(',').map(Number);
+
+    // 실패한 트랙의 URL 목록 재구성
+    const selectedTracks = store.fetchedPlaylist.tracks
+      .filter((t) => indicesArr.includes(t.index))
+      .map((t) => ({ url: t.url, index: t.index }));
 
     store.setStatus("downloading");
     store.setStatusMessage(`실패한 항목 (${failedCount}개) 재다운로드 중...`);
 
-    // 기존 트랙 상태를 pending으로 초기화 (호출하는 측에서 indices를 알고 있음)
-    // 여기서는 실패했던 것만 다시 시도. Zustand store 직접 갱신.
+    // 기존 트랙 상태를 pending으로 초기화
     store.setTracks((prev) => {
       const next = new Map(prev);
-      const indicesArr = failedIndices.split(',').map(Number);
       indicesArr.forEach((idx) => {
         const item = next.get(idx);
         if (item) {
@@ -156,9 +166,9 @@ export function useDownloadActions() {
 
     try {
       const result = await invoke<string>("download_audio", {
-        url: targetUrl,
         downloadDir: store.downloadDir || null,
-        playlistItems: failedIndices,
+        playlistTitle: store.fetchedPlaylist.title,
+        selectedTracks,
       });
       store.setStatus("completed");
       store.setStatusMessage(result || "재다운로드가 성공적으로 완료되었습니다!");
@@ -171,10 +181,6 @@ export function useDownloadActions() {
   };
 
   return {
-    isSelectionModalOpen,
-    setIsSelectionModalOpen,
-    fetchedPlaylist,
-    isFetchingMetadata,
     handleSelectFolder,
     handleFetchMetadata,
     handleDownloadSelected,

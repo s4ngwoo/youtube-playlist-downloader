@@ -23,11 +23,11 @@ export function DownloadForm() {
     currentSpeed, 
     currentEta, 
     isZipping, 
-    tracks 
+    tracks,
+    isFetchingMetadata 
   } = useDownloadStore();
 
   const { 
-    isFetchingMetadata, 
     handleSelectFolder: onSelectFolder, 
     handleFetchMetadata: onFetchMetadata, 
     handleCancelDownload: onCancelDownload, 

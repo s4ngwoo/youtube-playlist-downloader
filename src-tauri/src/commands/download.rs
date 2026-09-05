@@ -6,6 +6,7 @@ use crate::models::{DownloadTask, PlaylistMetadata, TrackMetadata};
 use crate::parser::DownloadRegexes;
 use crate::process::AppState;
 use crate::services::ytdlp::{fetch_playlist_dump, is_valid_entry, process_item};
+use crate::services::logger;
 
 /// 플레이리스트 또는 단일 영상의 메타데이터(제목 및 트랙 목록)를 가져오는 Command
 #[tauri::command]
@@ -51,21 +52,31 @@ pub async fn fetch_metadata(app: tauri::AppHandle, url: String) -> Result<Playli
 /// 프론트엔드에서 사용자가 다운로드를 즉시 취소할 수 있는 Command
 #[tauri::command]
 pub fn cancel_download(state: tauri::State<'_, AppState>) -> Result<String, crate::AppError> {
+    logger::info("download", "사용자가 다운로드 취소를 요청했습니다.");
     state.kill_all();
     Ok("진행 중인 모든 다운로드 작업이 중단되었습니다.".into())
 }
 
+/// 선택된 트랙 목록의 직접 다운로드 구조체 (프론트엔드에서 전달)
+#[derive(serde::Deserialize, Debug)]
+pub struct SelectedTrack {
+    pub url: String,
+    pub index: usize,
+}
+
 /// 비동기 오디오(m4a) 병렬 다운로드 Command
+/// 프론트엔드가 이미 fetch_metadata로 받은 트랙 URL 목록을 직접 전달하므로
+/// 중복 메타데이터 덤프가 발생하지 않습니다.
 #[tauri::command]
 pub async fn download_audio(
     app: tauri::AppHandle,
     _state: tauri::State<'_, AppState>,
-    url: String,
     download_dir: Option<String>,
-    playlist_items: Option<String>,
+    playlist_title: Option<String>,
+    selected_tracks: Vec<SelectedTrack>,
 ) -> Result<String, crate::AppError> {
-    if url.trim().is_empty() {
-        return Err(crate::AppError::DownloadError("다운로드할 URL을 입력해 주세요.".into()));
+    if selected_tracks.is_empty() {
+        return Err(crate::AppError::DownloadError("다운로드할 항목이 없습니다.".into()));
     }
 
     let actual_download_dir = if let Some(dir) = download_dir.as_ref() {
@@ -78,59 +89,22 @@ pub async fn download_audio(
         get_default_download_dir(app.clone()).unwrap_or_else(|_| "".into())
     };
 
-    // Phase 1: 공통 메타데이터 가져오기 서비스 호출
-    let dump = fetch_playlist_dump(&app, &url).await?;
-    let mut tasks = Vec::new();
-    let playlist_title = dump.title;
+    let total = selected_tracks.len();
+    logger::info("download", &format!(
+        "다운로드 시작 — 총 {}개 트랙, 저장 경로: {}",
+        total, actual_download_dir
+    ));
 
-    if dump._type.as_deref() == Some("playlist") {
-        if let Some(entries) = dump.entries {
-            let valid_entries: Vec<_> = entries.into_iter().filter(is_valid_entry).collect();
-            let total = valid_entries.len();
+    let tasks: Vec<DownloadTask> = selected_tracks
+        .into_iter()
+        .map(|st| DownloadTask {
+            url: st.url,
+            item_index: st.index,
+            total_items: total,
+        })
+        .collect();
 
-            let items_to_download: Vec<usize> = if let Some(items) = &playlist_items {
-                if items.trim().is_empty() {
-                    (1..=total).collect()
-                } else {
-                    items.split(',').filter_map(|s| s.trim().parse::<usize>().ok()).collect()
-                }
-            } else {
-                (1..=total).collect()
-            };
-
-            for (idx, entry) in valid_entries.into_iter().enumerate() {
-                let item_index = idx + 1;
-                if items_to_download.contains(&item_index) {
-                    if let Some(entry_url) = entry.url {
-                        tasks.push(DownloadTask {
-                            url: entry_url,
-                            item_index,
-                            total_items: total,
-                        });
-                    } else if let Some(id) = entry.id {
-                        tasks.push(DownloadTask {
-                            url: format!("https://www.youtube.com/watch?v={}", id),
-                            item_index,
-                            total_items: total,
-                        });
-                    }
-                }
-            }
-        }
-    } else {
-        // 단일 비디오
-        tasks.push(DownloadTask {
-            url: url.clone(),
-            item_index: 1,
-            total_items: 1,
-        });
-    }
-
-    if tasks.is_empty() {
-        return Err(crate::AppError::DownloadError("다운로드할 항목이 없습니다.".into()));
-    }
-
-    // Phase 2: 병렬 다운로드 (동시성 제한 3)
+    // 병렬 다운로드 (동시성 제한 3)
     let concurrency = 3;
     let regexes = Arc::new(DownloadRegexes::new());
 
@@ -166,6 +140,10 @@ pub async fn download_audio(
     if !actual_download_dir.is_empty() {
         let _ = crate::nfc::normalize_directory_nfc(std::path::Path::new(&actual_download_dir));
     }
+
+    logger::info("download", &format!(
+        "다운로드 완료 — 성공: {}개, 실패: {}개", success_count, fail_count
+    ));
 
     if success_count == 0 && fail_count > 0 {
         Err(crate::AppError::DownloadError("모든 항목 다운로드에 실패했습니다.".into()))
