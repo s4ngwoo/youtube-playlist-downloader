@@ -51,7 +51,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::download_audio,
             commands::cancel_download,
-            commands::get_default_download_dir
+            commands::get_default_download_dir,
+            commands::create_mobile_zip
         ])
         // 윈도우 이벤트 훅: 창 닫기(X 버튼) 감지 시 활성 자식 프로세스 클린업
         .on_window_event(|window, event| {

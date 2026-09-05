@@ -67,6 +67,9 @@ If the blue Windows SmartScreen popup appears, click **[More info] $\rightarrow$
 - **🖼️ Automatic Cover Art & Metadata Embedding**
   - Automatically converts YouTube WebP thumbnails to standard high-resolution JPGs and embeds them directly into the `.m4a` container alongside track title and artist tags.
   - Leaves zero leftover thumbnail files (`.jpg`, `.webp`) on disk.
+- **📱 Mobile-Friendly ZIP Export (NFC Normalization)**
+  - Resolves broken Korean character issues when transferring files from macOS to Android or Windows by normalizing filenames to NFC (composed) format.
+  - Create a mobile-friendly ZIP archive with a single click directly within the app.
 - **🛡️ Robust Process Tree Cleanup (No Zombie Processes)**
   - When cancelling a download, closing the window, or exiting the application, the underlying process tree (`yt-dlp` and `ffmpeg`) is terminated instantly via native OS signal handlers (`kill -9` on Unix, `taskkill /F /T` on Windows).
 - **🚀 YouTube EJS Signature Bypass (Deno Integration)**

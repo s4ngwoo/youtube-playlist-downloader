@@ -29,6 +29,9 @@ export function useDownloader() {
   const [autoScroll, setAutoScroll] = useState<boolean>(true);
   const [isConsoleCollapsed, setIsConsoleCollapsed] = useState<boolean>(false);
 
+  // ZIP 압축 상태
+  const [isZipping, setIsZipping] = useState<boolean>(false);
+
   // 1. 전체 완료율 및 트랙 리스트 계산
   const trackList = useMemo(() => {
     return Array.from(tracks.values()).sort((a, b) => a.index - b.index);
@@ -256,6 +259,30 @@ export function useDownloader() {
     }
   };
 
+  // 7. 모바일 호환 ZIP 압축 핸들러
+  const handleCreateZip = async () => {
+    if (!downloadDir) {
+      alert("다운로드 폴더가 설정되지 않았습니다.");
+      return;
+    }
+    setIsZipping(true);
+    setStatusMessage("모바일 호환 ZIP 압축 파일 생성 중...");
+    try {
+      const result = await invoke<string>("create_mobile_zip", {
+        downloadDir,
+      });
+      alert(result);
+      setStatusMessage("ZIP 압축 완료");
+    } catch (err: unknown) {
+      console.error("ZIP 생성 에러:", err);
+      const errorMessage = typeof err === "string" ? err : String(err);
+      alert(`ZIP 압축 실패: ${errorMessage}`);
+      setStatusMessage(`오류 발생: ${errorMessage}`);
+    } finally {
+      setIsZipping(false);
+    }
+  };
+
   return {
     url,
     setUrl,
@@ -276,8 +303,10 @@ export function useDownloader() {
     setAutoScroll,
     isConsoleCollapsed,
     setIsConsoleCollapsed,
+    isZipping,
     handleSelectFolder,
     handleStartDownload,
     handleCancelDownload,
+    handleCreateZip,
   };
 }

@@ -6,6 +6,7 @@ import {
   Download,
   Sparkles,
   Clock,
+  Archive,
 } from "lucide-react";
 import { DownloadStatus } from "../types/download";
 
@@ -20,9 +21,11 @@ interface DownloadFormProps {
   overallPercent: number;
   currentSpeed: string;
   currentEta: string;
+  isZipping: boolean;
   onSelectFolder: () => void;
   onStartDownload: (e?: React.FormEvent) => void;
   onCancelDownload: () => void;
+  onCreateZip: () => void;
 }
 
 export function DownloadForm({
@@ -36,9 +39,11 @@ export function DownloadForm({
   overallPercent,
   currentSpeed,
   currentEta,
+  isZipping,
   onSelectFolder,
   onStartDownload,
   onCancelDownload,
+  onCreateZip,
 }: DownloadFormProps) {
   return (
     <section className="bg-neutral-900/70 border border-neutral-800/90 rounded-2xl p-5 sm:p-6 shadow-xl backdrop-blur-sm flex flex-col gap-4">
@@ -57,15 +62,27 @@ export function DownloadForm({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={onSelectFolder}
-          disabled={status === "downloading"}
-          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800/90 hover:bg-neutral-700/80 text-neutral-200 border border-neutral-700/70 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer self-start sm:self-auto shrink-0 shadow-sm"
-        >
-          <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
-          폴더 변경
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+          <button
+            type="button"
+            onClick={onCreateZip}
+            disabled={status === "downloading" || isZipping || !downloadDir}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800/90 hover:bg-neutral-700/80 text-neutral-200 border border-neutral-700/70 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+          >
+            <Archive className={`w-3.5 h-3.5 text-blue-400 ${isZipping ? "animate-pulse" : ""}`} />
+            {isZipping ? "압축 중..." : "모바일 호환 ZIP 압축"}
+          </button>
+          
+          <button
+            type="button"
+            onClick={onSelectFolder}
+            disabled={status === "downloading" || isZipping}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800/90 hover:bg-neutral-700/80 text-neutral-200 border border-neutral-700/70 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+          >
+            <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
+            폴더 변경
+          </button>
+        </div>
       </div>
 
       <form onSubmit={onStartDownload} className="flex flex-col sm:flex-row gap-3">

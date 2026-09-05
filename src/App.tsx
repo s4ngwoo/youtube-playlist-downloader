@@ -30,9 +30,11 @@ export default function App() {
     setAutoScroll,
     isConsoleCollapsed,
     setIsConsoleCollapsed,
+    isZipping,
     handleSelectFolder,
     handleStartDownload,
     handleCancelDownload,
+    handleCreateZip,
   } = useDownloader();
 
   // 동적 윈도우 리사이징 활성화 (트랙 수 변화, 콘솔 접기/펼치기, 다운로드 상태 전환 시 자동 반응)
@@ -66,9 +68,11 @@ export default function App() {
             overallPercent={overallPercent}
             currentSpeed={currentSpeed}
             currentEta={currentEta}
+            isZipping={isZipping}
             onSelectFolder={handleSelectFolder}
             onStartDownload={handleStartDownload}
             onCancelDownload={handleCancelDownload}
+            onCreateZip={handleCreateZip}
           />
 
           <TrackList
