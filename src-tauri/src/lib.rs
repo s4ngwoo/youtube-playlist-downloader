@@ -14,8 +14,11 @@ use tauri::Manager;
 #[cfg(target_os = "macos")]
 #[allow(deprecated, unexpected_cfgs)]
 fn set_dock_icon() {
-    use cocoa::base::id;
+    use objc::runtime::Object;
     use objc::{class, msg_send, sel, sel_impl};
+
+    #[allow(non_camel_case_types)]
+    type id = *mut Object;
 
     const ICON_BYTES: &[u8] = include_bytes!("../icons/icon.png");
 
