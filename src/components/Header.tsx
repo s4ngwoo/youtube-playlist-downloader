@@ -1,14 +1,14 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Mail, CheckCircle2, AlertCircle, ListMusic, Edit3 } from "lucide-react";
 import { GithubIcon } from "./icons/GithubIcon";
-import { DownloadStatus } from "../types/download";
+import { useDownloadStore } from "../store/downloadStore";
 
 interface HeaderProps {
-  status: DownloadStatus;
   onOpenMetadataEditor?: () => void;
 }
 
-export function Header({ status, onOpenMetadataEditor }: HeaderProps) {
+export function Header({ onOpenMetadataEditor }: HeaderProps) {
+  const { status } = useDownloadStore();
   return (
     <header
       data-tauri-drag-region

@@ -245,13 +245,7 @@ pub async fn download_audio(
     }
 }
 
-async fn process_item(
-    app: tauri::AppHandle,
-    task: DownloadTask,
-    actual_download_dir: String,
-    playlist_title: Option<String>,
-    regexes: Arc<DownloadRegexes>,
-) -> Result<(), String> {
+fn build_ytdlp_args(task: &DownloadTask, actual_download_dir: &str) -> Vec<String> {
     let mut yt_dlp_args: Vec<String> = vec![
         "--no-playlist".into(),
         "--no-colors".into(),
@@ -273,7 +267,7 @@ async fn process_item(
 
     if !actual_download_dir.is_empty() {
         yt_dlp_args.push("-P".into());
-        yt_dlp_args.push(actual_download_dir);
+        yt_dlp_args.push(actual_download_dir.to_string());
     }
 
     let mut candidate_deno_paths = vec![
@@ -304,21 +298,16 @@ async fn process_item(
     }
 
     yt_dlp_args.push(task.url.clone());
+    yt_dlp_args
+}
 
-    let command = app
-        .shell()
-        .sidecar("yt-dlp")
-        .map_err(|e| format!("yt-dlp 사이드카 생성 실패: {e}"))?
-        .args(yt_dlp_args);
-
-    let (mut rx, child) = command
-        .spawn()
-        .map_err(|e| format!("yt-dlp 프로세스 실행 실패: {e}"))?;
-
-    let pid = child.pid();
-    let state = app.state::<AppState>();
-    state.register_pid(pid);
-
+async fn handle_command_events(
+    app: tauri::AppHandle,
+    mut rx: tauri::async_runtime::Receiver<CommandEvent>,
+    task: &DownloadTask,
+    playlist_title: Option<String>,
+    regexes: Arc<DownloadRegexes>,
+) -> Result<(), String> {
     let mut exit_success = true;
     let mut exit_code: Option<i32> = None;
 
@@ -456,11 +445,39 @@ async fn process_item(
         }
     }
 
-    state.unregister_pid(pid);
-
     if exit_success {
         Ok(())
     } else {
         Err(format!("다운로드 실패 (종료 코드: {:?})", exit_code.unwrap_or(-1)))
     }
+}
+
+async fn process_item(
+    app: tauri::AppHandle,
+    task: DownloadTask,
+    actual_download_dir: String,
+    playlist_title: Option<String>,
+    regexes: Arc<DownloadRegexes>,
+) -> Result<(), String> {
+    let yt_dlp_args = build_ytdlp_args(&task, &actual_download_dir);
+
+    let command = app
+        .shell()
+        .sidecar("yt-dlp")
+        .map_err(|e| format!("yt-dlp 사이드카 생성 실패: {e}"))?
+        .args(yt_dlp_args);
+
+    let (rx, child) = command
+        .spawn()
+        .map_err(|e| format!("yt-dlp 프로세스 실행 실패: {e}"))?;
+
+    let pid = child.pid();
+    let state = app.state::<AppState>();
+    state.register_pid(pid);
+
+    let result = handle_command_events(app.clone(), rx, &task, playlist_title, regexes).await;
+
+    state.unregister_pid(pid);
+
+    result
 }

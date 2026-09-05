@@ -8,24 +8,26 @@ import {
   Download,
   AlertCircle,
 } from "lucide-react";
-import { TrackItem } from "../types/download";
+import { useDownloadStore } from "../store/downloadStore";
+import { useDownloadActions } from "../hooks/useDownloadActions";
+import { useMemo } from "react";
 
-interface TrackListProps {
-  playlistTitle: string;
-  totalItems: number;
-  trackList: TrackItem[];
-  failedCount?: number;
-  onRetryFailed?: () => void;
-}
-
-export function TrackList({
-  playlistTitle,
-  totalItems,
-  trackList,
-  failedCount = 0,
-  onRetryFailed,
-}: TrackListProps) {
+export function TrackList() {
   const [viewMode, setViewMode] = useState<"basic" | "advanced">("basic");
+  const { playlistTitle, totalItems, tracks } = useDownloadStore();
+  const { handleRetryFailedDownloads } = useDownloadActions();
+
+  const trackList = useMemo(() => {
+    return Array.from(tracks.values()).sort((a, b) => a.index - b.index);
+  }, [tracks]);
+
+  const failedTracks = useMemo(() => trackList.filter((t) => t.status === "failed"), [trackList]);
+  const failedCount = failedTracks.length;
+  const onRetryFailed = () => {
+    if (failedCount > 0) {
+      handleRetryFailedDownloads(failedTracks.map((t) => t.index).join(","), failedCount);
+    }
+  };
 
   return (
     <section className="bg-neutral-900/70 border border-neutral-800/90 rounded-2xl overflow-hidden shadow-xl">

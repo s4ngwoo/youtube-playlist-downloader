@@ -1,4 +1,4 @@
-import React from "react";
+
 import {
   Folder,
   FolderOpen,
@@ -8,45 +8,50 @@ import {
   Clock,
   Archive,
 } from "lucide-react";
-import { DownloadStatus } from "../types/download";
+import { useDownloadStore } from "../store/downloadStore";
+import { useDownloadActions } from "../hooks/useDownloadActions";
+import { useMemo } from "react";
 
-interface DownloadFormProps {
-  url: string;
-  setUrl: (url: string) => void;
-  downloadDir: string;
-  status: DownloadStatus;
-  statusMessage: string;
-  totalItems: number;
-  completedCount: number;
-  overallPercent: number;
-  currentSpeed: string;
-  currentEta: string;
-  isZipping: boolean;
-  isFetchingMetadata: boolean;
-  onSelectFolder: () => void;
-  onFetchMetadata: (e?: React.FormEvent) => void;
-  onCancelDownload: () => void;
-  onCreateZip: () => void;
-}
+export function DownloadForm() {
+  const { 
+    url, 
+    setUrl, 
+    downloadDir, 
+    status, 
+    statusMessage, 
+    totalItems, 
+    currentSpeed, 
+    currentEta, 
+    isZipping, 
+    tracks 
+  } = useDownloadStore();
 
-export function DownloadForm({
-  url,
-  setUrl,
-  downloadDir,
-  status,
-  statusMessage,
-  totalItems,
-  completedCount,
-  overallPercent,
-  currentSpeed,
-  currentEta,
-  isZipping,
-  isFetchingMetadata,
-  onSelectFolder,
-  onFetchMetadata,
-  onCancelDownload,
-  onCreateZip,
-}: DownloadFormProps) {
+  const { 
+    isFetchingMetadata, 
+    handleSelectFolder: onSelectFolder, 
+    handleFetchMetadata: onFetchMetadata, 
+    handleCancelDownload: onCancelDownload, 
+    handleCreateZip: onCreateZip 
+  } = useDownloadActions();
+
+  const trackList = useMemo(() => Array.from(tracks.values()), [tracks]);
+  const completedCount = useMemo(() => trackList.filter((t) => t.status === "completed").length, [trackList]);
+  const overallPercent = useMemo(() => {
+    if (totalItems <= 0) return 0;
+    let totalProgressSum = 0;
+    for (let i = 1; i <= totalItems; i++) {
+      const track = tracks.get(i);
+      if (track) {
+        if (track.status === "completed") {
+          totalProgressSum += 100;
+        } else {
+          totalProgressSum += track.progress;
+        }
+      }
+    }
+    return Math.min(100, Math.max(0, totalProgressSum / totalItems));
+  }, [tracks, totalItems]);
+
   return (
     <section className="bg-neutral-900/70 border border-neutral-800/90 rounded-2xl p-5 sm:p-6 shadow-xl backdrop-blur-sm flex flex-col gap-4">
       {/* 저장 경로 설정 GUI */}

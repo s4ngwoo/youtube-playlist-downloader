@@ -1,24 +1,16 @@
 import { useRef, useEffect } from "react";
 import { Terminal, Trash2, ChevronDown, ChevronUp } from "lucide-react";
-import { LogItem } from "../types/download";
+import { useDownloadStore } from "../store/downloadStore";
 
-interface TerminalLogProps {
-  logs: LogItem[];
-  autoScroll: boolean;
-  isConsoleCollapsed: boolean;
-  onToggleAutoScroll: (checked: boolean) => void;
-  onClearLogs: () => void;
-  onToggleCollapse: () => void;
-}
-
-export function TerminalLog({
-  logs,
-  autoScroll,
-  isConsoleCollapsed,
-  onToggleAutoScroll,
-  onClearLogs,
-  onToggleCollapse,
-}: TerminalLogProps) {
+export function TerminalLog() {
+  const { 
+    logs, 
+    autoScroll, 
+    isConsoleCollapsed, 
+    setAutoScroll, 
+    setLogs, 
+    setIsConsoleCollapsed 
+  } = useDownloadStore();
   const logEndRef = useRef<HTMLDivElement>(null);
 
   // 콘솔 자동 스크롤 처리
@@ -47,7 +39,7 @@ export function TerminalLog({
             <input
               type="checkbox"
               checked={autoScroll}
-              onChange={(e) => onToggleAutoScroll(e.target.checked)}
+              onChange={(e) => setAutoScroll(e.target.checked)}
               className="rounded border-neutral-700 text-rose-600 focus:ring-0 focus:ring-offset-0 bg-neutral-900 w-3.5 h-3.5 accent-rose-500"
             />
             자동 스크롤
@@ -55,7 +47,7 @@ export function TerminalLog({
 
           <button
             type="button"
-            onClick={onClearLogs}
+            onClick={() => setLogs([])}
             title="로그 비우기"
             className="p-1 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/80 transition-all cursor-pointer"
           >
@@ -64,7 +56,7 @@ export function TerminalLog({
 
           <button
             type="button"
-            onClick={onToggleCollapse}
+            onClick={() => setIsConsoleCollapsed(!isConsoleCollapsed)}
             title={isConsoleCollapsed ? "콘솔 펼치기" : "콘솔 접기"}
             className="p-1 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/80 transition-all cursor-pointer"
           >
