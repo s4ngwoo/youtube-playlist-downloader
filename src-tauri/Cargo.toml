@@ -34,6 +34,8 @@ lofty = "0.25.1"
 base64 = "0.23.1"
 tauri-plugin-fs = "2.5.2"
 thiserror = "2.0.20"
+futures = "0.3.34"
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.26"

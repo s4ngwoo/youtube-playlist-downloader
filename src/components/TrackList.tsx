@@ -13,12 +13,16 @@ interface TrackListProps {
   playlistTitle: string;
   totalItems: number;
   trackList: TrackItem[];
+  failedCount?: number;
+  onRetryFailed?: () => void;
 }
 
 export function TrackList({
   playlistTitle,
   totalItems,
   trackList,
+  failedCount = 0,
+  onRetryFailed,
 }: TrackListProps) {
   return (
     <section className="bg-neutral-900/70 border border-neutral-800/90 rounded-2xl overflow-hidden shadow-xl">
@@ -35,11 +39,22 @@ export function TrackList({
           )}
         </div>
 
-        <span className="text-xs font-mono text-neutral-400">
-          {totalItems > 0
-            ? `총 ${totalItems}개 트랙 중 ${trackList.length}개 탐색됨`
-            : "트랙 없음"}
-        </span>
+        <div className="flex items-center gap-3">
+          {failedCount > 0 && onRetryFailed && (
+            <button
+              onClick={onRetryFailed}
+              className="px-2.5 py-1 text-xs font-semibold bg-rose-500 hover:bg-rose-600 text-white rounded-md transition-colors shadow-sm flex items-center gap-1"
+            >
+              <AlertCircle className="w-3.5 h-3.5" />
+              실패한 {failedCount}개 재시도
+            </button>
+          )}
+          <span className="text-xs font-mono text-neutral-400">
+            {totalItems > 0
+              ? `총 ${totalItems}개 트랙 중 ${trackList.length}개 탐색됨`
+              : "트랙 없음"}
+          </span>
+        </div>
       </div>
 
       {/* 트랙 목록 컨테이너 */}
@@ -132,6 +147,14 @@ export function TrackList({
                     className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-rose-500 rounded-full transition-all duration-150"
                     style={{ width: `${track.progress}%` }}
                   />
+                </div>
+              )}
+
+              {/* 실패 시 에러 메시지 노출 */}
+              {track.status === "failed" && track.error_message && (
+                <div className="mt-1 flex items-start gap-1.5 text-xs text-rose-400 bg-rose-950/20 px-2 py-1.5 rounded-md border border-rose-900/30">
+                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  <span className="break-all">{track.error_message}</span>
                 </div>
               )}
             </div>

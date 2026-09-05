@@ -37,6 +37,8 @@ export default function App() {
     handleStartDownload,
     handleCancelDownload,
     handleCreateZip,
+    handleRetryFailedDownloads,
+    failedCount,
   } = useDownloader();
 
   // 동적 윈도우 리사이징 활성화 (트랙 수 변화, 콘솔 접기/펼치기, 다운로드 상태 전환 시 자동 반응)
@@ -82,6 +84,8 @@ export default function App() {
               playlistTitle={playlistTitle}
               totalItems={totalItems}
               trackList={trackList}
+              failedCount={failedCount}
+              onRetryFailed={handleRetryFailedDownloads}
             />
 
             <TerminalLog

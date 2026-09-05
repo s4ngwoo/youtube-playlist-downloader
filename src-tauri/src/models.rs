@@ -25,6 +25,8 @@ pub struct ProgressPayload {
     pub speed: Option<String>,
     /// 예상 남은 시간 (예: "00:15")
     pub eta: Option<String>,
+    /// 실패 시 에러 메시지
+    pub error_message: Option<String>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]

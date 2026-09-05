@@ -136,6 +136,7 @@ export function useDownloader() {
                   status: trackStatus,
                   speed: payload.speed || existing?.speed,
                   eta: payload.eta || existing?.eta,
+                  error_message: payload.error_message || existing?.error_message,
                 });
 
                 return next;
@@ -275,6 +276,47 @@ export function useDownloader() {
     }
   };
 
+  // 8. 실패한 다운로드 재시도 핸들러
+  const handleRetryFailedDownloads = async () => {
+    const failedTracks = trackList.filter((t) => t.status === "failed");
+    if (failedTracks.length === 0) return;
+
+    const failedIndices = failedTracks.map((t) => t.index).join(",");
+    const targetUrl = store.url.trim();
+
+    store.setStatus("downloading");
+    store.setStatusMessage(`실패한 항목 (${failedTracks.length}개) 재다운로드 중...`);
+
+    // 기존 트랙 상태를 pending으로 초기화
+    store.setTracks((prev) => {
+      const next = new Map(prev);
+      failedTracks.forEach((t) => {
+        const item = next.get(t.index);
+        if (item) {
+          next.set(t.index, { ...item, status: "pending", error_message: undefined, progress: 0 });
+        }
+      });
+      return next;
+    });
+
+    try {
+      const result = await invoke<string>("download_audio", {
+        url: targetUrl,
+        downloadDir: store.downloadDir || null,
+        playlistItems: failedIndices,
+      });
+      store.setStatus("completed");
+      store.setStatusMessage(result || "재다운로드가 성공적으로 완료되었습니다!");
+    } catch (err: unknown) {
+      console.error("재다운로드 에러:", err);
+      store.setStatus("error");
+      const errorMessage = typeof err === "string" ? err : String(err);
+      store.setStatusMessage(`오류 발생: ${errorMessage}`);
+    }
+  };
+
+  const failedCount = useMemo(() => trackList.filter((t) => t.status === "failed").length, [trackList]);
+
   return {
     url: store.url,
     setUrl: store.setUrl,
@@ -300,5 +342,7 @@ export function useDownloader() {
     handleStartDownload,
     handleCancelDownload,
     handleCreateZip,
+    handleRetryFailedDownloads,
+    failedCount,
   };
 }

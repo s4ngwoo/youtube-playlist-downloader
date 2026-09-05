@@ -1,4 +1,7 @@
-use tauri::Emitter;
+use serde::Deserialize;
+use std::sync::Arc;
+use futures::stream::{self, StreamExt};
+use tauri::{Emitter, Manager};
 use tauri_plugin_shell::process::CommandEvent;
 use tauri_plugin_shell::ShellExt;
 
@@ -7,6 +10,27 @@ use crate::parser::{clean_title_from_destination, DownloadRegexes};
 use crate::process::AppState;
 use crate::commands::utils::get_default_download_dir;
 
+#[derive(Deserialize, Debug)]
+struct YtDlpDump {
+    #[serde(rename = "_type")]
+    _type: Option<String>,
+    title: Option<String>,
+    entries: Option<Vec<YtDlpEntry>>,
+}
+
+#[derive(Deserialize, Debug)]
+struct YtDlpEntry {
+    url: Option<String>,
+    id: Option<String>,
+}
+
+#[derive(Clone)]
+struct DownloadTask {
+    url: String,
+    item_index: usize,
+    total_items: usize,
+}
+
 /// 프론트엔드에서 사용자가 다운로드를 즉시 취소할 수 있는 Command
 #[tauri::command]
 pub fn cancel_download(state: tauri::State<'_, AppState>) -> Result<String, crate::AppError> {
@@ -14,22 +38,148 @@ pub fn cancel_download(state: tauri::State<'_, AppState>) -> Result<String, crat
     Ok("진행 중인 모든 다운로드 작업이 중단되었습니다.".into())
 }
 
-/// 비동기 오디오(m4a) 다운로드 Command (플레이리스트 및 사용자 지정 다운로드 경로 지원)
+/// 비동기 오디오(m4a) 병렬 다운로드 Command
 #[tauri::command]
 pub async fn download_audio(
     app: tauri::AppHandle,
-    state: tauri::State<'_, AppState>,
+    _state: tauri::State<'_, AppState>,
     url: String,
     download_dir: Option<String>,
+    playlist_items: Option<String>,
 ) -> Result<String, crate::AppError> {
-    // 1. URL 유효성 검사
     if url.trim().is_empty() {
         return Err(crate::AppError::DownloadError("다운로드할 URL을 입력해 주세요.".into()));
     }
 
-    // 2. yt-dlp 사이드카 커맨드 생성
+    let actual_download_dir = if let Some(dir) = download_dir.as_ref() {
+        if !dir.trim().is_empty() {
+            dir.clone()
+        } else {
+            get_default_download_dir(app.clone()).unwrap_or_else(|_| "".into())
+        }
+    } else {
+        get_default_download_dir(app.clone()).unwrap_or_else(|_| "".into())
+    };
+
+    // Phase 1: 메타데이터 가져오기
+    let dump_args = vec![
+        "--flat-playlist".into(),
+        "-J".into(),
+        url.clone(),
+    ];
+    let dump_cmd = app.shell().sidecar("yt-dlp")
+        .map_err(|e| crate::AppError::DownloadError(format!("yt-dlp 사이드카 생성 실패: {e}")))?
+        .args(dump_args);
+        
+    let output = dump_cmd.output().await.map_err(|e| crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {e}")))?;
+    
+    if !output.status.success() {
+        let err = String::from_utf8_lossy(&output.stderr);
+        return Err(crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {}", err)));
+    }
+    
+    let json_str = String::from_utf8_lossy(&output.stdout);
+    let dump: YtDlpDump = serde_json::from_str(&json_str).map_err(|e| crate::AppError::DownloadError(format!("메타데이터 파싱 실패: {e}")))?;
+    
+    let mut tasks = Vec::new();
+    let playlist_title = dump.title;
+    
+    if dump._type.as_deref() == Some("playlist") {
+        if let Some(entries) = dump.entries {
+            let total = entries.len();
+            
+            let items_to_download: Vec<usize> = if let Some(items) = &playlist_items {
+                if items.trim().is_empty() {
+                    (1..=total).collect()
+                } else {
+                    items.split(',').filter_map(|s| s.trim().parse::<usize>().ok()).collect()
+                }
+            } else {
+                (1..=total).collect()
+            };
+            
+            for (idx, entry) in entries.into_iter().enumerate() {
+                let item_index = idx + 1;
+                if items_to_download.contains(&item_index) {
+                    if let Some(entry_url) = entry.url {
+                        tasks.push(DownloadTask {
+                            url: entry_url,
+                            item_index,
+                            total_items: total,
+                        });
+                    } else if let Some(id) = entry.id {
+                        tasks.push(DownloadTask {
+                            url: format!("https://www.youtube.com/watch?v={}", id),
+                            item_index,
+                            total_items: total,
+                        });
+                    }
+                }
+            }
+        }
+    } else {
+        // 단일 비디오
+        tasks.push(DownloadTask {
+            url: url.clone(),
+            item_index: 1,
+            total_items: 1,
+        });
+    }
+
+    if tasks.is_empty() {
+        return Err(crate::AppError::DownloadError("다운로드할 항목이 없습니다.".into()));
+    }
+
+    // Phase 2: 병렬 다운로드 (동시성 제한 3)
+    let concurrency = 3;
+    let regexes = Arc::new(DownloadRegexes::new());
+    
+    let stream = stream::iter(tasks).map(|task| {
+        let app = app.clone();
+        let actual_download_dir = actual_download_dir.clone();
+        let playlist_title = playlist_title.clone();
+        let regexes = Arc::clone(&regexes);
+        
+        async move {
+            process_item(
+                app,
+                task,
+                actual_download_dir,
+                playlist_title,
+                regexes
+            ).await
+        }
+    });
+
+    let results: Vec<Result<(), String>> = stream.buffer_unordered(concurrency).collect().await;
+    
+    let mut has_error = false;
+    for res in results {
+        if res.is_err() {
+            has_error = true;
+        }
+    }
+
+    if !actual_download_dir.is_empty() {
+        let _ = crate::nfc::normalize_directory_nfc(std::path::Path::new(&actual_download_dir));
+    }
+    
+    if has_error {
+        Err(crate::AppError::DownloadError("일부 항목 다운로드 중 오류가 발생했습니다.".into()))
+    } else {
+        Ok("플레이리스트 및 오디오 다운로드가 완료되었습니다.".into())
+    }
+}
+
+async fn process_item(
+    app: tauri::AppHandle,
+    task: DownloadTask,
+    actual_download_dir: String,
+    playlist_title: Option<String>,
+    regexes: Arc<DownloadRegexes>,
+) -> Result<(), String> {
     let mut yt_dlp_args: Vec<String> = vec![
-        "--yes-playlist".into(),
+        "--no-playlist".into(),
         "--no-colors".into(),
         "-x".into(),
         "--audio-format".into(),
@@ -47,20 +197,11 @@ pub async fn download_audio(
         "--newline".into(),
     ];
 
-    // 사용자가 GUI에서 설정한 다운로드 디렉토리 지정 (-P / --paths)
-    let actual_download_dir = if let Some(dir) = download_dir.as_ref() {
-        if !dir.trim().is_empty() {
-            yt_dlp_args.push("-P".into());
-            yt_dlp_args.push(dir.trim().into());
-            dir.clone()
-        } else {
-            get_default_download_dir(app.clone()).unwrap_or_else(|_| "".into())
-        }
-    } else {
-        get_default_download_dir(app.clone()).unwrap_or_else(|_| "".into())
-    };
+    if !actual_download_dir.is_empty() {
+        yt_dlp_args.push("-P".into());
+        yt_dlp_args.push(actual_download_dir);
+    }
 
-    // Deno JavaScript 런타임 경로 자동 탐지 및 지정 (YouTube EJS 경고 및 속도 저하 해결)
     let mut candidate_deno_paths = vec![
         std::path::PathBuf::from("/opt/homebrew/bin/deno"),
         std::path::PathBuf::from("/usr/local/bin/deno"),
@@ -80,7 +221,6 @@ pub async fn download_audio(
         }
     }
 
-    // macOS GUI 환경에서 PATH 문제로 ffmpeg를 못 찾는 상황을 방지하기 위해 표준 설치 경로 자동 지정
     for path in ["/opt/homebrew/bin", "/usr/local/bin"] {
         if std::path::Path::new(path).join("ffmpeg").exists() {
             yt_dlp_args.push("--ffmpeg-location".into());
@@ -89,71 +229,41 @@ pub async fn download_audio(
         }
     }
 
-    yt_dlp_args.push(url);
+    yt_dlp_args.push(task.url.clone());
 
     let command = app
         .shell()
         .sidecar("yt-dlp")
-        .map_err(|e| crate::AppError::DownloadError(format!("yt-dlp 사이드카 생성 실패: {e}")))?
+        .map_err(|e| format!("yt-dlp 사이드카 생성 실패: {e}"))?
         .args(yt_dlp_args);
 
-    // 3. 자식 프로세스 실행 (spawn)
     let (mut rx, child) = command
         .spawn()
-        .map_err(|e| crate::AppError::DownloadError(format!("yt-dlp 프로세스 실행 실패: {e}")))?;
+        .map_err(|e| format!("yt-dlp 프로세스 실행 실패: {e}"))?;
 
     let pid = child.pid();
-    // 프로세스 추적 목록에 등록 (앱 비정상/강제 종료 시 클린업 대상)
+    let state = app.state::<AppState>();
     state.register_pid(pid);
 
     let mut exit_success = true;
     let mut exit_code: Option<i32> = None;
 
-    // 4. stdout 라인 파싱용 정규식 패턴 준비
-    let regexes = DownloadRegexes::new();
-
-    // 플레이리스트 및 현재 트랙 추적 상태 변수
-    let mut current_playlist_title: Option<String> = None;
-    let mut current_item_index: Option<usize> = None;
-    let mut total_items: Option<usize> = None;
     let mut current_item_title: Option<String> = None;
-    let mut current_track_status: Option<String> = None;
-    let mut current_track_progress: Option<f32> = None;
+    let mut current_track_status: Option<String> = Some("downloading".to_string());
+    let mut current_track_progress: Option<f32> = Some(0.0);
     let mut current_speed: Option<String> = None;
     let mut current_eta: Option<String> = None;
 
-    // 5. stdout / stderr 실시간 스트리밍 루프
     while let Some(event) = rx.recv().await {
         match event {
-            // 표준 출력(stdout) 수신 -> 플레이리스트 메타데이터 파싱 및 progress 이벤트 emit
             CommandEvent::Stdout(bytes) => {
                 let line = String::from_utf8_lossy(&bytes).trim_end().to_string();
                 if !line.is_empty() {
-                    // 1) 플레이리스트 제목 감지
-                    if let Some(caps) = regexes.re_playlist.captures(&line) {
-                        current_playlist_title = Some(caps[1].trim().to_string());
-                    }
-
-                    // 2) 플레이리스트 트랙 순서 감지 (예: item 3 of 10)
-                    if let Some(caps) = regexes.re_item.captures(&line) {
-                        if let (Ok(idx), Ok(total)) =
-                            (caps[1].parse::<usize>(), caps[2].parse::<usize>())
-                        {
-                            current_item_index = Some(idx);
-                            total_items = Some(total);
-                            current_item_title = None; // 새 트랙 시작이므로 제목 초기화
-                            current_track_status = Some("downloading".to_string());
-                            current_track_progress = Some(0.0);
-                        }
-                    }
-
-                    // 3) 영상/음원 파일명 및 트랙 타이틀 감지
                     if let Some(caps) = regexes.re_dest.captures(&line) {
                         let cleaned = clean_title_from_destination(&caps[1]);
                         current_item_title = Some(cleaned);
                     }
 
-                    // 4) 이미 다운로드 완료된 파일 건너뛰기 감지
                     if let Some(caps) = regexes.re_already.captures(&line) {
                         let cleaned = clean_title_from_destination(&caps[1]);
                         current_item_title = Some(cleaned);
@@ -161,7 +271,6 @@ pub async fn download_audio(
                         current_track_progress = Some(100.0);
                     }
 
-                    // 5) 오디오 변환 및 앨범아트 처리 단계 감지
                     if line.contains("[ExtractAudio]") {
                         current_track_status = Some("extracting".to_string());
                         current_track_progress = Some(92.0);
@@ -173,7 +282,6 @@ pub async fn download_audio(
                         current_track_progress = Some(98.0);
                     }
 
-                    // 6) 실시간 진행률(%) 파싱
                     if let Some(caps) = regexes.re_progress.captures(&line) {
                         if let Ok(p) = caps[1].parse::<f32>() {
                             current_track_progress = Some(p);
@@ -185,13 +293,11 @@ pub async fn download_audio(
                         }
                     }
 
-                    // 7) 개별 트랙 완료 감지 (변환 후 원본 파일 삭제 또는 100% 완료)
                     if line.contains("Deleting original file") {
                         current_track_status = Some("completed".to_string());
                         current_track_progress = Some(100.0);
                     }
 
-                    // 8) 다운로드 속도 및 ETA 파싱
                     if let Some(caps) = regexes.re_speed.captures(&line) {
                         current_speed = Some(caps[1].to_string());
                     }
@@ -199,71 +305,75 @@ pub async fn download_audio(
                         current_eta = Some(caps[1].to_string());
                     }
 
-                    // 구조화된 진행률 페이로드 emit
                     let _ = app.emit(
                         "download-progress",
                         ProgressPayload {
                             line: line.clone(),
                             message: line,
                             is_error: false,
-                            playlist_title: current_playlist_title.clone(),
-                            item_index: current_item_index,
-                            total_items,
+                            playlist_title: playlist_title.clone(),
+                            item_index: Some(task.item_index),
+                            total_items: Some(task.total_items),
                             item_title: current_item_title.clone(),
                             track_progress: current_track_progress,
                             track_status: current_track_status.clone(),
                             speed: current_speed.clone(),
                             eta: current_eta.clone(),
+                            error_message: None,
                         },
                     );
                 }
             }
-            // 표준 에러(stderr) 수신 -> 에러 이벤트 emit
             CommandEvent::Stderr(bytes) => {
                 let line = String::from_utf8_lossy(&bytes).trim_end().to_string();
                 if !line.is_empty() {
+                    let mut err_msg = None;
+                    if let Some(caps) = regexes.re_error.captures(&line) {
+                        err_msg = Some(caps[1].trim().to_string());
+                    }
+                    
                     let _ = app.emit(
                         "download-progress",
                         ProgressPayload {
                             line: line.clone(),
                             message: line,
                             is_error: true,
-                            playlist_title: current_playlist_title.clone(),
-                            item_index: current_item_index,
-                            total_items,
+                            playlist_title: playlist_title.clone(),
+                            item_index: Some(task.item_index),
+                            total_items: Some(task.total_items),
                             item_title: current_item_title.clone(),
                             track_progress: current_track_progress,
                             track_status: Some("failed".to_string()),
                             speed: current_speed.clone(),
                             eta: current_eta.clone(),
+                            error_message: err_msg,
                         },
                     );
                 }
             }
-            // 프로세스 종료 시그널 수신
             CommandEvent::Terminated(payload) => {
                 exit_code = payload.code;
                 if payload.code != Some(0) {
                     exit_success = false;
                 }
             }
-            // 내부 채널/파이프 에러 수신
             CommandEvent::Error(err) => {
                 let err_msg = format!("실행 오류: {err}");
                 let _ = app.emit(
                     "download-progress",
                     ProgressPayload {
                         line: err_msg.clone(),
-                        message: err_msg,
+                        message: err_msg.clone(),
                         is_error: true,
-                        playlist_title: current_playlist_title.clone(),
-                        item_index: current_item_index,
-                        total_items,
+                        playlist_title: playlist_title.clone(),
+                        item_index: Some(task.item_index),
+                        total_items: Some(task.total_items),
                         item_title: current_item_title.clone(),
                         track_progress: current_track_progress,
                         track_status: Some("failed".to_string()),
                         speed: current_speed.clone(),
                         eta: current_eta.clone(),
+                        error_message: Some(err_msg.clone()),
                     },
                 );
                 exit_success = false;
@@ -272,19 +382,11 @@ pub async fn download_audio(
         }
     }
 
-    // 6. 완료 후 활성 PID 목록에서 해제
     state.unregister_pid(pid);
 
-    // 7. 최종 실행 결과 반환
     if exit_success {
-        if !actual_download_dir.is_empty() {
-            let _ = crate::nfc::normalize_directory_nfc(std::path::Path::new(&actual_download_dir));
-        }
-        Ok("플레이리스트 및 오디오 다운로드가 완료되었습니다.".into())
+        Ok(())
     } else {
-        Err(crate::AppError::DownloadError(format!(
-            "다운로드 실패 (종료 코드: {:?})",
-            exit_code.unwrap_or(-1)
-        )))
+        Err(format!("다운로드 실패 (종료 코드: {:?})", exit_code.unwrap_or(-1)))
     }
 }

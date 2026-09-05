@@ -14,11 +14,11 @@ export interface ProgressPayload {
     | "extracting"
     | "converting_art"
     | "tagging"
-    | "downloaded"
     | "completed"
     | "failed";
   speed?: string;
   eta?: string;
+  error_message?: string;
 }
 
 // 개별 트랙 상태 인터페이스
@@ -36,6 +36,7 @@ export interface TrackItem {
     | "failed";
   speed?: string;
   eta?: string;
+  error_message?: string;
 }
 
 // 콘솔 로그 항목 인터페이스

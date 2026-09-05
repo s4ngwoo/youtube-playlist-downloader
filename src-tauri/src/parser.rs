@@ -37,6 +37,7 @@ pub struct DownloadRegexes {
     pub re_progress: Regex,
     pub re_speed: Regex,
     pub re_eta: Regex,
+    pub re_error: Regex,
 }
 
 impl Default for DownloadRegexes {
@@ -56,6 +57,7 @@ impl DownloadRegexes {
             re_progress: Regex::new(r"\[download\]\s+(\d+(?:\.\d+)?)%").unwrap(),
             re_speed: Regex::new(r"at\s+([\d.]+[KkMmGg]?i?B/s)").unwrap(),
             re_eta: Regex::new(r"ETA\s+([\d:]+)").unwrap(),
+            re_error: Regex::new(r"ERROR:\s*(.+)").unwrap(),
         }
     }
 }
