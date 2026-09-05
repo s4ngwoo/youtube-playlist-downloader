@@ -44,7 +44,11 @@ fn set_dock_icon() {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .setup(|_app| {
+        .setup(|app| {
+            // 앱 로그 디렉토리 초기화
+            if let Ok(log_dir) = app.path().app_log_dir() {
+                services::logger::init(log_dir);
+            }
             #[cfg(target_os = "macos")]
             set_dock_icon();
             Ok(())
@@ -63,6 +67,9 @@ pub fn run() {
             commands::download::cancel_download,
             commands::utils::get_default_download_dir,
             commands::utils::create_mobile_zip,
+            commands::utils::get_app_log_path,
+            commands::utils::read_app_logs,
+            commands::utils::clear_app_logs,
             commands::metadata::read_metadata,
             commands::metadata::write_metadata,
             commands::metadata::list_audio_files
@@ -70,7 +77,7 @@ pub fn run() {
         // 윈도우 이벤트 훅: 창 닫기(X 버튼) 감지 시 활성 자식 프로세스 클린업
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { .. } = event {
-                println!("[WindowHook] 윈도우 닫기 이벤트 감지: 활성 프로세스 정리 중...");
+                services::logger::info("app", "윈도우 닫기 이벤트 감지: 활성 프로세스 정리 중...");
                 let state = window.state::<AppState>();
                 state.kill_all();
             }
@@ -80,7 +87,7 @@ pub fn run() {
         .expect("Tauri 애플리케이션 빌드 중 오류가 발생했습니다.")
         .run(|app_handle, event| {
             if let tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit = event {
-                println!("[AppHook] 애플리케이션 종료 감지: 잔여 좀비 프로세스 전수 정리");
+                services::logger::info("app", "애플리케이션 종료: 잔여 프로세스 정리");
                 let state = app_handle.state::<AppState>();
                 state.kill_all();
             }

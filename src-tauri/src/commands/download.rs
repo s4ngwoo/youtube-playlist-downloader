@@ -5,7 +5,7 @@ use crate::commands::utils::get_default_download_dir;
 use crate::models::{DownloadTask, PlaylistMetadata, TrackMetadata};
 use crate::parser::DownloadRegexes;
 use crate::process::AppState;
-use crate::services::ytdlp::{fetch_playlist_dump, process_item};
+use crate::services::ytdlp::{fetch_playlist_dump, is_valid_entry, process_item};
 
 /// 플레이리스트 또는 단일 영상의 메타데이터(제목 및 트랙 목록)를 가져오는 Command
 #[tauri::command]
@@ -20,7 +20,8 @@ pub async fn fetch_metadata(app: tauri::AppHandle, url: String) -> Result<Playli
 
     if dump._type.as_deref() == Some("playlist") {
         if let Some(entries) = dump.entries {
-            for (idx, entry) in entries.into_iter().enumerate() {
+            let valid_entries: Vec<_> = entries.into_iter().filter(is_valid_entry).collect();
+            for (idx, entry) in valid_entries.into_iter().enumerate() {
                 let id = entry.id.unwrap_or_else(|| "".into());
                 let track_url = entry.url.unwrap_or_else(|| format!("https://www.youtube.com/watch?v={}", id));
                 tracks.push(TrackMetadata {
@@ -84,7 +85,8 @@ pub async fn download_audio(
 
     if dump._type.as_deref() == Some("playlist") {
         if let Some(entries) = dump.entries {
-            let total = entries.len();
+            let valid_entries: Vec<_> = entries.into_iter().filter(is_valid_entry).collect();
+            let total = valid_entries.len();
 
             let items_to_download: Vec<usize> = if let Some(items) = &playlist_items {
                 if items.trim().is_empty() {
@@ -96,7 +98,7 @@ pub async fn download_audio(
                 (1..=total).collect()
             };
 
-            for (idx, entry) in entries.into_iter().enumerate() {
+            for (idx, entry) in valid_entries.into_iter().enumerate() {
                 let item_index = idx + 1;
                 if items_to_download.contains(&item_index) {
                     if let Some(entry_url) = entry.url {
@@ -151,10 +153,13 @@ pub async fn download_audio(
 
     let results: Vec<Result<(), String>> = stream.buffer_unordered(concurrency).collect().await;
 
-    let mut has_error = false;
+    let mut fail_count = 0;
+    let mut success_count = 0;
     for res in results {
         if res.is_err() {
-            has_error = true;
+            fail_count += 1;
+        } else {
+            success_count += 1;
         }
     }
 
@@ -162,8 +167,13 @@ pub async fn download_audio(
         let _ = crate::nfc::normalize_directory_nfc(std::path::Path::new(&actual_download_dir));
     }
 
-    if has_error {
-        Err(crate::AppError::DownloadError("일부 항목 다운로드 중 오류가 발생했습니다.".into()))
+    if success_count == 0 && fail_count > 0 {
+        Err(crate::AppError::DownloadError("모든 항목 다운로드에 실패했습니다.".into()))
+    } else if fail_count > 0 {
+        Ok(format!(
+            "다운로드 완료 (성공: {}개, 실패: {}개 - 실패한 트랙은 재시도 버튼으로 다시 받을 수 있습니다)",
+            success_count, fail_count
+        ))
     } else {
         Ok("플레이리스트 및 오디오 다운로드가 완료되었습니다.".into())
     }

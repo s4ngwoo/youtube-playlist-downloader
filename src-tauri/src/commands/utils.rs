@@ -1,3 +1,4 @@
+use crate::services::logger::{self, LogEntry};
 use tauri::Manager;
 
 /// OS 기본 다운로드 디렉토리 경로 반환 커맨드
@@ -80,4 +81,27 @@ pub async fn create_mobile_zip(download_dir: String) -> Result<String, crate::Ap
     }
 
     Ok(format!("{}개의 파일이 Mobile_Export.zip으로 압축되었습니다.", file_count))
+}
+
+/// 앱 로그 파일의 절대 경로 반환
+#[tauri::command]
+pub fn get_app_log_path() -> Result<String, crate::AppError> {
+    match logger::log_path() {
+        Some(path) => Ok(path.to_string_lossy().to_string()),
+        None => Err(crate::AppError::Unknown("로거가 초기화되지 않았습니다.".into())),
+    }
+}
+
+/// 앱 로그를 읽어 파싱된 항목 목록 반환 (기본 최근 2000줄)
+#[tauri::command]
+pub fn read_app_logs(max_lines: Option<usize>) -> Result<Vec<LogEntry>, crate::AppError> {
+    Ok(logger::read_logs(max_lines.unwrap_or(2000)))
+}
+
+/// 앱 로그 파일 초기화 (비우기)
+#[tauri::command]
+pub fn clear_app_logs() -> Result<String, crate::AppError> {
+    logger::clear_logs().map_err(|e| crate::AppError::FileSystemError(e.to_string()))?;
+    logger::info("app", "사용자가 로그를 수동으로 초기화했습니다.");
+    Ok("로그가 초기화되었습니다.".into())
 }

@@ -8,6 +8,7 @@ import { Footer } from "./components/Footer";
 import { MetadataEditorModal } from "./components/metadata/MetadataEditorModal";
 import { TrackSelectionModal } from "./components/TrackSelectionModal";
 import { HistoryTab } from "./components/HistoryTab";
+import { AppLogViewer } from "./components/AppLogViewer";
 import { useDownloadStore } from "./store/downloadStore";
 import { useDownloadEvents } from "./hooks/useDownloadEvents";
 import { useDownloadActions } from "./hooks/useDownloadActions";
@@ -16,7 +17,7 @@ import "./App.css";
 export default function App() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isMetadataEditorOpen, setIsMetadataEditorOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"download" | "history">("download");
+  const [activeTab, setActiveTab] = useState<"download" | "history" | "logs">("download");
 
   // 1. Initialize Events Listener
   useDownloadEvents();
@@ -69,15 +70,21 @@ export default function App() {
           <div className="w-full flex gap-2">
             <button 
               onClick={() => setActiveTab("download")} 
-              className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'download' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
+              className={`px-4 py-2 rounded-lg transition-colors text-sm ${activeTab === 'download' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
             >
               다운로드
             </button>
             <button 
               onClick={() => setActiveTab("history")} 
-              className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'history' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
+              className={`px-4 py-2 rounded-lg transition-colors text-sm ${activeTab === 'history' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
             >
               다운로드 기록
+            </button>
+            <button 
+              onClick={() => setActiveTab("logs")} 
+              className={`px-4 py-2 rounded-lg transition-colors text-sm flex items-center gap-1.5 ${activeTab === 'logs' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
+            >
+              앱 로그
             </button>
           </div>
 
@@ -88,8 +95,10 @@ export default function App() {
                 <TrackList />
                 <TerminalLog />
               </>
-            ) : (
+            ) : activeTab === "history" ? (
               <HistoryTab onLoadUrl={handleLoadUrlFromHistory} />
+            ) : (
+              <AppLogViewer />
             )}
           </main>
 
