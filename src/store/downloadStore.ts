@@ -74,7 +74,7 @@ export const useDownloadStore = create<DownloadState>((set) => ({
 
   status: "idle",
   setStatus: (status) => set({ status }),
-  statusMessage: "다운로드 대기 중",
+  statusMessage: "Waiting to download",
   setStatusMessage: (msg) => set({ statusMessage: msg }),
 
   playlistTitle: "",
@@ -125,6 +125,6 @@ export const useDownloadStore = create<DownloadState>((set) => ({
       totalItems: 0,
       currentSpeed: "",
       currentEta: "",
-      statusMessage: "플레이리스트 및 음원 정보를 분석하는 중...",
+      statusMessage: "",
     }),
 }));

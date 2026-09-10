@@ -92,7 +92,7 @@ jobs:
             #### First launch on Windows (SmartScreen)
             If SmartScreen appears: More info → Run anyway.
 
-            Linux official binaries are not included in this release yet (build from source).
+            Linux official binaries are not planned (build from source / use yt-dlp CLI).
             Release process / yt-dlp sidecar: see docs/RELEASING.md
             Docs: https://github.com/s4ngwoo/youtube-playlist-downloader#readme
           releaseDraft: false

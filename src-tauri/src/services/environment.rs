@@ -178,6 +178,10 @@ pub fn get_ffmpeg_location() -> Option<&'static str> {
 }
 
 pub fn ffmpeg_missing_message() -> String {
+    "error.ffmpeg_missing".to_string()
+}
+
+pub fn ffmpeg_missing_detail() -> String {
     "FFmpeg를 찾을 수 없습니다. 오디오 추출·썸네일 임베딩에 필요합니다.\n\
      \n\
      설치 안내:\n\
@@ -208,7 +212,7 @@ pub fn warn_if_deno_missing() {
     }
 }
 
-/// FFmpeg가 없으면 한국어 안내와 함께 에러를 반환합니다.
+/// FFmpeg가 없으면 안정 코드로 에러를 반환합니다 (상세는 로그).
 pub fn ensure_ffmpeg_available() -> Result<(), crate::AppError> {
     match get_ffmpeg_location() {
         Some(loc) => {
@@ -216,22 +220,23 @@ pub fn ensure_ffmpeg_available() -> Result<(), crate::AppError> {
             Ok(())
         }
         None => {
-            let msg = ffmpeg_missing_message();
-            logger::error("environment", &msg);
-            Err(crate::AppError::DownloadError(msg))
+            let detail = ffmpeg_missing_detail();
+            logger::error("environment", &detail);
+            Err(crate::AppError::DownloadError(ffmpeg_missing_message()))
         }
     }
 }
 
 pub fn sidecar_error_message(raw: impl std::fmt::Display) -> String {
     let expected = expected_sidecar_name();
-    format!(
-        "yt-dlp 사이드카를 준비할 수 없습니다: {raw}\n\
-         \n\
-         이 플랫폼에 필요한 파일명: `{expected}`\n\
-         배치 위치: `src-tauri/bin/{expected}` (개발 빌드) 또는 앱 번들 내부\n\
-         다운로드: https://github.com/yt-dlp/yt-dlp/releases"
-    )
+    logger::error(
+        "environment",
+        &format!(
+            "yt-dlp 사이드카를 준비할 수 없습니다: {raw}\n\
+             이 플랫폼에 필요한 파일명: `{expected}`"
+        ),
+    );
+    format!("error.sidecar_unavailable:{expected}")
 }
 
 /// 환경 진단 스냅샷 (UI / 로그용)
@@ -280,16 +285,17 @@ mod tests {
     fn sidecar_error_message_includes_expected_name() {
         let expected = expected_sidecar_name();
         let msg = sidecar_error_message("boom");
+        assert!(msg.starts_with("error.sidecar_unavailable:"));
         assert!(msg.contains(&expected));
-        assert!(msg.contains("boom"));
-        assert!(msg.contains("src-tauri/bin/"));
     }
 
     #[test]
-    fn ffmpeg_missing_message_has_install_hints() {
+    fn ffmpeg_missing_message_is_stable_code() {
         let msg = ffmpeg_missing_message();
-        assert!(msg.contains("FFmpeg"));
-        assert!(msg.contains("brew install ffmpeg") || msg.contains("choco install ffmpeg"));
+        assert_eq!(msg, "error.ffmpeg_missing");
+        let detail = ffmpeg_missing_detail();
+        assert!(detail.contains("FFmpeg"));
+        assert!(detail.contains("brew install ffmpeg") || detail.contains("choco install ffmpeg"));
     }
 
     #[test]

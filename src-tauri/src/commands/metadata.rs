@@ -126,7 +126,7 @@ pub fn list_audio_files(dir_path: String) -> Result<Vec<AudioFileEntry>, crate::
     
     let path = std::path::Path::new(&dir_path);
     if !path.exists() || !path.is_dir() {
-        return Err(crate::AppError::FileSystemError("유효하지 않은 디렉토리입니다.".into()));
+        return Err(crate::AppError::FileSystemError("error.invalid_download_dir".into()));
     }
 
     let mut audio_files = Vec::new();

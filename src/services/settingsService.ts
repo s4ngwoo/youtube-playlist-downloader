@@ -3,6 +3,7 @@ import {
   DEFAULT_SETTINGS,
   clampConcurrency,
   normalizeAudioFormat,
+  normalizeLocale,
 } from "../types/settings";
 
 const SETTINGS_STORE_FILE = "settings.json";
@@ -32,6 +33,7 @@ function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSet
     audioFormat: normalizeAudioFormat(
       partial?.audioFormat ?? DEFAULT_SETTINGS.audioFormat
     ),
+    locale: normalizeLocale(partial?.locale ?? DEFAULT_SETTINGS.locale),
   };
 }
 

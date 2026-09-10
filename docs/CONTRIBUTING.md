@@ -37,6 +37,18 @@ cd src-tauri && cargo check && cargo clippy --all-targets -- -W clippy::correctn
 
 Clippy is enforced progressively (correctness/suspicious warnings); full `-D warnings` is not required yet.
 
+### Where things live
+
+| Area | Path |
+| :--- | :--- |
+| Frontend | `src/` (React + Zustand) |
+| Rust / Tauri | `src-tauri/` |
+| UI strings (EN/KO) | `src/i18n/locales/` — add keys to **both** `ko.ts` and `en.ts` |
+| Settings | `settings.json` via plugin-store (`locale`, concurrency, format, folder) |
+| Sidecar | `src-tauri/bin/yt-dlp-<target-triple>` (see README) |
+
+Run checks from the **repo root**. CI mirrors the commands above on Ubuntu (Rust uses a stub sidecar file — see `.github/workflows/ci.yml`).
+
 ## Cutting a release
 
 Maintainers: see **[RELEASING.md](RELEASING.md)** for the `v*` tag workflow, platform matrix, and how to pin/renew the bundled yt-dlp sidecar.

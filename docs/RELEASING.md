@@ -14,7 +14,7 @@ Pushing a tag that matches `v*` runs [`.github/workflows/release.yml`](../.githu
 | `macos-latest` | `x86_64-apple-darwin` | `yt-dlp-x86_64-apple-darwin` | `yt-dlp_macos` (universal2) |
 | `windows-latest` | host (x64) | `yt-dlp-x86_64-pc-windows-msvc.exe` | `yt-dlp.exe` |
 
-Linux official installers are **not** in the matrix yet (build from source).
+Linux official installers are **not planned** (build from source only; see README platform table).
 
 ## Checklist before tagging
 

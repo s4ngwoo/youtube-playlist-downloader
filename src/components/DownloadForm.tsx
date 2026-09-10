@@ -15,8 +15,10 @@ import {
   MAX_CONCURRENCY,
   MIN_CONCURRENCY,
 } from "../types/settings";
+import { useI18n } from "../i18n";
 
 export function DownloadForm() {
+  const { t } = useI18n();
   const {
     url,
     setUrl,
@@ -44,7 +46,7 @@ export function DownloadForm() {
 
   const trackList = useMemo(() => Array.from(tracks.values()), [tracks]);
   const completedCount = useMemo(
-    () => trackList.filter((t) => t.status === "completed").length,
+    () => trackList.filter((tr) => tr.status === "completed").length,
     [trackList]
   );
   const overallPercent = useMemo(() => {
@@ -73,13 +75,13 @@ export function DownloadForm() {
           <Folder className="w-4 h-4 text-rose-400 shrink-0" />
           <div className="flex items-center gap-2 min-w-0 text-xs">
             <span className="text-neutral-400 shrink-0 font-medium">
-              저장 위치:
+              {t("form.saveLocation")}
             </span>
             <span
               className="font-mono text-neutral-200 bg-neutral-950/80 border border-neutral-800 px-2.5 py-1 rounded-lg truncate max-w-xs sm:max-w-md md:max-w-lg"
               title={downloadDir}
             >
-              {downloadDir || "기본 다운로드 폴더 로드 중..."}
+              {downloadDir || t("form.loadingDir")}
             </span>
           </div>
         </div>
@@ -94,7 +96,7 @@ export function DownloadForm() {
             <Archive
               className={`w-3.5 h-3.5 text-blue-400 ${isZipping ? "animate-pulse" : ""}`}
             />
-            {isZipping ? "압축 중..." : "모바일 호환 ZIP 압축"}
+            {isZipping ? t("form.zipping") : t("form.zip")}
           </button>
 
           <button
@@ -104,14 +106,14 @@ export function DownloadForm() {
             className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800/90 hover:bg-neutral-700/80 text-neutral-200 border border-neutral-700/70 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
           >
             <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
-            폴더 변경
+            {t("form.changeFolder")}
           </button>
         </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center text-xs">
         <label className="flex items-center gap-2 text-neutral-400">
-          <span className="shrink-0 font-medium">동시 다운로드</span>
+          <span className="shrink-0 font-medium">{t("form.concurrency")}</span>
           <select
             value={concurrency}
             disabled={controlsDisabled}
@@ -130,7 +132,7 @@ export function DownloadForm() {
         </label>
 
         <label className="flex items-center gap-2 text-neutral-400">
-          <span className="shrink-0 font-medium">오디오 포맷</span>
+          <span className="shrink-0 font-medium">{t("form.audioFormat")}</span>
           <select
             value={audioFormat}
             disabled={controlsDisabled}
@@ -154,7 +156,7 @@ export function DownloadForm() {
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="유튜브 단일 영상 또는 재생목록(Playlist) URL을 입력하세요"
+            placeholder={t("form.urlPlaceholder")}
             disabled={status === "downloading" || isFetchingMetadata}
             className="w-full h-12 bg-neutral-950/80 border border-neutral-700/80 rounded-xl px-4 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
@@ -168,7 +170,7 @@ export function DownloadForm() {
               className="h-12 px-6 rounded-xl font-medium text-sm flex items-center justify-center gap-2 bg-rose-950/40 text-rose-400 border border-rose-800/60 hover:bg-rose-900/60 transition-all active:scale-[0.98] cursor-pointer"
             >
               <Square className="w-4 h-4 fill-current" />
-              취소 (Cancel)
+              {t("form.cancel")}
             </button>
           ) : (
             <button
@@ -179,12 +181,12 @@ export function DownloadForm() {
               {isFetchingMetadata ? (
                 <>
                   <Sparkles className="w-4 h-4 animate-spin" />
-                  정보 불러오는 중...
+                  {t("form.fetching")}
                 </>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  다운로드 시작
+                  {t("form.start")}
                 </>
               )}
             </button>
@@ -200,7 +202,11 @@ export function DownloadForm() {
           </span>
           <span className="font-mono text-neutral-200 font-semibold text-sm shrink-0">
             {totalItems > 0
-              ? `${completedCount}/${totalItems}곡 완료 (${overallPercent.toFixed(1)}%)`
+              ? t("form.progressDone", {
+                  done: completedCount,
+                  total: totalItems,
+                  percent: overallPercent.toFixed(1),
+                })
               : `${overallPercent.toFixed(1)}%`}
           </span>
         </div>
@@ -221,13 +227,14 @@ export function DownloadForm() {
             {currentSpeed && (
               <span className="flex items-center gap-1">
                 <Download className="w-3 h-3 text-neutral-500" />
-                속도: <span className="text-neutral-200">{currentSpeed}</span>
+                {t("form.speed")}{" "}
+                <span className="text-neutral-200">{currentSpeed}</span>
               </span>
             )}
             {currentEta && (
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3 text-neutral-500" />
-                남은 시간:{" "}
+                {t("form.eta")}{" "}
                 <span className="text-neutral-200">{currentEta}</span>
               </span>
             )}

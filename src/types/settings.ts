@@ -1,5 +1,6 @@
 /** App settings persisted in Tauri plugin-store (`settings.json`). */
 export type AudioFormat = "m4a" | "mp3";
+export type AppLocale = "ko" | "en";
 
 export interface AppSettings {
   downloadDir: string;
@@ -7,12 +8,15 @@ export interface AppSettings {
   concurrency: number;
   /** Output audio format for yt-dlp extraction. Default m4a. */
   audioFormat: AudioFormat;
+  /** UI language. Default Korean (historical primary). */
+  locale: AppLocale;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
   downloadDir: "",
   concurrency: 3,
   audioFormat: "m4a",
+  locale: "ko",
 };
 
 export const MIN_CONCURRENCY = 1;
@@ -25,4 +29,8 @@ export function clampConcurrency(value: number): number {
 
 export function normalizeAudioFormat(value: unknown): AudioFormat {
   return value === "mp3" ? "mp3" : "m4a";
+}
+
+export function normalizeLocale(value: unknown): AppLocale {
+  return value === "en" ? "en" : "ko";
 }

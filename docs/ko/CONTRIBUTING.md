@@ -39,6 +39,18 @@ cd src-tauri && cargo check && cargo clippy --all-targets -- -W clippy::correctn
 
 Clippy는 점진 적용(correctness/suspicious). 아직 전체 `-D warnings`는 강제하지 않습니다.
 
+### 어디에 무엇이 있는지
+
+| 영역 | 경로 |
+| :--- | :--- |
+| 프론트엔드 | `src/` (React + Zustand) |
+| Rust / Tauri | `src-tauri/` |
+| UI 문자열 (EN/KO) | `src/i18n/locales/` — 키를 **ko.ts와 en.ts 모두**에 추가 |
+| 설정 | plugin-store `settings.json` (`locale`, 동시성, 포맷, 폴더) |
+| 사이드카 | `src-tauri/bin/yt-dlp-<target-triple>` (README 참고) |
+
+검사는 **레포 루트**에서 실행하세요. CI는 위 명령을 Ubuntu에서 그대로 돌립니다(Rust는 사이드카 stub — `.github/workflows/ci.yml`).
+
 ## 릴리즈
 
 메인테이너: 태그(`v*`) 워크플로·플랫폼 매트릭스·번들 yt-dlp 고정/갱신은 **[RELEASING.md](RELEASING.md)** 를 참고하세요.

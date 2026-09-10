@@ -46,7 +46,7 @@
 | **macOS (Apple Silicon)** | **공식** | `*.dmg` (`aarch64`) | M1 / M2 / M3 / M4 |
 | **macOS (Intel x86_64)** | **공식** | `*.dmg` (`x64` / `x86_64`) | Intel Mac |
 | **Windows (x64)** | **공식** | `*-setup.exe`, `*.msi` | Windows 10/11 (64-bit) |
-| **Linux** | 준비 중 | — | 소스에서 빌드 가능 |
+| **Linux** | **계획 없음** | — | 소스 빌드 가능 · CLI yt-dlp 권장 |
 
 ### macOS 첫 실행 ("확인되지 않은 개발자")
 
@@ -253,7 +253,7 @@ npm run tauri build
 - [ ] 히스토리·폴더 바로가기 강화
 - [ ] 내장 미니 오디오 프리뷰
 - [x] Intel macOS 공식 릴리즈 바이너리
-- [ ] Linux 공식 릴리즈 바이너리
+- [x] Linux 공식 바이너리 — **계획 없음** (배포판 파편화 · CLI yt-dlp로 충분)
 
 ---
 

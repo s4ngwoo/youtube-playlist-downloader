@@ -4,7 +4,9 @@ import { PlaylistMetadata } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 import { historyService } from "../services/historyService";
 import { settingsService } from "../services/settingsService";
-import { AudioFormat, clampConcurrency } from "../types/settings";
+import { AudioFormat, AppLocale, clampConcurrency } from "../types/settings";
+import { t, useI18n } from "../i18n";
+import { mapBackendMessage } from "../i18n/mapBackendMessage";
 
 export function useDownloadActions() {
   const store = useDownloadStore();
@@ -13,15 +15,18 @@ export function useDownloadActions() {
     downloadDir?: string;
     concurrency?: number;
     audioFormat?: AudioFormat;
+    locale?: AppLocale;
   }) => {
     const next = await settingsService.update({
       downloadDir: partial.downloadDir ?? store.downloadDir,
       concurrency: partial.concurrency ?? store.concurrency,
       audioFormat: partial.audioFormat ?? store.audioFormat,
+      locale: partial.locale ?? useI18n.getState().locale,
     });
     store.setDownloadDir(next.downloadDir);
     store.setConcurrency(next.concurrency);
     store.setAudioFormat(next.audioFormat);
+    useI18n.getState().setLocale(next.locale);
   };
 
   const handleSelectFolder = async () => {
@@ -30,13 +35,13 @@ export function useDownloadActions() {
         directory: true,
         multiple: false,
         defaultPath: store.downloadDir || undefined,
-        title: "오디오 저장 폴더 선택",
+        title: t("dialog.selectFolder"),
       });
       if (selected && typeof selected === "string") {
         await persistSettings({ downloadDir: selected });
       }
     } catch (err) {
-      console.error("폴더 선택 다이얼로그 오류:", err);
+      console.error("Folder dialog error:", err);
     }
   };
 
@@ -51,27 +56,30 @@ export function useDownloadActions() {
     await persistSettings({ audioFormat });
   };
 
+  const handleLocaleChange = async (locale: AppLocale) => {
+    useI18n.getState().setLocale(locale);
+    await persistSettings({ locale });
+  };
+
   const handleFetchMetadata = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const targetUrl = store.url.trim();
 
     if (!targetUrl) {
-      alert("다운로드할 YouTube 링크 또는 플레이리스트 URL을 입력해 주세요.");
+      alert(t("alert.needUrl"));
       return;
     }
 
     const hasDownloaded = await historyService.hasHistory(targetUrl);
     if (hasDownloaded) {
-      const confirmResult = window.confirm(
-        "이미 다운로드한 기록이 있습니다. 다시 다운로드 하시겠습니까?"
-      );
+      const confirmResult = window.confirm(t("alert.alreadyDownloaded"));
       if (!confirmResult) {
         return;
       }
     }
 
     store.setIsFetchingMetadata(true);
-    store.setStatusMessage("플레이리스트 정보를 불러오는 중...");
+    store.setStatusMessage(t("status.fetchingPlaylist"));
 
     try {
       const metadata = await invoke<PlaylistMetadata>("fetch_metadata", {
@@ -79,12 +87,14 @@ export function useDownloadActions() {
       });
       store.setFetchedPlaylist(metadata);
       store.setIsSelectionModalOpen(true);
-      store.setStatusMessage("다운로드할 항목을 선택해 주세요.");
+      store.setStatusMessage(t("status.selectItems"));
     } catch (err: unknown) {
-      console.error("메타데이터 가져오기 실패:", err);
-      const errorMessage = typeof err === "string" ? err : String(err);
-      store.setStatusMessage(`정보 불러오기 실패: ${errorMessage}`);
-      alert(`정보 불러오기 실패: ${errorMessage}`);
+      console.error("Metadata fetch failed:", err);
+      const errorMessage = mapBackendMessage(
+        typeof err === "string" ? err : String(err)
+      );
+      store.setStatusMessage(t("status.fetchFailed", { error: errorMessage }));
+      alert(t("status.fetchFailed", { error: errorMessage }));
     } finally {
       store.setIsFetchingMetadata(false);
     }
@@ -96,8 +106,8 @@ export function useDownloadActions() {
     if (!store.fetchedPlaylist) return;
 
     const selectedTracks = store.fetchedPlaylist.tracks
-      .filter((t) => selectedIndices.includes(t.index))
-      .map((t) => ({ url: t.url, index: t.index }));
+      .filter((tr) => selectedIndices.includes(tr.index))
+      .map((tr) => ({ url: tr.url, index: tr.index }));
 
     store.resetState();
     store.setTotalItems(selectedTracks.length);
@@ -113,7 +123,7 @@ export function useDownloadActions() {
       });
       store.setStatus("completed");
       store.setStatusMessage(
-        result || "모든 다운로드가 성공적으로 완료되었습니다!"
+        mapBackendMessage(result || "ok.download_complete")
       );
 
       await historyService.saveHistory(
@@ -121,44 +131,48 @@ export function useDownloadActions() {
         store.fetchedPlaylist.title || "Unknown Title"
       );
     } catch (err: unknown) {
-      console.error("다운로드 에러:", err);
+      console.error("Download error:", err);
       store.setStatus("error");
-      const errorMessage = typeof err === "string" ? err : String(err);
-      store.setStatusMessage(`오류 발생: ${errorMessage}`);
+      const errorMessage = mapBackendMessage(
+        typeof err === "string" ? err : String(err)
+      );
+      store.setStatusMessage(t("status.error", { error: errorMessage }));
     }
   };
 
   const handleCancelDownload = async () => {
     try {
-      store.setStatusMessage("다운로드를 취소하고 백엔드 프로세스를 종료 중...");
+      store.setStatusMessage(t("status.cancelling"));
       const msg = await invoke<string>("cancel_download");
       store.setStatus("cancelled");
-      store.setStatusMessage(msg || "다운로드가 중단되었습니다.");
+      store.setStatusMessage(mapBackendMessage(msg || "ok.cancelled"));
       store.setCurrentSpeed("");
       store.setCurrentEta("");
     } catch (err) {
-      console.error("취소 처리 실패:", err);
+      console.error("Cancel failed:", err);
     }
   };
 
   const handleCreateZip = async () => {
     if (!store.downloadDir) {
-      alert("다운로드 폴더가 설정되지 않았습니다.");
+      alert(t("alert.needFolder"));
       return;
     }
     store.setIsZipping(true);
-    store.setStatusMessage("모바일 호환 ZIP 압축 파일 생성 중...");
+    store.setStatusMessage(t("status.zipping"));
     try {
       const result = await invoke<string>("create_mobile_zip", {
         downloadDir: store.downloadDir,
       });
-      alert(result);
-      store.setStatusMessage("ZIP 압축 완료");
+      alert(mapBackendMessage(result));
+      store.setStatusMessage(t("status.zipDone"));
     } catch (err: unknown) {
-      console.error("ZIP 생성 에러:", err);
-      const errorMessage = typeof err === "string" ? err : String(err);
-      alert(`ZIP 압축 실패: ${errorMessage}`);
-      store.setStatusMessage(`오류 발생: ${errorMessage}`);
+      console.error("ZIP error:", err);
+      const errorMessage = mapBackendMessage(
+        typeof err === "string" ? err : String(err)
+      );
+      alert(t("status.zipFailed", { error: errorMessage }));
+      store.setStatusMessage(t("status.error", { error: errorMessage }));
     } finally {
       store.setIsZipping(false);
     }
@@ -173,11 +187,11 @@ export function useDownloadActions() {
     const indicesArr = failedIndices.split(",").map(Number);
 
     const selectedTracks = store.fetchedPlaylist.tracks
-      .filter((t) => indicesArr.includes(t.index))
-      .map((t) => ({ url: t.url, index: t.index }));
+      .filter((tr) => indicesArr.includes(tr.index))
+      .map((tr) => ({ url: tr.url, index: tr.index }));
 
     store.setStatus("downloading");
-    store.setStatusMessage(`실패한 항목 (${failedCount}개) 재다운로드 중...`);
+    store.setStatusMessage(t("status.retrying", { count: failedCount }));
 
     store.setTracks((prev) => {
       const next = new Map(prev);
@@ -205,13 +219,16 @@ export function useDownloadActions() {
       });
       store.setStatus("completed");
       store.setStatusMessage(
-        result || "재다운로드가 성공적으로 완료되었습니다!"
+        mapBackendMessage(result || "ok.download_complete") ||
+          t("status.retryComplete")
       );
     } catch (err: unknown) {
-      console.error("재다운로드 에러:", err);
+      console.error("Retry error:", err);
       store.setStatus("error");
-      const errorMessage = typeof err === "string" ? err : String(err);
-      store.setStatusMessage(`오류 발생: ${errorMessage}`);
+      const errorMessage = mapBackendMessage(
+        typeof err === "string" ? err : String(err)
+      );
+      store.setStatusMessage(t("status.error", { error: errorMessage }));
     }
   };
 
@@ -224,5 +241,6 @@ export function useDownloadActions() {
     handleRetryFailedDownloads,
     handleConcurrencyChange,
     handleAudioFormatChange,
+    handleLocaleChange,
   };
 }

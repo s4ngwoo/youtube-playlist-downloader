@@ -7,6 +7,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { TrackItem as TrackItemType } from "../types/download";
+import { useI18n } from "../i18n";
+import { mapBackendMessage } from "../i18n/mapBackendMessage";
 
 interface TrackRowProps {
   track: TrackItemType;
@@ -17,6 +19,8 @@ export const TrackRow = React.memo(function TrackRow({
   track,
   viewMode,
 }: TrackRowProps) {
+  const { t } = useI18n();
+
   return (
     <div
       className={`p-3 rounded-xl border transition-all flex flex-col gap-2 ${
@@ -32,7 +36,6 @@ export const TrackRow = React.memo(function TrackRow({
       }`}
     >
       <div className="flex items-center justify-between gap-3">
-        {/* 트랙 번호 & 제목 */}
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           <span className="w-6 h-6 rounded-lg bg-neutral-800 text-neutral-300 text-xs font-mono font-bold flex items-center justify-center shrink-0">
             {track.index.toString().padStart(2, "0")}
@@ -42,15 +45,13 @@ export const TrackRow = React.memo(function TrackRow({
           </span>
         </div>
 
-        {/* 트랙 상태 뱃지 */}
         <div className="flex items-center gap-2 shrink-0">
           {viewMode === "basic" ? (
-            // === 기본 모드 (Basic Mode) ===
             <>
               {track.status === "completed" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded-md">
                   <CheckCircle2 className="w-3 h-3" />
-                  다운로드 완료
+                  {t("track.status.completed")}
                 </span>
               )}
               {(track.status === "tagging" ||
@@ -58,29 +59,30 @@ export const TrackRow = React.memo(function TrackRow({
                 track.status === "extracting") && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-400 bg-purple-950/40 border border-purple-800/50 px-2 py-0.5 rounded-md animate-pulse">
                   <Sparkles className="w-3 h-3" />
-                  파일 최적화 및 저장 중...
+                  {t("track.status.optimizing")}
                 </span>
               )}
               {track.status === "downloading" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-400 bg-blue-950/40 border border-blue-800/50 px-2 py-0.5 rounded-md">
                   <Download className="w-3 h-3 animate-bounce" />
-                  다운로드 중 ({track.progress.toFixed(0)}%)
+                  {t("track.status.downloading", {
+                    progress: track.progress.toFixed(0),
+                  })}
                 </span>
               )}
               {track.status === "failed" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-400 bg-rose-950/40 border border-rose-800/50 px-2 py-0.5 rounded-md">
                   <AlertCircle className="w-3 h-3" />
-                  다운로드 실패
+                  {t("track.status.failed")}
                 </span>
               )}
               {track.status === "pending" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-500 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md">
-                  대기 중
+                  {t("track.status.pending")}
                 </span>
               )}
             </>
           ) : (
-            // === 고급 모드 (Advanced Mode) ===
             <>
               {track.status === "completed" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded-md font-mono">
@@ -135,7 +137,6 @@ export const TrackRow = React.memo(function TrackRow({
         </div>
       </div>
 
-      {/* 트랙 개별 진행률 바 (진행 중일 때만 표시) */}
       {(track.status === "downloading" ||
         track.status === "extracting" ||
         track.status === "converting_art" ||
@@ -148,11 +149,12 @@ export const TrackRow = React.memo(function TrackRow({
         </div>
       )}
 
-      {/* 실패 시 에러 메시지 노출 */}
       {track.status === "failed" && track.error_message && (
         <div className="mt-1 flex items-start gap-1.5 text-xs text-rose-400 bg-rose-950/20 px-2 py-1.5 rounded-md border border-rose-900/30 font-mono">
           <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-          <span className="break-all">{track.error_message}</span>
+          <span className="break-all">
+            {mapBackendMessage(track.error_message)}
+          </span>
         </div>
       )}
     </div>

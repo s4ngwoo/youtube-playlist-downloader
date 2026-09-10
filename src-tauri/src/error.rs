@@ -3,16 +3,17 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum AppError {
-    #[error("다운로드 실패: {0}")]
+    /// Stable code or detail for FE i18n (`error.*` / free text).
+    #[error("download_error: {0}")]
     DownloadError(String),
 
-    #[error("메타데이터 오류: {0}")]
+    #[error("metadata_error: {0}")]
     MetadataError(String),
 
-    #[error("파일 시스템 오류: {0}")]
+    #[error("filesystem_error: {0}")]
     FileSystemError(String),
 
-    #[error("알 수 없는 오류: {0}")]
+    #[error("unknown_error: {0}")]
     Unknown(String),
 }
 

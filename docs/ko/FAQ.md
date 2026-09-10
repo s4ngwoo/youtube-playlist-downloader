@@ -29,7 +29,7 @@
 
 ## 공식 설치 파일은 어떤 플랫폼인가요?
 
-**macOS**(Apple Silicon·Intel)와 **Windows x64**는 [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest)에서 받을 수 있습니다. Linux는 당분간 소스 빌드입니다.
+**macOS**(Apple Silicon·Intel)와 **Windows x64**는 [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest)에서 받을 수 있습니다. **Linux 공식 설치 파일은 계획하지 않습니다**(GUI가 필요하면 소스 빌드 · 대부분 CLI `yt-dlp`로 충분).
 
 ## DRM / 영화 / 유료 대여를 받을 수 있나요?
 

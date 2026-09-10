@@ -14,7 +14,7 @@
 | `macos-latest` | `x86_64-apple-darwin` | `yt-dlp-x86_64-apple-darwin` | `yt-dlp_macos` (universal2) |
 | `windows-latest` | 호스트 (x64) | `yt-dlp-x86_64-pc-windows-msvc.exe` | `yt-dlp.exe` |
 
-Linux 공식 설치 파일은 **아직** 매트릭스에 없습니다 (소스 빌드).
+Linux 공식 설치 파일은 **계획하지 않습니다** (소스 빌드만 · README 플랫폼 표 참고).
 
 ## 태그 전 체크리스트
 

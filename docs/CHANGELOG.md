@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - UI controls for concurrency and output format; one-time migration from `localStorage` download path
 - GitHub Release matrix: **macOS Intel (x86_64)** alongside Apple Silicon and Windows
 - [RELEASING.md](RELEASING.md) / [ko/RELEASING.md](ko/RELEASING.md) — tag checklist and yt-dlp sidecar pin/renew procedure
+- Frontend EN/KO i18n (header language switch; catalogs in `src/i18n/`); locale stored in `settings.json`
+- Stable Rust IPC message codes (`error.*` / `ok.*`) mapped on the frontend for bilingual errors
 
 ### Changed
 
@@ -29,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Documented CI commands in Contributing guides
 - FAQ: Windows FFmpeg paths and Environment diagnose button
 - Release workflow downloads yt-dlp via configurable `YTDLP_TAG` (`latest` or a pinned tag)
+- **Linux official installers are not planned** (build from source / CLI yt-dlp); README, FAQ, RELEASING updated
+- Contributing: project map including i18n locale files and settings fields
 
 ### Removed
 

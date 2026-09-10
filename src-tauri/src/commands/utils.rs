@@ -23,7 +23,7 @@ pub async fn create_mobile_zip(download_dir: String) -> Result<String, crate::Ap
 
     let dir_path = Path::new(&download_dir);
     if !dir_path.exists() || !dir_path.is_dir() {
-        return Err(crate::AppError::FileSystemError("유효하지 않은 다운로드 디렉토리입니다.".into()));
+        return Err(crate::AppError::FileSystemError("error.invalid_download_dir".into()));
     }
 
     let zip_path = dir_path.join("Mobile_Export.zip");
@@ -81,10 +81,10 @@ pub async fn create_mobile_zip(download_dir: String) -> Result<String, crate::Ap
 
     if file_count == 0 {
         let _ = std::fs::remove_file(zip_path);
-        return Err(crate::AppError::FileSystemError("압축할 .m4a/.mp3 오디오 파일이 없습니다.".into()));
+        return Err(crate::AppError::FileSystemError("error.no_audio_for_zip".into()));
     }
 
-    Ok(format!("{}개의 파일이 Mobile_Export.zip으로 압축되었습니다.", file_count))
+    Ok(format!("ok.zip_created:{file_count}"))
 }
 
 /// 앱 로그 파일의 절대 경로 반환
@@ -92,7 +92,7 @@ pub async fn create_mobile_zip(download_dir: String) -> Result<String, crate::Ap
 pub fn get_app_log_path() -> Result<String, crate::AppError> {
     match logger::log_path() {
         Some(path) => Ok(path.to_string_lossy().to_string()),
-        None => Err(crate::AppError::Unknown("로거가 초기화되지 않았습니다.".into())),
+        None => Err(crate::AppError::Unknown("error.logger_not_ready".into())),
     }
 }
 
@@ -107,7 +107,7 @@ pub fn read_app_logs(max_lines: Option<usize>) -> Result<Vec<LogEntry>, crate::A
 pub fn clear_app_logs() -> Result<String, crate::AppError> {
     logger::clear_logs().map_err(|e| crate::AppError::FileSystemError(e.to_string()))?;
     logger::info("app", "사용자가 로그를 수동으로 초기화했습니다.");
-    Ok("로그가 초기화되었습니다.".into())
+    Ok("ok.logs_cleared".into())
 }
 
 /// 별도의 로그 뷰어 윈도우 열기 (또는 이미 열려있는 경우 포커스)

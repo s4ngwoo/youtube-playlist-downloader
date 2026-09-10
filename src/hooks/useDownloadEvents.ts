@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { ProgressPayload, TrackItem } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
+import { t } from "../i18n";
 
 export function useDownloadEvents() {
   useEffect(() => {
@@ -95,9 +96,10 @@ export function useDownloadEvents() {
               });
 
               store.setStatusMessage(
-                payload.item_title
-                  ? `[${idx}/${payload.total_items || "?"}] "${payload.item_title}" 처리 중...`
-                  : `트랙 ${idx}/${payload.total_items || "?"} 다운로드 중...`
+                t("status.downloadingTrack", {
+                  index: idx,
+                  total: payload.total_items || "?",
+                })
               );
             }
           }

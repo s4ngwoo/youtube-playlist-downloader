@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { X, CheckSquare, Square, Download } from "lucide-react";
 import { TrackMetadata } from "../types/download";
 import { TrackSelectionItem } from "./TrackSelectionItem";
+import { useI18n } from "../i18n";
 
 interface TrackSelectionModalProps {
   isOpen: boolean;
@@ -18,12 +19,14 @@ export function TrackSelectionModal({
   onClose,
   onDownloadSelected,
 }: TrackSelectionModalProps) {
-  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const { t } = useI18n();
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
+    new Set()
+  );
 
-  // 모달이 열릴 때 모든 트랙을 기본적으로 선택 상태로 만듦
   useEffect(() => {
     if (isOpen) {
-      setSelectedIndices(new Set(tracks.map((t) => t.index)));
+      setSelectedIndices(new Set(tracks.map((tr) => tr.index)));
     }
   }, [isOpen, tracks]);
 
@@ -31,7 +34,7 @@ export function TrackSelectionModal({
     if (selectedIndices.size === tracks.length) {
       setSelectedIndices(new Set());
     } else {
-      setSelectedIndices(new Set(tracks.map((t) => t.index)));
+      setSelectedIndices(new Set(tracks.map((tr) => tr.index)));
     }
   };
 
@@ -52,12 +55,11 @@ export function TrackSelectionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-neutral-800/80">
           <h2 className="text-lg font-bold text-neutral-100 flex items-center gap-2">
-            플레이리스트 다운로드 선택
+            {t("select.title")}
             <span className="text-xs font-normal text-neutral-400 bg-neutral-800 px-2 py-0.5 rounded-full">
-              {tracks.length}곡
+              {t("select.trackCount", { count: tracks.length })}
             </span>
           </h2>
           <button
@@ -68,13 +70,11 @@ export function TrackSelectionModal({
           </button>
         </div>
 
-        {/* Playlist Title */}
         <div className="px-5 py-3 bg-neutral-950/50 border-b border-neutral-800/50">
-          <p className="text-sm text-neutral-400">제목</p>
+          <p className="text-sm text-neutral-400">{t("select.labelTitle")}</p>
           <p className="font-medium text-neutral-200 truncate">{playlistTitle}</p>
         </div>
 
-        {/* Controls */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-800/50 bg-neutral-900">
           <button
             onClick={handleToggleSelectAll}
@@ -85,14 +85,13 @@ export function TrackSelectionModal({
             ) : (
               <Square className="w-4 h-4" />
             )}
-            전체 선택
+            {t("select.selectAll")}
           </button>
           <span className="text-sm text-neutral-400">
-            {selectedIndices.size}개 선택됨
+            {t("select.selectedCount", { count: selectedIndices.size })}
           </span>
         </div>
 
-        {/* Track List */}
         <div className="flex-1 overflow-y-auto p-2">
           {tracks.map((track) => (
             <TrackSelectionItem
@@ -104,21 +103,24 @@ export function TrackSelectionModal({
           ))}
         </div>
 
-        {/* Footer */}
         <div className="p-4 border-t border-neutral-800/80 bg-neutral-900/50 flex justify-end gap-3">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-xl text-sm font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
           >
-            취소
+            {t("select.cancel")}
           </button>
           <button
-            onClick={() => onDownloadSelected(Array.from(selectedIndices).sort((a, b) => a - b))}
+            onClick={() =>
+              onDownloadSelected(
+                Array.from(selectedIndices).sort((a, b) => a - b)
+              )
+            }
             disabled={selectedIndices.size === 0}
             className="px-4 py-2 rounded-xl text-sm font-medium bg-rose-600 hover:bg-rose-500 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors shadow-lg shadow-rose-600/20"
           >
             <Download className="w-4 h-4" />
-            {selectedIndices.size}곡 다운로드 시작
+            {t("select.download", { count: selectedIndices.size })}
           </button>
         </div>
       </div>

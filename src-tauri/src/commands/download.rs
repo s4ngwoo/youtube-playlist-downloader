@@ -55,7 +55,7 @@ pub async fn fetch_metadata(app: tauri::AppHandle, url: String) -> Result<Playli
 pub fn cancel_download(state: tauri::State<'_, AppState>) -> Result<String, crate::AppError> {
     logger::info("download", "사용자가 다운로드 취소를 요청했습니다.");
     state.kill_all();
-    Ok("진행 중인 모든 다운로드 작업이 중단되었습니다.".into())
+    Ok("ok.cancelled".into())
 }
 
 /// 선택된 트랙 목록의 직접 다운로드 구조체 (프론트엔드에서 전달)
@@ -79,7 +79,7 @@ pub async fn download_audio(
     audio_format: Option<String>,
 ) -> Result<String, crate::AppError> {
     if selected_tracks.is_empty() {
-        return Err(crate::AppError::DownloadError("다운로드할 항목이 없습니다.".into()));
+        return Err(crate::AppError::DownloadError("error.no_items".into()));
     }
 
     // 다운로드 전 환경 검사: FFmpeg 필수, Deno는 경고만
@@ -157,14 +157,11 @@ pub async fn download_audio(
     ));
 
     if success_count == 0 && fail_count > 0 {
-        Err(crate::AppError::DownloadError("모든 항목 다운로드에 실패했습니다.".into()))
+        Err(crate::AppError::DownloadError("error.all_failed".into()))
     } else if fail_count > 0 {
-        Ok(format!(
-            "다운로드 완료 (성공: {}개, 실패: {}개 - 실패한 트랙은 재시도 버튼으로 다시 받을 수 있습니다)",
-            success_count, fail_count
-        ))
+        Ok(format!("ok.download_partial:{success_count}:{fail_count}"))
     } else {
-        Ok("플레이리스트 및 오디오 다운로드가 완료되었습니다.".into())
+        Ok("ok.download_complete".into())
     }
 }
 

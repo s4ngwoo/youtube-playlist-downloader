@@ -21,6 +21,8 @@
 - 동시성·포맷 UI; legacy `localStorage` 저장 경로 1회 마이그레이션
 - GitHub Release 매트릭스: Apple Silicon·Windows에 더해 **macOS Intel (x86_64)**
 - [RELEASING.md](RELEASING.md) / [영문](../RELEASING.md) — 태그 체크리스트·yt-dlp 사이드카 고정/갱신
+- 프론트 EN/KO i18n (헤더 언어 전환; `src/i18n/`); `settings.json`에 locale 저장
+- Rust IPC 안정 코드(`error.*` / `ok.*`) + 프론트 매핑으로 이중 언어 에러
 
 ### Changed
 
@@ -30,6 +32,8 @@
 - 기여 가이드에 CI 실행 방법 문서화
 - FAQ: Windows FFmpeg 경로 및 환경 진단 버튼 안내
 - 릴리즈 워크플로가 `YTDLP_TAG`(`latest` 또는 고정 태그)로 yt-dlp를 받도록 정리
+- **Linux 공식 설치 파일은 계획하지 않음** (소스 빌드 / CLI yt-dlp); README·FAQ·RELEASING 반영
+- 기여 가이드: i18n 로케일 파일·설정 필드 맵 보강
 
 ### Removed
 

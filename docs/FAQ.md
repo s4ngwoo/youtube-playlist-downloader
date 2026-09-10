@@ -27,7 +27,7 @@ Release builds may not be Apple-notarized. Use **right-click → Open** (or **Op
 
 ## Which platforms have official installers?
 
-**macOS** (Apple Silicon and Intel) and **Windows x64** via [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest). Linux is build-from-source for now.
+**macOS** (Apple Silicon and Intel) and **Windows x64** via [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest). **Linux official installers are not planned** (build from source if you want the GUI; otherwise `yt-dlp` on the CLI is usually enough).
 
 ## Can I download DRM / Movies / paid rentals?
 

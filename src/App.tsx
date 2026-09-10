@@ -11,6 +11,7 @@ import { AppLogViewer } from "./components/AppLogViewer";
 import { useDownloadStore } from "./store/downloadStore";
 import { useDownloadEvents } from "./hooks/useDownloadEvents";
 import { useDownloadActions } from "./hooks/useDownloadActions";
+import { useI18n, t as translate } from "./i18n";
 import "./App.css";
 
 export default function App() {
@@ -19,25 +20,21 @@ export default function App() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isMetadataEditorOpen, setIsMetadataEditorOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"download" | "history">("download");
+  const { t, setLocale } = useI18n();
 
-  // 1. Initialize Events Listener
   useDownloadEvents();
 
-  // 2. Fetch Store States
-  const { 
-    setUrl, 
+  const {
+    setUrl,
     downloadDir,
     isSelectionModalOpen,
     setIsSelectionModalOpen,
-    fetchedPlaylist
+    fetchedPlaylist,
+    setStatusMessage,
   } = useDownloadStore();
 
-  // 3. Actions
-  const { 
-    handleDownloadSelected 
-  } = useDownloadActions();
+  const { handleDownloadSelected } = useDownloadActions();
 
-  // 4. Load settings (plugin-store + one-time localStorage migration)
   useEffect(() => {
     if (isLogWindow) return;
 
@@ -54,7 +51,7 @@ export default function App() {
               settings = await settingsService.update({ downloadDir: dir });
             }
           } catch (err) {
-            console.error("기본 저장 폴더 조회 실패:", err);
+            console.error("Default download dir lookup failed:", err);
           }
         }
 
@@ -63,15 +60,19 @@ export default function App() {
         state.setDownloadDir(settings.downloadDir);
         state.setConcurrency(settings.concurrency);
         state.setAudioFormat(settings.audioFormat);
+        setLocale(settings.locale);
+        if (!state.statusMessage || state.status === "idle") {
+          setStatusMessage(translate("status.idle"));
+        }
       } catch (err) {
-        console.error("설정 초기화 실패:", err);
+        console.error("Settings init failed:", err);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [isLogWindow]);
+  }, [isLogWindow, setLocale, setStatusMessage]);
 
   const handleLoadUrlFromHistory = (historyUrl: string) => {
     setUrl(historyUrl);
@@ -99,17 +100,17 @@ export default function App() {
           <Header onOpenMetadataEditor={() => setIsMetadataEditorOpen(true)} />
 
           <div className="w-full flex gap-2">
-            <button 
-              onClick={() => setActiveTab("download")} 
-              className={`px-4 py-2 rounded-lg transition-colors text-sm ${activeTab === 'download' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
+            <button
+              onClick={() => setActiveTab("download")}
+              className={`px-4 py-2 rounded-lg transition-colors text-sm ${activeTab === "download" ? "bg-neutral-800 text-white font-semibold" : "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900"}`}
             >
-              다운로드
+              {t("tabs.download")}
             </button>
-            <button 
-              onClick={() => setActiveTab("history")} 
-              className={`px-4 py-2 rounded-lg transition-colors text-sm ${activeTab === 'history' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900'}`}
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`px-4 py-2 rounded-lg transition-colors text-sm ${activeTab === "history" ? "bg-neutral-800 text-white font-semibold" : "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900"}`}
             >
-              다운로드 기록
+              {t("tabs.history")}
             </button>
           </div>
 
@@ -129,9 +130,12 @@ export default function App() {
       </div>
 
       {isMetadataEditorOpen && (
-        <MetadataEditorModal onClose={() => setIsMetadataEditorOpen(false)} downloadDir={downloadDir} />
+        <MetadataEditorModal
+          onClose={() => setIsMetadataEditorOpen(false)}
+          downloadDir={downloadDir}
+        />
       )}
-      
+
       {fetchedPlaylist && (
         <TrackSelectionModal
           isOpen={isSelectionModalOpen}
