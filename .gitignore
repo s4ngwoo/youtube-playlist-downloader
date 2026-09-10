@@ -15,6 +15,10 @@ dist-ssr
 .env.*
 !.env.example
 
+# Private developer / AI working notes (never publish)
+notes/
+notes/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
