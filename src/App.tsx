@@ -37,23 +37,40 @@ export default function App() {
     handleDownloadSelected 
   } = useDownloadActions();
 
-  // 4. Init Default Directory (Run once)
+  // 4. Load settings (plugin-store + one-time localStorage migration)
   useEffect(() => {
-    if (isLogWindow) return; // Skip for log window
+    if (isLogWindow) return;
 
-    const saved = localStorage.getItem("yt_download_dir");
-    if (saved) {
-      useDownloadStore.getState().setDownloadDir(saved);
-    } else {
-      invoke<string>("get_default_download_dir")
-        .then((dir) => {
-          if (dir) {
-            useDownloadStore.getState().setDownloadDir(dir);
-            localStorage.setItem("yt_download_dir", dir);
+    let cancelled = false;
+    (async () => {
+      try {
+        const { settingsService } = await import("./services/settingsService");
+        let settings = await settingsService.load();
+
+        if (!settings.downloadDir) {
+          try {
+            const dir = await invoke<string>("get_default_download_dir");
+            if (dir) {
+              settings = await settingsService.update({ downloadDir: dir });
+            }
+          } catch (err) {
+            console.error("기본 저장 폴더 조회 실패:", err);
           }
-        })
-        .catch((err) => console.error("기본 저장 폴더 조회 실패:", err));
-    }
+        }
+
+        if (cancelled) return;
+        const state = useDownloadStore.getState();
+        state.setDownloadDir(settings.downloadDir);
+        state.setConcurrency(settings.concurrency);
+        state.setAudioFormat(settings.audioFormat);
+      } catch (err) {
+        console.error("설정 초기화 실패:", err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [isLogWindow]);
 
   const handleLoadUrlFromHistory = (historyUrl: string) => {

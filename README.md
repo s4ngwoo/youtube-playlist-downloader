@@ -225,12 +225,13 @@ npm run tauri build
 
 ## Usage
 
-1. Choose a download folder (**Change Folder**). The path is remembered locally.
-2. Paste a YouTube video or playlist URL.
-3. Fetch metadata, select tracks if prompted, then start the download.
-4. Watch per-track progress and status; failed items can be retried.
-5. Optionally export a mobile-friendly ZIP, or open the app log viewer for diagnostics.
-6. **Cancel** stops the job and cleans up background processes.
+1. Choose a download folder (**Change Folder**). The path is saved in app settings (`settings.json`).
+2. Optionally set **concurrency** (1–8) and **audio format** (m4a / mp3).
+3. Paste a YouTube video or playlist URL.
+4. Fetch metadata, select tracks if prompted, then start the download.
+5. Watch per-track progress and status; failed items can be retried.
+6. Optionally export a mobile-friendly ZIP, run **Environment diagnose**, or open the app log viewer.
+7. **Cancel** stops the job and cleans up background processes.
 
 ---
 
@@ -245,8 +246,8 @@ npm run tauri build
 
 ## Roadmap
 
-- [ ] More output formats (MP3, FLAC, WAV, OPUS)
-- [ ] Broader concurrent download controls
+- [x] More output formats — **m4a / mp3** (FLAC, WAV, OPUS later)
+- [x] Broader concurrent download controls — **1–8 workers**
 - [ ] In-app yt-dlp auto-update
 - [ ] Richer download history / folder shortcuts
 - [ ] Built-in mini audio preview player

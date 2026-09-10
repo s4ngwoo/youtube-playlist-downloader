@@ -17,6 +17,8 @@
 - 다운로드 전 FFmpeg 필수 검사(한국어 설치 안내); Deno 미설치는 경고만
 - 사이드카 오류에 플랫폼별 기대 yt-dlp 파일명 표시
 - 푸터 **환경 진단** (`diagnose_environment`)
+- 앱 설정 저장 (`settings.json`): 저장 폴더, 동시성(1–8), 오디오 포맷(m4a/mp3)
+- 동시성·포맷 UI; legacy `localStorage` 저장 경로 1회 마이그레이션
 
 ### Changed
 

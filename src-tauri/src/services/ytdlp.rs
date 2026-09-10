@@ -72,14 +72,24 @@ pub async fn fetch_playlist_dump(app: &tauri::AppHandle, url: &str) -> Result<Yt
 }
 
 /// 개별 다운로드 작업에 필요한 yt-dlp 실행 인자를 구성합니다.
-pub fn build_ytdlp_args(task: &DownloadTask, actual_download_dir: &str) -> Vec<String> {
+pub fn build_ytdlp_args(
+    task: &DownloadTask,
+    actual_download_dir: &str,
+    audio_format: &str,
+) -> Vec<String> {
+    let format = if audio_format.eq_ignore_ascii_case("mp3") {
+        "mp3"
+    } else {
+        "m4a"
+    };
+
     let mut yt_dlp_args: Vec<String> = vec![
         "--no-playlist".into(),
         "--ignore-errors".into(),
         "--no-colors".into(),
         "-x".into(),
         "--audio-format".into(),
-        "m4a".into(),
+        format.into(),
         "--audio-quality".into(),
         "0".into(),
         "--embed-thumbnail".into(),
@@ -277,9 +287,10 @@ pub async fn process_item(
     actual_download_dir: String,
     playlist_title: Option<String>,
     regexes: Arc<DownloadRegexes>,
+    audio_format: &str,
 ) -> Result<(), String> {
     logger::info("download", &format!("[{}/{}] 다운로드 시작: {}", task.item_index, task.total_items, task.url));
-    let yt_dlp_args = build_ytdlp_args(&task, &actual_download_dir);
+    let yt_dlp_args = build_ytdlp_args(&task, &actual_download_dir, audio_format);
 
     let command = app
         .shell()
@@ -317,7 +328,7 @@ pub async fn process_item(
 
 #[cfg(test)]
 mod tests {
-    use super::is_valid_entry;
+    use super::*;
     use crate::models::YtDlpEntry;
 
     fn entry(title: Option<&str>) -> YtDlpEntry {
@@ -326,6 +337,32 @@ mod tests {
             id: Some("dQw4w9WgXcQ".into()),
             title: title.map(|t| t.to_string()),
         }
+    }
+
+    #[test]
+    fn build_args_default_m4a() {
+        let task = DownloadTask {
+            url: "https://example.com/v".into(),
+            item_index: 1,
+            total_items: 1,
+        };
+        let args = build_ytdlp_args(&task, "/tmp", "m4a");
+        assert!(args
+            .windows(2)
+            .any(|w| w[0] == "--audio-format" && w[1] == "m4a"));
+    }
+
+    #[test]
+    fn build_args_mp3() {
+        let task = DownloadTask {
+            url: "https://example.com/v".into(),
+            item_index: 1,
+            total_items: 1,
+        };
+        let args = build_ytdlp_args(&task, "", "mp3");
+        assert!(args
+            .windows(2)
+            .any(|w| w[0] == "--audio-format" && w[1] == "mp3"));
     }
 
     #[test]

@@ -1,4 +1,3 @@
-
 import {
   Folder,
   FolderOpen,
@@ -11,31 +10,43 @@ import {
 import { useDownloadStore } from "../store/downloadStore";
 import { useDownloadActions } from "../hooks/useDownloadActions";
 import { useMemo } from "react";
+import {
+  AudioFormat,
+  MAX_CONCURRENCY,
+  MIN_CONCURRENCY,
+} from "../types/settings";
 
 export function DownloadForm() {
-  const { 
-    url, 
-    setUrl, 
-    downloadDir, 
-    status, 
-    statusMessage, 
-    totalItems, 
-    currentSpeed, 
-    currentEta, 
-    isZipping, 
+  const {
+    url,
+    setUrl,
+    downloadDir,
+    concurrency,
+    audioFormat,
+    status,
+    statusMessage,
+    totalItems,
+    currentSpeed,
+    currentEta,
+    isZipping,
     tracks,
-    isFetchingMetadata 
+    isFetchingMetadata,
   } = useDownloadStore();
 
-  const { 
-    handleSelectFolder: onSelectFolder, 
-    handleFetchMetadata: onFetchMetadata, 
-    handleCancelDownload: onCancelDownload, 
-    handleCreateZip: onCreateZip 
+  const {
+    handleSelectFolder: onSelectFolder,
+    handleFetchMetadata: onFetchMetadata,
+    handleCancelDownload: onCancelDownload,
+    handleCreateZip: onCreateZip,
+    handleConcurrencyChange,
+    handleAudioFormatChange,
   } = useDownloadActions();
 
   const trackList = useMemo(() => Array.from(tracks.values()), [tracks]);
-  const completedCount = useMemo(() => trackList.filter((t) => t.status === "completed").length, [trackList]);
+  const completedCount = useMemo(
+    () => trackList.filter((t) => t.status === "completed").length,
+    [trackList]
+  );
   const overallPercent = useMemo(() => {
     if (totalItems <= 0) return 0;
     let totalProgressSum = 0;
@@ -52,14 +63,18 @@ export function DownloadForm() {
     return Math.min(100, Math.max(0, totalProgressSum / totalItems));
   }, [tracks, totalItems]);
 
+  const controlsDisabled =
+    status === "downloading" || isZipping || isFetchingMetadata;
+
   return (
     <section className="bg-neutral-900/70 border border-neutral-800/90 rounded-2xl p-5 sm:p-6 shadow-xl backdrop-blur-sm flex flex-col gap-4">
-      {/* 저장 경로 설정 GUI */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-800/80">
         <div className="flex items-center gap-2.5 min-w-0">
           <Folder className="w-4 h-4 text-rose-400 shrink-0" />
           <div className="flex items-center gap-2 min-w-0 text-xs">
-            <span className="text-neutral-400 shrink-0 font-medium">저장 위치:</span>
+            <span className="text-neutral-400 shrink-0 font-medium">
+              저장 위치:
+            </span>
             <span
               className="font-mono text-neutral-200 bg-neutral-950/80 border border-neutral-800 px-2.5 py-1 rounded-lg truncate max-w-xs sm:max-w-md md:max-w-lg"
               title={downloadDir}
@@ -73,17 +88,19 @@ export function DownloadForm() {
           <button
             type="button"
             onClick={onCreateZip}
-            disabled={status === "downloading" || isZipping || isFetchingMetadata || !downloadDir}
+            disabled={controlsDisabled || !downloadDir}
             className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800/90 hover:bg-neutral-700/80 text-neutral-200 border border-neutral-700/70 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
           >
-            <Archive className={`w-3.5 h-3.5 text-blue-400 ${isZipping ? "animate-pulse" : ""}`} />
+            <Archive
+              className={`w-3.5 h-3.5 text-blue-400 ${isZipping ? "animate-pulse" : ""}`}
+            />
             {isZipping ? "압축 중..." : "모바일 호환 ZIP 압축"}
           </button>
-          
+
           <button
             type="button"
             onClick={onSelectFolder}
-            disabled={status === "downloading" || isZipping || isFetchingMetadata}
+            disabled={controlsDisabled}
             className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-neutral-800/90 hover:bg-neutral-700/80 text-neutral-200 border border-neutral-700/70 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
           >
             <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
@@ -92,7 +109,46 @@ export function DownloadForm() {
         </div>
       </div>
 
-      <form onSubmit={onFetchMetadata} className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center text-xs">
+        <label className="flex items-center gap-2 text-neutral-400">
+          <span className="shrink-0 font-medium">동시 다운로드</span>
+          <select
+            value={concurrency}
+            disabled={controlsDisabled}
+            onChange={(e) => handleConcurrencyChange(Number(e.target.value))}
+            className="bg-neutral-950/80 border border-neutral-700/80 rounded-lg px-2.5 py-1.5 text-neutral-200 focus:outline-none focus:border-rose-500 disabled:opacity-50 cursor-pointer"
+          >
+            {Array.from(
+              { length: MAX_CONCURRENCY - MIN_CONCURRENCY + 1 },
+              (_, i) => MIN_CONCURRENCY + i
+            ).map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex items-center gap-2 text-neutral-400">
+          <span className="shrink-0 font-medium">오디오 포맷</span>
+          <select
+            value={audioFormat}
+            disabled={controlsDisabled}
+            onChange={(e) =>
+              handleAudioFormatChange(e.target.value as AudioFormat)
+            }
+            className="bg-neutral-950/80 border border-neutral-700/80 rounded-lg px-2.5 py-1.5 text-neutral-200 focus:outline-none focus:border-rose-500 disabled:opacity-50 cursor-pointer"
+          >
+            <option value="m4a">AAC (.m4a)</option>
+            <option value="mp3">MP3 (.mp3)</option>
+          </select>
+        </label>
+      </div>
+
+      <form
+        onSubmit={onFetchMetadata}
+        className="flex flex-col sm:flex-row gap-3"
+      >
         <div className="relative flex-1">
           <input
             type="text"
@@ -136,7 +192,6 @@ export function DownloadForm() {
         </div>
       </form>
 
-      {/* 전체 진행 현황 바 */}
       <div className="mt-5 pt-5 border-t border-neutral-800/80 flex flex-col gap-2.5">
         <div className="flex items-center justify-between text-xs font-medium">
           <span className="text-neutral-300 flex items-center gap-2 truncate max-w-[70%]">
@@ -150,7 +205,6 @@ export function DownloadForm() {
           </span>
         </div>
 
-        {/* 전체 종합 게이지 바 */}
         <div className="w-full h-2.5 bg-neutral-950 rounded-full overflow-hidden border border-neutral-800">
           <div
             className="h-full bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 rounded-full transition-all duration-300 relative overflow-hidden"
@@ -162,7 +216,6 @@ export function DownloadForm() {
           </div>
         </div>
 
-        {/* 부가 메트릭 (속도 및 ETA) */}
         {(currentSpeed || currentEta) && status === "downloading" && (
           <div className="flex items-center gap-4 text-xs text-neutral-400 font-mono mt-0.5">
             {currentSpeed && (
@@ -174,7 +227,8 @@ export function DownloadForm() {
             {currentEta && (
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3 text-neutral-500" />
-                남은 시간: <span className="text-neutral-200">{currentEta}</span>
+                남은 시간:{" "}
+                <span className="text-neutral-200">{currentEta}</span>
               </span>
             )}
           </div>

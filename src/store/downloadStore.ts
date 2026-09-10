@@ -1,11 +1,21 @@
 import { create } from "zustand";
 import { DownloadStatus, TrackItem, LogItem } from "../types/download";
+import {
+  AudioFormat,
+  DEFAULT_SETTINGS,
+  clampConcurrency,
+} from "../types/settings";
 
 interface DownloadState {
   url: string;
   setUrl: (url: string) => void;
   downloadDir: string;
   setDownloadDir: (dir: string) => void;
+  concurrency: number;
+  setConcurrency: (n: number) => void;
+  audioFormat: AudioFormat;
+  setAudioFormat: (format: AudioFormat) => void;
+
   status: DownloadStatus;
   setStatus: (status: DownloadStatus) => void;
   statusMessage: string;
@@ -16,7 +26,11 @@ interface DownloadState {
   totalItems: number;
   setTotalItems: (count: number) => void;
   tracks: Map<number, TrackItem>;
-  setTracks: (updater: (prev: Map<number, TrackItem>) => Map<number, TrackItem> | Map<number, TrackItem>) => void;
+  setTracks: (
+    updater:
+      | ((prev: Map<number, TrackItem>) => Map<number, TrackItem>)
+      | Map<number, TrackItem>
+  ) => void;
 
   currentSpeed: string;
   setCurrentSpeed: (speed: string) => void;
@@ -36,12 +50,14 @@ interface DownloadState {
 
   isFetchingMetadata: boolean;
   setIsFetchingMetadata: (v: boolean) => void;
-  
+
   isSelectionModalOpen: boolean;
   setIsSelectionModalOpen: (v: boolean) => void;
 
   fetchedPlaylist: import("../types/download").PlaylistMetadata | null;
-  setFetchedPlaylist: (v: import("../types/download").PlaylistMetadata | null) => void;
+  setFetchedPlaylist: (
+    v: import("../types/download").PlaylistMetadata | null
+  ) => void;
 
   resetState: () => void;
 }
@@ -51,6 +67,11 @@ export const useDownloadStore = create<DownloadState>((set) => ({
   setUrl: (url) => set({ url }),
   downloadDir: "",
   setDownloadDir: (dir) => set({ downloadDir: dir }),
+  concurrency: DEFAULT_SETTINGS.concurrency,
+  setConcurrency: (n) => set({ concurrency: clampConcurrency(n) }),
+  audioFormat: DEFAULT_SETTINGS.audioFormat,
+  setAudioFormat: (audioFormat) => set({ audioFormat }),
+
   status: "idle",
   setStatus: (status) => set({ status }),
   statusMessage: "다운로드 대기 중",
@@ -61,10 +82,12 @@ export const useDownloadStore = create<DownloadState>((set) => ({
   totalItems: 0,
   setTotalItems: (count) => set({ totalItems: count }),
   tracks: new Map(),
-  setTracks: (updater) => set((state) => {
-    const nextTracks = typeof updater === 'function' ? updater(state.tracks) : updater;
-    return { tracks: nextTracks };
-  }),
+  setTracks: (updater) =>
+    set((state) => {
+      const nextTracks =
+        typeof updater === "function" ? updater(state.tracks) : updater;
+      return { tracks: nextTracks };
+    }),
 
   currentSpeed: "",
   setCurrentSpeed: (speed) => set({ currentSpeed: speed }),
@@ -72,7 +95,10 @@ export const useDownloadStore = create<DownloadState>((set) => ({
   setCurrentEta: (eta) => set({ currentEta: eta }),
 
   logs: [],
-  addLog: (log) => set((state) => ({ logs: [...state.logs, { ...log, id: Date.now() + Math.random() }] })),
+  addLog: (log) =>
+    set((state) => ({
+      logs: [...state.logs, { ...log, id: Date.now() + Math.random() }],
+    })),
   setLogs: (logs) => set({ logs }),
   autoScroll: true,
   setAutoScroll: (autoScroll) => set({ autoScroll }),
@@ -91,13 +117,14 @@ export const useDownloadStore = create<DownloadState>((set) => ({
   fetchedPlaylist: null,
   setFetchedPlaylist: (v) => set({ fetchedPlaylist: v }),
 
-  resetState: () => set({
-    status: "downloading",
-    tracks: new Map(),
-    playlistTitle: "",
-    totalItems: 0,
-    currentSpeed: "",
-    currentEta: "",
-    statusMessage: "플레이리스트 및 음원 정보를 분석하는 중..."
-  }),
+  resetState: () =>
+    set({
+      status: "downloading",
+      tracks: new Map(),
+      playlistTitle: "",
+      totalItems: 0,
+      currentSpeed: "",
+      currentEta: "",
+      statusMessage: "플레이리스트 및 음원 정보를 분석하는 중...",
+    }),
 }));

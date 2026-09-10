@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Pre-download FFmpeg requirement check with Korean install hints; Deno missing is warning-only
 - Sidecar errors now include the expected yt-dlp binary name for the current platform
 - In-app **Environment diagnose** action (footer) via `diagnose_environment`
+- Persistent app settings (`settings.json`): download folder, concurrency (1–8), audio format (m4a/mp3)
+- UI controls for concurrency and output format; one-time migration from `localStorage` download path
 
 ### Changed
 

@@ -30,7 +30,7 @@ pub fn normalize_file_nfc(file_path: &Path) -> Result<PathBuf, String> {
     }
 }
 
-/// 디렉토리 내의 모든 .m4a 파일을 NFC로 변환합니다.
+/// 디렉토리 내의 오디오 파일(.m4a / .mp3) 파일명을 NFC로 변환합니다.
 pub fn normalize_directory_nfc(dir_path: &Path) -> Result<usize, String> {
     if !dir_path.exists() || !dir_path.is_dir() {
         return Err("유효하지 않은 다운로드 디렉토리입니다.".into());
@@ -43,7 +43,8 @@ pub fn normalize_directory_nfc(dir_path: &Path) -> Result<usize, String> {
         let path = entry.path();
         if path.is_file() {
             if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
-                if ext == "m4a" {
+                let ext_l = ext.to_ascii_lowercase();
+                if ext_l == "m4a" || ext_l == "mp3" {
                     if let Ok(new_path) = normalize_file_nfc(&path) {
                         if new_path != path {
                             normalized_count += 1;

@@ -50,7 +50,11 @@ pub async fn create_mobile_zip(download_dir: String) -> Result<String, crate::Ap
             continue;
         }
 
-        if path.extension().and_then(|s| s.to_str()) != Some("m4a") {
+        if path.extension().and_then(|s| s.to_str()).map(|e| {
+            let e = e.to_ascii_lowercase();
+            e == "m4a" || e == "mp3"
+        }) != Some(true)
+        {
             continue;
         }
 
@@ -77,7 +81,7 @@ pub async fn create_mobile_zip(download_dir: String) -> Result<String, crate::Ap
 
     if file_count == 0 {
         let _ = std::fs::remove_file(zip_path);
-        return Err(crate::AppError::FileSystemError("압축할 .m4a 오디오 파일이 없습니다.".into()));
+        return Err(crate::AppError::FileSystemError("압축할 .m4a/.mp3 오디오 파일이 없습니다.".into()));
     }
 
     Ok(format!("{}개의 파일이 Mobile_Export.zip으로 압축되었습니다.", file_count))

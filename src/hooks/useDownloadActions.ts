@@ -1,14 +1,29 @@
-
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { PlaylistMetadata } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 import { historyService } from "../services/historyService";
+import { settingsService } from "../services/settingsService";
+import { AudioFormat, clampConcurrency } from "../types/settings";
 
 export function useDownloadActions() {
   const store = useDownloadStore();
 
-  // 1. 다운로드 저장 폴더 선택 다이얼로그 핸들러
+  const persistSettings = async (partial: {
+    downloadDir?: string;
+    concurrency?: number;
+    audioFormat?: AudioFormat;
+  }) => {
+    const next = await settingsService.update({
+      downloadDir: partial.downloadDir ?? store.downloadDir,
+      concurrency: partial.concurrency ?? store.concurrency,
+      audioFormat: partial.audioFormat ?? store.audioFormat,
+    });
+    store.setDownloadDir(next.downloadDir);
+    store.setConcurrency(next.concurrency);
+    store.setAudioFormat(next.audioFormat);
+  };
+
   const handleSelectFolder = async () => {
     try {
       const selected = await open({
@@ -18,15 +33,24 @@ export function useDownloadActions() {
         title: "오디오 저장 폴더 선택",
       });
       if (selected && typeof selected === "string") {
-        store.setDownloadDir(selected);
-        localStorage.setItem("yt_download_dir", selected);
+        await persistSettings({ downloadDir: selected });
       }
     } catch (err) {
       console.error("폴더 선택 다이얼로그 오류:", err);
     }
   };
 
-  // 2. 메타데이터 가져오기 핸들러 (모달 띄우기)
+  const handleConcurrencyChange = async (value: number) => {
+    const concurrency = clampConcurrency(value);
+    store.setConcurrency(concurrency);
+    await persistSettings({ concurrency });
+  };
+
+  const handleAudioFormatChange = async (audioFormat: AudioFormat) => {
+    store.setAudioFormat(audioFormat);
+    await persistSettings({ audioFormat });
+  };
+
   const handleFetchMetadata = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const targetUrl = store.url.trim();
@@ -38,7 +62,9 @@ export function useDownloadActions() {
 
     const hasDownloaded = await historyService.hasHistory(targetUrl);
     if (hasDownloaded) {
-      const confirmResult = window.confirm("이미 다운로드한 기록이 있습니다. 다시 다운로드 하시겠습니까?");
+      const confirmResult = window.confirm(
+        "이미 다운로드한 기록이 있습니다. 다시 다운로드 하시겠습니까?"
+      );
       if (!confirmResult) {
         return;
       }
@@ -64,13 +90,11 @@ export function useDownloadActions() {
     }
   };
 
-  // 3. 모달에서 선택한 항목들만 다운로드 시작
   const handleDownloadSelected = async (selectedIndices: number[]) => {
     store.setIsSelectionModalOpen(false);
 
     if (!store.fetchedPlaylist) return;
 
-    // 선택된 인덱스에 해당하는 트랙의 URL과 index를 추출
     const selectedTracks = store.fetchedPlaylist.tracks
       .filter((t) => selectedIndices.includes(t.index))
       .map((t) => ({ url: t.url, index: t.index }));
@@ -84,10 +108,14 @@ export function useDownloadActions() {
         downloadDir: store.downloadDir || null,
         playlistTitle: store.fetchedPlaylist.title,
         selectedTracks,
+        concurrency: store.concurrency,
+        audioFormat: store.audioFormat,
       });
       store.setStatus("completed");
-      store.setStatusMessage(result || "모든 다운로드가 성공적으로 완료되었습니다!");
-      
+      store.setStatusMessage(
+        result || "모든 다운로드가 성공적으로 완료되었습니다!"
+      );
+
       await historyService.saveHistory(
         store.url.trim(),
         store.fetchedPlaylist.title || "Unknown Title"
@@ -100,7 +128,6 @@ export function useDownloadActions() {
     }
   };
 
-  // 4. 다운로드 취소 핸들러
   const handleCancelDownload = async () => {
     try {
       store.setStatusMessage("다운로드를 취소하고 백엔드 프로세스를 종료 중...");
@@ -114,7 +141,6 @@ export function useDownloadActions() {
     }
   };
 
-  // 5. 모바일 호환 ZIP 압축 핸들러
   const handleCreateZip = async () => {
     if (!store.downloadDir) {
       alert("다운로드 폴더가 설정되지 않았습니다.");
@@ -138,13 +164,14 @@ export function useDownloadActions() {
     }
   };
 
-  // 6. 실패한 다운로드 재시도 핸들러
-  const handleRetryFailedDownloads = async (failedIndices: string, failedCount: number) => {
+  const handleRetryFailedDownloads = async (
+    failedIndices: string,
+    failedCount: number
+  ) => {
     if (!store.fetchedPlaylist) return;
 
-    const indicesArr = failedIndices.split(',').map(Number);
+    const indicesArr = failedIndices.split(",").map(Number);
 
-    // 실패한 트랙의 URL 목록 재구성
     const selectedTracks = store.fetchedPlaylist.tracks
       .filter((t) => indicesArr.includes(t.index))
       .map((t) => ({ url: t.url, index: t.index }));
@@ -152,13 +179,17 @@ export function useDownloadActions() {
     store.setStatus("downloading");
     store.setStatusMessage(`실패한 항목 (${failedCount}개) 재다운로드 중...`);
 
-    // 기존 트랙 상태를 pending으로 초기화
     store.setTracks((prev) => {
       const next = new Map(prev);
       indicesArr.forEach((idx) => {
         const item = next.get(idx);
         if (item) {
-          next.set(idx, { ...item, status: "pending", error_message: undefined, progress: 0 });
+          next.set(idx, {
+            ...item,
+            status: "pending",
+            error_message: undefined,
+            progress: 0,
+          });
         }
       });
       return next;
@@ -169,9 +200,13 @@ export function useDownloadActions() {
         downloadDir: store.downloadDir || null,
         playlistTitle: store.fetchedPlaylist.title,
         selectedTracks,
+        concurrency: store.concurrency,
+        audioFormat: store.audioFormat,
       });
       store.setStatus("completed");
-      store.setStatusMessage(result || "재다운로드가 성공적으로 완료되었습니다!");
+      store.setStatusMessage(
+        result || "재다운로드가 성공적으로 완료되었습니다!"
+      );
     } catch (err: unknown) {
       console.error("재다운로드 에러:", err);
       store.setStatus("error");
@@ -187,5 +222,7 @@ export function useDownloadActions() {
     handleCancelDownload,
     handleCreateZip,
     handleRetryFailedDownloads,
+    handleConcurrencyChange,
+    handleAudioFormatChange,
   };
 }

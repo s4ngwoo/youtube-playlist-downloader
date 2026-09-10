@@ -75,6 +75,8 @@ pub async fn download_audio(
     download_dir: Option<String>,
     playlist_title: Option<String>,
     selected_tracks: Vec<SelectedTrack>,
+    concurrency: Option<usize>,
+    audio_format: Option<String>,
 ) -> Result<String, crate::AppError> {
     if selected_tracks.is_empty() {
         return Err(crate::AppError::DownloadError("다운로드할 항목이 없습니다.".into()));
@@ -95,9 +97,12 @@ pub async fn download_audio(
     };
 
     let total = selected_tracks.len();
+    let format = normalize_audio_format(audio_format.as_deref());
+    let concurrency = concurrency.unwrap_or(3).clamp(1, 8);
+
     logger::info("download", &format!(
-        "다운로드 시작 — 총 {}개 트랙, 저장 경로: {}",
-        total, actual_download_dir
+        "다운로드 시작 — 총 {}개 트랙, 동시성 {}, 포맷 {}, 저장 경로: {}",
+        total, concurrency, format, actual_download_dir
     ));
 
     let tasks: Vec<DownloadTask> = selected_tracks
@@ -109,15 +114,15 @@ pub async fn download_audio(
         })
         .collect();
 
-    // 병렬 다운로드 (동시성 제한 3)
-    let concurrency = 3;
     let regexes = Arc::new(DownloadRegexes::new());
+    let format_arc = Arc::new(format);
 
     let stream = stream::iter(tasks).map(|task| {
         let app = app.clone();
         let actual_download_dir = actual_download_dir.clone();
         let playlist_title = playlist_title.clone();
         let regexes = Arc::clone(&regexes);
+        let format = Arc::clone(&format_arc);
 
         async move {
             process_item(
@@ -126,6 +131,7 @@ pub async fn download_audio(
                 actual_download_dir,
                 playlist_title,
                 regexes,
+                format.as_str(),
             ).await
         }
     });
@@ -159,5 +165,12 @@ pub async fn download_audio(
         ))
     } else {
         Ok("플레이리스트 및 오디오 다운로드가 완료되었습니다.".into())
+    }
+}
+
+fn normalize_audio_format(raw: Option<&str>) -> String {
+    match raw.map(|s| s.trim().to_ascii_lowercase()).as_deref() {
+        Some("mp3") => "mp3".into(),
+        _ => "m4a".into(),
     }
 }
