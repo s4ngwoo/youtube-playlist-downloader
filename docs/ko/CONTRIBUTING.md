@@ -39,6 +39,10 @@ cd src-tauri && cargo check && cargo clippy --all-targets -- -W clippy::correctn
 
 Clippy는 점진 적용(correctness/suspicious). 아직 전체 `-D warnings`는 강제하지 않습니다.
 
+## 릴리즈
+
+메인테이너: 태그(`v*`) 워크플로·플랫폼 매트릭스·번들 yt-dlp 고정/갱신은 **[RELEASING.md](RELEASING.md)** 를 참고하세요.
+
 ## 프로젝트 규칙
 
 - **프론트엔드:** React 19 + TypeScript + Tailwind CSS v4 + Zustand (`src/`)

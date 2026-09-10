@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
 
+# Sidecar policy: default to yt-dlp "latest". To pin a release, set
+# YTDLP_TAG below to a tag like "2026.08.19" (see docs/RELEASING.md).
+env:
+  YTDLP_TAG: latest
+
 jobs:
   release:
     permissions:
@@ -14,9 +19,20 @@ jobs:
       matrix:
         include:
           - platform: 'macos-latest'
+            rust_target: 'aarch64-apple-darwin'
             args: '--target aarch64-apple-darwin'
+            sidecar_name: 'yt-dlp-aarch64-apple-darwin'
+            sidecar_asset: 'yt-dlp_macos'
+          - platform: 'macos-latest'
+            rust_target: 'x86_64-apple-darwin'
+            args: '--target x86_64-apple-darwin'
+            sidecar_name: 'yt-dlp-x86_64-apple-darwin'
+            sidecar_asset: 'yt-dlp_macos'
           - platform: 'windows-latest'
+            rust_target: ''
             args: ''
+            sidecar_name: 'yt-dlp-x86_64-pc-windows-msvc.exe'
+            sidecar_asset: 'yt-dlp.exe'
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -30,21 +46,29 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          # Empty targets on Windows = host toolchain only.
+          targets: ${{ matrix.platform == 'macos-latest' && matrix.rust_target || '' }}
 
       - name: Install dependencies
         run: npm install
 
-      # Tauri 사이드카(yt-dlp) OS별 바이너리 자동 준비
+      # Tauri 사이드카(yt-dlp) OS·아키텍처별 바이너리 자동 준비
       - name: Download yt-dlp sidecar
         shell: bash
         run: |
           mkdir -p src-tauri/bin
-          if [ "${{ matrix.platform }}" = "macos-latest" ]; then
-            curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos -o src-tauri/bin/yt-dlp-aarch64-apple-darwin
-            chmod +x src-tauri/bin/yt-dlp-aarch64-apple-darwin
-          elif [ "${{ matrix.platform }}" = "windows-latest" ]; then
-            curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe -o src-tauri/bin/yt-dlp-x86_64-pc-windows-msvc.exe
+          TAG="${YTDLP_TAG}"
+          if [ "$TAG" = "latest" ]; then
+            BASE="https://github.com/yt-dlp/yt-dlp/releases/latest/download"
+          else
+            BASE="https://github.com/yt-dlp/yt-dlp/releases/download/${TAG}"
           fi
+          curl -fsSL "${BASE}/${{ matrix.sidecar_asset }}" -o "src-tauri/bin/${{ matrix.sidecar_name }}"
+          if [[ "${{ matrix.sidecar_name }}" != *.exe ]]; then
+            chmod +x "src-tauri/bin/${{ matrix.sidecar_name }}"
+          fi
+          echo "Bundled sidecar: ${{ matrix.sidecar_name }} (yt-dlp tag=${TAG}, asset=${{ matrix.sidecar_asset }})"
 
       - name: Build and Release with Tauri Action
         uses: tauri-apps/tauri-action@v0
@@ -57,6 +81,7 @@ jobs:
 
             #### Supported platforms
             - **macOS (Apple Silicon: M1 / M2 / M3 / M4)**: download `*_aarch64.dmg`
+            - **macOS (Intel x86_64)**: download `*_x64.dmg` / `*_x86_64.dmg`
             - **Windows (x64)**: download `*-setup.exe` / `*.msi`
 
             #### First launch on macOS (unidentified developer)
@@ -67,7 +92,8 @@ jobs:
             #### First launch on Windows (SmartScreen)
             If SmartScreen appears: More info → Run anyway.
 
-            Intel Mac and Linux official binaries are not included in this release yet (build from source).
+            Linux official binaries are not included in this release yet (build from source).
+            Release process / yt-dlp sidecar: see docs/RELEASING.md
             Docs: https://github.com/s4ngwoo/youtube-playlist-downloader#readme
           releaseDraft: false
           prerelease: false

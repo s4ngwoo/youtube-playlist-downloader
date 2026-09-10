@@ -13,6 +13,7 @@
 | [FAQ.md](FAQ.md) | 자주 묻는 질문 |
 | [SUPPORT.md](SUPPORT.md) | 지원 안내 |
 | [CHANGELOG.md](CHANGELOG.md) | 변경 이력 |
+| [RELEASING.md](RELEASING.md) | 태그 릴리즈·yt-dlp 사이드카 정책 |
 
 ## README
 

@@ -18,12 +18,16 @@ Release builds may not be Apple-notarized. Use **right-click → Open** (or **Op
 
 ## Downloads are slow or failing
 
-1. Update the `yt-dlp` sidecar to the latest release  
+1. Update the `yt-dlp` sidecar to the latest release (maintainers: [RELEASING.md](RELEASING.md))  
 2. Install **Deno** and ensure it is on your `PATH`  
 3. Confirm **FFmpeg** is installed (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin`, or PATH)  
 4. Use the in-app **환경 진단 (Environment diagnose)** button in the footer  
 5. Check the in-app **log viewer** for errors  
 6. Retry later — YouTube-side changes can cause temporary breakage  
+
+## Which platforms have official installers?
+
+**macOS** (Apple Silicon and Intel) and **Windows x64** via [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest). Linux is build-from-source for now.
 
 ## Can I download DRM / Movies / paid rentals?
 

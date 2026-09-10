@@ -37,6 +37,10 @@ cd src-tauri && cargo check && cargo clippy --all-targets -- -W clippy::correctn
 
 Clippy is enforced progressively (correctness/suspicious warnings); full `-D warnings` is not required yet.
 
+## Cutting a release
+
+Maintainers: see **[RELEASING.md](RELEASING.md)** for the `v*` tag workflow, platform matrix, and how to pin/renew the bundled yt-dlp sidecar.
+
 ## Project conventions
 
 - **Frontend:** React 19 + TypeScript + Tailwind CSS v4 + Zustand (`src/`)

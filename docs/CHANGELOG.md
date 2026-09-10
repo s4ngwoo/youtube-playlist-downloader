@@ -18,14 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - In-app **Environment diagnose** action (footer) via `diagnose_environment`
 - Persistent app settings (`settings.json`): download folder, concurrency (1–8), audio format (m4a/mp3)
 - UI controls for concurrency and output format; one-time migration from `localStorage` download path
+- GitHub Release matrix: **macOS Intel (x86_64)** alongside Apple Silicon and Windows
+- [RELEASING.md](RELEASING.md) / [ko/RELEASING.md](ko/RELEASING.md) — tag checklist and yt-dlp sidecar pin/renew procedure
 
 ### Changed
 
 - Aligned `tauri-plugin-store` Cargo dependency to `2.4` (was `2.0.0-rc.0`)
 - Corrected `package.json` / `Cargo.toml` homepage and repository URLs to this repo
-- Updated GitHub Release notes template to list Windows x64 as officially supported alongside macOS Apple Silicon
+- Updated GitHub Release notes template for Apple Silicon, Intel Mac, and Windows x64
 - Documented CI commands in Contributing guides
 - FAQ: Windows FFmpeg paths and Environment diagnose button
+- Release workflow downloads yt-dlp via configurable `YTDLP_TAG` (`latest` or a pinned tag)
 
 ### Removed
 

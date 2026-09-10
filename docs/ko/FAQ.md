@@ -20,12 +20,16 @@
 
 ## 다운로드가 느리거나 실패해요
 
-1. `yt-dlp` 사이드카를 최신으로 업데이트  
+1. `yt-dlp` 사이드카를 최신으로 업데이트 (메인테이너: [RELEASING.md](RELEASING.md))  
 2. **Deno**를 설치하고 `PATH`에 두기  
 3. **FFmpeg** 설치 확인 (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin` 또는 PATH)  
 4. 하단 **환경 진단** 버튼으로 FFmpeg/Deno/사이드카 기대 파일명 확인  
 5. 앱 **로그 뷰어**에서 오류 확인  
 6. 나중에 다시 시도 — YouTube 측 변경으로 일시적으로 깨질 수 있음  
+
+## 공식 설치 파일은 어떤 플랫폼인가요?
+
+**macOS**(Apple Silicon·Intel)와 **Windows x64**는 [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest)에서 받을 수 있습니다. Linux는 당분간 소스 빌드입니다.
 
 ## DRM / 영화 / 유료 대여를 받을 수 있나요?
 

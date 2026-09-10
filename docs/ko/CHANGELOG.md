@@ -19,14 +19,17 @@
 - 푸터 **환경 진단** (`diagnose_environment`)
 - 앱 설정 저장 (`settings.json`): 저장 폴더, 동시성(1–8), 오디오 포맷(m4a/mp3)
 - 동시성·포맷 UI; legacy `localStorage` 저장 경로 1회 마이그레이션
+- GitHub Release 매트릭스: Apple Silicon·Windows에 더해 **macOS Intel (x86_64)**
+- [RELEASING.md](RELEASING.md) / [영문](../RELEASING.md) — 태그 체크리스트·yt-dlp 사이드카 고정/갱신
 
 ### Changed
 
 - `tauri-plugin-store` Cargo 의존성을 `2.4`로 정렬 (기존 `2.0.0-rc.0`)
 - `package.json` / `Cargo.toml` homepage·repository URL을 이 레포로 수정
-- GitHub Release 노트 템플릿에 Windows x64를 macOS Apple Silicon과 함께 공식 지원으로 명시
+- GitHub Release 노트 템플릿에 Apple Silicon·Intel Mac·Windows x64 공식 지원 명시
 - 기여 가이드에 CI 실행 방법 문서화
 - FAQ: Windows FFmpeg 경로 및 환경 진단 버튼 안내
+- 릴리즈 워크플로가 `YTDLP_TAG`(`latest` 또는 고정 태그)로 yt-dlp를 받도록 정리
 
 ### Removed
 

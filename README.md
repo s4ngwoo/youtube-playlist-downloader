@@ -43,8 +43,8 @@ Pre-built binaries are available on **[GitHub Releases](https://github.com/s4ngw
 | Platform | Status | Installer / Binary | Notes |
 | :--- | :---: | :--- | :--- |
 | **macOS (Apple Silicon)** | **Official** | `*.dmg` (`aarch64`) | M1 / M2 / M3 / M4 |
+| **macOS (Intel x86_64)** | **Official** | `*.dmg` (`x64` / `x86_64`) | Intel Mac |
 | **Windows (x64)** | **Official** | `*-setup.exe`, `*.msi` | Windows 10/11 (64-bit) |
-| **macOS (Intel x86_64)** | In progress | — | Build from source |
 | **Linux** | In progress | — | Build from source |
 
 ### First launch on macOS
@@ -251,7 +251,8 @@ npm run tauri build
 - [ ] In-app yt-dlp auto-update
 - [ ] Richer download history / folder shortcuts
 - [ ] Built-in mini audio preview player
-- [ ] Official Linux and Intel macOS release binaries
+- [x] Official Intel macOS release binaries
+- [ ] Official Linux release binaries
 
 ---
 
