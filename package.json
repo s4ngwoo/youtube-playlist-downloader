@@ -5,10 +5,10 @@
   "license": "GPL-3.0-or-later",
   "type": "module",
   "author": "Lee SangWoo <s4ngwoo.lee@gmail.com> (https://github.com/s4ngwoo)",
-  "homepage": "https://github.com/s4ngwoo",
+  "homepage": "https://github.com/s4ngwoo/youtube-playlist-downloader",
   "repository": {
     "type": "git",
-    "url": "https://github.com/s4ngwoo"
+    "url": "https://github.com/s4ngwoo/youtube-playlist-downloader.git"
   },
   "scripts": {
     "dev": "vite",

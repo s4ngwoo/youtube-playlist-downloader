@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+### Changed
+
+- Aligned `tauri-plugin-store` Cargo dependency to `2.4` (was `2.0.0-rc.0`)
+- Corrected `package.json` / `Cargo.toml` homepage and repository URLs to this repo
+- Updated GitHub Release notes template to list Windows x64 as officially supported alongside macOS Apple Silicon
+
+### Removed
+
+- Unused `src-tauri` scratch/debug helpers (`scratch.rs`, `test_*.rs`, `string_to_item_key.rs`, `match_keys.py`)
+
 ### Documentation
 
 - Reorganized project docs under `docs/`

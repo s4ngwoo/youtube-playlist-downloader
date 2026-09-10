@@ -8,6 +8,16 @@
 
 ## [Unreleased]
 
+### Changed
+
+- `tauri-plugin-store` Cargo 의존성을 `2.4`로 정렬 (기존 `2.0.0-rc.0`)
+- `package.json` / `Cargo.toml` homepage·repository URL을 이 레포로 수정
+- GitHub Release 노트 템플릿에 Windows x64를 macOS Apple Silicon과 함께 공식 지원으로 명시
+
+### Removed
+
+- 미사용 `src-tauri` scratch/디버그 파일 (`scratch.rs`, `test_*.rs`, `string_to_item_key.rs`, `match_keys.py`)
+
 ### Documentation
 
 - 프로젝트 문서를 `docs/`로 정리
