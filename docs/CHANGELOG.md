@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - GitHub Actions CI on PRs and `main` (frontend typecheck, Rust check/clippy/test)
 - Unit tests for parser title cleaning/regexes, NFC name normalization, and yt-dlp entry validation
 - `npm run typecheck` and `npm run test:rust` scripts
+- Stronger environment detection for FFmpeg/Deno (including common Windows install paths)
+- Pre-download FFmpeg requirement check with Korean install hints; Deno missing is warning-only
+- Sidecar errors now include the expected yt-dlp binary name for the current platform
+- In-app **Environment diagnose** action (footer) via `diagnose_environment`
 
 ### Changed
 
@@ -19,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Corrected `package.json` / `Cargo.toml` homepage and repository URLs to this repo
 - Updated GitHub Release notes template to list Windows x64 as officially supported alongside macOS Apple Silicon
 - Documented CI commands in Contributing guides
+- FAQ: Windows FFmpeg paths and Environment diagnose button
 
 ### Removed
 

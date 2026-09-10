@@ -125,3 +125,27 @@ pub async fn open_log_window(app: tauri::AppHandle) -> Result<(), crate::AppErro
     Ok(())
 }
 
+/// 환경 진단 (FFmpeg / Deno / 사이드카 기대 파일명)
+#[tauri::command]
+pub fn diagnose_environment() -> Result<crate::services::environment::EnvironmentReport, crate::AppError> {
+    let report = crate::services::environment::collect_environment_report();
+    logger::info(
+        "environment",
+        &format!(
+            "환경 진단 — os={}/{} ffmpeg={} deno={} sidecar={}",
+            report.os,
+            report.arch,
+            report
+                .ffmpeg_location
+                .as_deref()
+                .unwrap_or("(없음)"),
+            report.deno_path.as_deref().unwrap_or("(없음)"),
+            report.sidecar_expected_name
+        ),
+    );
+    for w in &report.warnings {
+        logger::warn("environment", w);
+    }
+    Ok(report)
+}
+

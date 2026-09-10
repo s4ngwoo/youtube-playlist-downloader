@@ -13,6 +13,10 @@
 - PR/`main`용 GitHub Actions CI (프론트 typecheck, Rust check/clippy/test)
 - parser·NFC·yt-dlp 엔트리 검증 단위 테스트
 - `npm run typecheck`, `npm run test:rust` 스크립트
+- FFmpeg/Deno 환경 탐색 강화 (Windows 일반 설치 경로 포함)
+- 다운로드 전 FFmpeg 필수 검사(한국어 설치 안내); Deno 미설치는 경고만
+- 사이드카 오류에 플랫폼별 기대 yt-dlp 파일명 표시
+- 푸터 **환경 진단** (`diagnose_environment`)
 
 ### Changed
 
@@ -20,6 +24,7 @@
 - `package.json` / `Cargo.toml` homepage·repository URL을 이 레포로 수정
 - GitHub Release 노트 템플릿에 Windows x64를 macOS Apple Silicon과 함께 공식 지원으로 명시
 - 기여 가이드에 CI 실행 방법 문서화
+- FAQ: Windows FFmpeg 경로 및 환경 진단 버튼 안내
 
 ### Removed
 

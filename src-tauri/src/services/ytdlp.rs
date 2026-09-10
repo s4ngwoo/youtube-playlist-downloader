@@ -41,8 +41,9 @@ pub async fn fetch_playlist_dump(app: &tauri::AppHandle, url: &str) -> Result<Yt
         .shell()
         .sidecar("yt-dlp")
         .map_err(|e| {
-            logger::error("ytdlp", &format!("yt-dlp 사이드카 생성 실패: {e}"));
-            crate::AppError::DownloadError(format!("yt-dlp 사이드카 생성 실패: {e}"))
+            let msg = environment::sidecar_error_message(&e);
+            logger::error("ytdlp", &msg);
+            crate::AppError::DownloadError(msg)
         })?
         .args(dump_args);
 
@@ -284,16 +285,18 @@ pub async fn process_item(
         .shell()
         .sidecar("yt-dlp")
         .map_err(|e| {
-            logger::error("download", &format!("[트랙 #{}] 사이드카 생성 실패: {}", task.item_index, e));
-            format!("yt-dlp 사이드카 생성 실패: {e}")
+            let msg = environment::sidecar_error_message(&e);
+            logger::error("download", &format!("[트랙 #{}] {msg}", task.item_index));
+            msg
         })?
         .args(yt_dlp_args);
 
     let (rx, child) = command
         .spawn()
         .map_err(|e| {
-            logger::error("download", &format!("[트랙 #{}] 프로세스 실행 실패: {}", task.item_index, e));
-            format!("yt-dlp 프로세스 실행 실패: {e}")
+            let msg = environment::sidecar_error_message(&e);
+            logger::error("download", &format!("[트랙 #{}] {msg}", task.item_index));
+            msg
         })?;
 
     let pid = child.pid();

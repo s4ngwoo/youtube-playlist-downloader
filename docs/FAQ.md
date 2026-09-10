@@ -20,9 +20,10 @@ Release builds may not be Apple-notarized. Use **right-click → Open** (or **Op
 
 1. Update the `yt-dlp` sidecar to the latest release  
 2. Install **Deno** and ensure it is on your `PATH`  
-3. Confirm **FFmpeg** is installed  
-4. Check the in-app **log viewer** for errors  
-5. Retry later — YouTube-side changes can cause temporary breakage  
+3. Confirm **FFmpeg** is installed (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin`, or PATH)  
+4. Use the in-app **환경 진단 (Environment diagnose)** button in the footer  
+5. Check the in-app **log viewer** for errors  
+6. Retry later — YouTube-side changes can cause temporary breakage  
 
 ## Can I download DRM / Movies / paid rentals?
 

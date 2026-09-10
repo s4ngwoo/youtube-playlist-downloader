@@ -49,6 +49,21 @@ pub fn run() {
             if let Ok(log_dir) = app.path().app_log_dir() {
                 services::logger::init(log_dir);
             }
+            // 시작 시 환경 스냅샷 + Deno 경고(치명 아님)
+            let report = services::environment::collect_environment_report();
+            services::logger::info(
+                "environment",
+                &format!(
+                    "시작 환경 — ffmpeg={} deno={} sidecar={}",
+                    report
+                        .ffmpeg_location
+                        .as_deref()
+                        .unwrap_or("(없음)"),
+                    report.deno_path.as_deref().unwrap_or("(없음)"),
+                    report.sidecar_expected_name
+                ),
+            );
+            services::environment::warn_if_deno_missing();
             #[cfg(target_os = "macos")]
             set_dock_icon();
             Ok(())
@@ -71,6 +86,7 @@ pub fn run() {
             commands::utils::read_app_logs,
             commands::utils::clear_app_logs,
             commands::utils::open_log_window,
+            commands::utils::diagnose_environment,
             commands::metadata::read_metadata,
             commands::metadata::write_metadata,
             commands::metadata::list_audio_files

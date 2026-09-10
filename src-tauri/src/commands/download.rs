@@ -5,6 +5,7 @@ use crate::commands::utils::get_default_download_dir;
 use crate::models::{DownloadTask, PlaylistMetadata, TrackMetadata};
 use crate::parser::DownloadRegexes;
 use crate::process::AppState;
+use crate::services::environment;
 use crate::services::ytdlp::{fetch_playlist_dump, is_valid_entry, process_item};
 use crate::services::logger;
 
@@ -78,6 +79,10 @@ pub async fn download_audio(
     if selected_tracks.is_empty() {
         return Err(crate::AppError::DownloadError("다운로드할 항목이 없습니다.".into()));
     }
+
+    // 다운로드 전 환경 검사: FFmpeg 필수, Deno는 경고만
+    environment::ensure_ffmpeg_available()?;
+    environment::warn_if_deno_missing();
 
     let actual_download_dir = if let Some(dir) = download_dir.as_ref() {
         if !dir.trim().is_empty() {
