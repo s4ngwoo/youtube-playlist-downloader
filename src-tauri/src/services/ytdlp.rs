@@ -311,3 +311,37 @@ pub async fn process_item(
 
     result
 }
+
+#[cfg(test)]
+mod tests {
+    use super::is_valid_entry;
+    use crate::models::YtDlpEntry;
+
+    fn entry(title: Option<&str>) -> YtDlpEntry {
+        YtDlpEntry {
+            url: Some("https://www.youtube.com/watch?v=dQw4w9WgXcQ".into()),
+            id: Some("dQw4w9WgXcQ".into()),
+            title: title.map(|t| t.to_string()),
+        }
+    }
+
+    #[test]
+    fn accepts_normal_titles() {
+        assert!(is_valid_entry(&entry(Some("My Cool Track"))));
+    }
+
+    #[test]
+    fn rejects_missing_or_empty_title() {
+        assert!(!is_valid_entry(&entry(None)));
+        assert!(!is_valid_entry(&entry(Some(""))));
+        assert!(!is_valid_entry(&entry(Some("   "))));
+    }
+
+    #[test]
+    fn rejects_private_and_deleted_markers() {
+        assert!(!is_valid_entry(&entry(Some("[Private video]"))));
+        assert!(!is_valid_entry(&entry(Some("[Deleted video]"))));
+        assert!(!is_valid_entry(&entry(Some("this is a Private Video copy"))));
+        assert!(!is_valid_entry(&entry(Some("Deleted video placeholder"))));
+    }
+}

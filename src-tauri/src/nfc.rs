@@ -2,6 +2,11 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use unicode_normalization::UnicodeNormalization;
 
+/// 문자열을 Unicode NFC로 정규화합니다 (순수 함수, 테스트용으로도 사용).
+pub fn name_to_nfc(name: &str) -> String {
+    name.nfc().collect()
+}
+
 /// 파일 경로의 마지막 파일명을 NFC로 변환한 뒤 디스크의 파일명을 변경합니다.
 pub fn normalize_file_nfc(file_path: &Path) -> Result<PathBuf, String> {
     if !file_path.exists() {
@@ -14,7 +19,7 @@ pub fn normalize_file_nfc(file_path: &Path) -> Result<PathBuf, String> {
         .and_then(|n| n.to_str())
         .ok_or("올바르지 않은 파일명입니다.")?;
 
-    let normalized_name: String = original_name.nfc().collect();
+    let normalized_name = name_to_nfc(original_name);
 
     if original_name != normalized_name {
         let new_path = parent.join(&normalized_name);
@@ -50,4 +55,28 @@ pub fn normalize_directory_nfc(dir_path: &Path) -> Result<usize, String> {
     }
 
     Ok(normalized_count)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use unicode_normalization::UnicodeNormalization;
+
+    #[test]
+    fn name_to_nfc_composes_decomposed_hangul() {
+        // "각" as NFD: ㄱ + ㅏ + ㄱ
+        let nfd: String = "각".nfd().collect();
+        assert_ne!(nfd, "각");
+        assert_eq!(name_to_nfc(&nfd), "각");
+    }
+
+    #[test]
+    fn name_to_nfc_keeps_already_composed() {
+        assert_eq!(name_to_nfc("한글파일.m4a"), "한글파일.m4a");
+    }
+
+    #[test]
+    fn name_to_nfc_ascii_unchanged() {
+        assert_eq!(name_to_nfc("track-01.m4a"), "track-01.m4a");
+    }
 }

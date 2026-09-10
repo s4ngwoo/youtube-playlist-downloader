@@ -22,6 +22,23 @@ npm install
 npm run tauri dev
 ```
 
+## PR 전 검사
+
+CI (`.github/workflows/ci.yml`)가 PR 및 `main` 푸시마다 실행됩니다.
+
+```bash
+# Frontend
+npm ci
+npm run typecheck
+
+# Rust
+npm run test:rust
+# 또는:
+cd src-tauri && cargo check && cargo clippy --all-targets -- -W clippy::correctness -W clippy::suspicious && cargo test
+```
+
+Clippy는 점진 적용(correctness/suspicious). 아직 전체 `-D warnings`는 강제하지 않습니다.
+
 ## 프로젝트 규칙
 
 - **프론트엔드:** React 19 + TypeScript + Tailwind CSS v4 + Zustand (`src/`)

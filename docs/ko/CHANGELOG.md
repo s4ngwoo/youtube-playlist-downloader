@@ -8,11 +8,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- PR/`main`용 GitHub Actions CI (프론트 typecheck, Rust check/clippy/test)
+- parser·NFC·yt-dlp 엔트리 검증 단위 테스트
+- `npm run typecheck`, `npm run test:rust` 스크립트
+
 ### Changed
 
 - `tauri-plugin-store` Cargo 의존성을 `2.4`로 정렬 (기존 `2.0.0-rc.0`)
 - `package.json` / `Cargo.toml` homepage·repository URL을 이 레포로 수정
 - GitHub Release 노트 템플릿에 Windows x64를 macOS Apple Silicon과 함께 공식 지원으로 명시
+- 기여 가이드에 CI 실행 방법 문서화
 
 ### Removed
 

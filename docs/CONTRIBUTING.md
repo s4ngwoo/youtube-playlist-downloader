@@ -20,6 +20,23 @@ npm install
 npm run tauri dev
 ```
 
+## Checks before opening a PR
+
+CI (`.github/workflows/ci.yml`) runs on every PR and push to `main`:
+
+```bash
+# Frontend
+npm ci
+npm run typecheck
+
+# Rust (from repo root or src-tauri/)
+npm run test:rust
+# equivalent:
+cd src-tauri && cargo check && cargo clippy --all-targets -- -W clippy::correctness -W clippy::suspicious && cargo test
+```
+
+Clippy is enforced progressively (correctness/suspicious warnings); full `-D warnings` is not required yet.
+
 ## Project conventions
 
 - **Frontend:** React 19 + TypeScript + Tailwind CSS v4 + Zustand (`src/`)

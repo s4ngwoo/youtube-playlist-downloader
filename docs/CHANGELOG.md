@@ -7,11 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+### Added
+
+- GitHub Actions CI on PRs and `main` (frontend typecheck, Rust check/clippy/test)
+- Unit tests for parser title cleaning/regexes, NFC name normalization, and yt-dlp entry validation
+- `npm run typecheck` and `npm run test:rust` scripts
+
 ### Changed
 
 - Aligned `tauri-plugin-store` Cargo dependency to `2.4` (was `2.0.0-rc.0`)
 - Corrected `package.json` / `Cargo.toml` homepage and repository URLs to this repo
 - Updated GitHub Release notes template to list Windows x64 as officially supported alongside macOS Apple Silicon
+- Documented CI commands in Contributing guides
 
 ### Removed
 

@@ -61,3 +61,63 @@ impl DownloadRegexes {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clean_title_strips_extension_and_part_suffix() {
+        assert_eq!(
+            clean_title_from_destination("/tmp/My Song.m4a.part"),
+            "My Song"
+        );
+        assert_eq!(
+            clean_title_from_destination("Artist - Track.m4a"),
+            "Artist - Track"
+        );
+    }
+
+    #[test]
+    fn clean_title_strips_ytdlp_format_tag() {
+        assert_eq!(
+            clean_title_from_destination("/dl/Hello.f140.m4a"),
+            "Hello"
+        );
+        assert_eq!(
+            clean_title_from_destination("Clip.f251.webm.part"),
+            "Clip"
+        );
+    }
+
+    #[test]
+    fn progress_regex_captures_percent() {
+        let re = DownloadRegexes::new();
+        let caps = re
+            .re_progress
+            .captures("[download]  45.3% of ~10.00MiB at  1.20MiB/s ETA 00:04")
+            .expect("progress match");
+        assert_eq!(&caps[1], "45.3");
+    }
+
+    #[test]
+    fn item_regex_captures_indexes() {
+        let re = DownloadRegexes::new();
+        let caps = re
+            .re_item
+            .captures("[download] Downloading item 3 of 12")
+            .expect("item match");
+        assert_eq!(&caps[1], "3");
+        assert_eq!(&caps[2], "12");
+    }
+
+    #[test]
+    fn error_regex_captures_message() {
+        let re = DownloadRegexes::new();
+        let caps = re
+            .re_error
+            .captures("ERROR: [youtube] abc: Video unavailable")
+            .expect("error match");
+        assert!(caps[1].contains("Video unavailable"));
+    }
+}
