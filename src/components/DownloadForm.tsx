@@ -113,12 +113,17 @@ export function DownloadForm() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center text-xs">
-        <label className="flex items-center gap-2 text-neutral-400">
+        <label
+          className="flex items-center gap-2 text-neutral-400"
+          title={t("form.concurrencyHint")}
+        >
           <span className="shrink-0 font-medium">{t("form.concurrency")}</span>
           <select
             value={concurrency}
             disabled={controlsDisabled}
             onChange={(e) => handleConcurrencyChange(Number(e.target.value))}
+            title={t("form.concurrencyHint")}
+            aria-label={t("form.concurrency")}
             className="bg-neutral-950/80 border border-neutral-700/80 rounded-lg px-2.5 py-1.5 text-neutral-200 focus:outline-none focus:border-rose-500 disabled:opacity-50 cursor-pointer"
           >
             {Array.from(

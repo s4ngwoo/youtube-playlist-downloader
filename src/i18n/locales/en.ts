@@ -25,6 +25,7 @@ export const en: MessageCatalog = {
   "form.zipping": "Zipping...",
   "form.changeFolder": "Change folder",
   "form.concurrency": "Concurrency",
+  "form.concurrencyHint": "How many tracks run at once (1–8). Default 3. Shares your link and CPU, so higher values often are not proportionally faster.",
   "form.audioFormat": "Audio format",
   "form.urlPlaceholder": "Paste a YouTube video or playlist URL",
   "form.cancel": "Cancel",

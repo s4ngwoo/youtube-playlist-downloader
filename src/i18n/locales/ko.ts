@@ -25,6 +25,7 @@ export const ko: MessageCatalog = {
   "form.zipping": "압축 중...",
   "form.changeFolder": "폴더 변경",
   "form.concurrency": "동시 다운로드",
+  "form.concurrencyHint": "한 번에 돌릴 트랙 수(1–8). 기본 3. 회선·CPU를 나눠 쓰므로 올려도 시간이 배수로 줄지 않을 수 있습니다.",
   "form.audioFormat": "오디오 포맷",
   "form.urlPlaceholder": "유튜브 단일 영상 또는 재생목록(Playlist) URL을 입력하세요",
   "form.cancel": "취소 (Cancel)",
