@@ -30,8 +30,12 @@ export function Footer() {
       const report = await diagnoseEnvironment();
       const lines = [
         t("footer.diag.os", { os: report.os, arch: report.arch }),
-        `FFmpeg: ${report.ffmpegFound ? report.ffmpegLocation : t("footer.diag.none")}`,
-        `Deno: ${report.denoFound ? report.denoPath : t("footer.diag.denoNone")}`,
+        t("footer.diag.ffmpeg", {
+          value: report.ffmpegFound ? String(report.ffmpegLocation ?? "") : t("footer.diag.none"),
+        }),
+        t("footer.diag.deno", {
+          value: report.denoFound ? String(report.denoPath ?? "") : t("footer.diag.denoNone"),
+        }),
         t("footer.diag.sidecar", { name: report.sidecarExpectedName }),
         t("footer.diag.ytdlpSource", {
           source: sourceLabel(report.ytdlpSource),
