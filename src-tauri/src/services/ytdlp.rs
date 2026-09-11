@@ -227,10 +227,6 @@ pub fn build_ytdlp_args(
         "--convert-thumbnails".into(),
         "jpg".into(),
         "--embed-metadata".into(),
-        "--write-subs".into(),
-        "--embed-subs".into(),
-        "--sub-langs".into(),
-        "all,-live_chat".into(),
         "--newline".into(),
     ];
 
@@ -500,6 +496,24 @@ mod tests {
         assert!(args
             .windows(2)
             .any(|w| w[0] == "--audio-format" && w[1] == "m4a"));
+    }
+
+    #[test]
+    fn build_args_omits_subtitles_by_default() {
+        let task = DownloadTask {
+            url: "https://example.com/v".into(),
+            item_index: 1,
+            total_items: 1,
+            title: None,
+        };
+        let args = build_ytdlp_args(&task, "/tmp", "m4a");
+        assert!(
+            !args.iter().any(|a| a == "--write-subs"
+                || a == "--embed-subs"
+                || a == "--sub-langs"
+                || a == "all,-live_chat"),
+            "audio downloads should not pull subtitles by default: {args:?}"
+        );
     }
 
     #[test]

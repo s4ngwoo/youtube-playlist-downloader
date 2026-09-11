@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Changed
 
+- Audio extract no longer requests/embeds subtitles by default (`--write-subs` / `--embed-subs` removed; optional toggle later)
 - Advanced track view shows a short yt-dlp console (recent lines + stage labels); Basic stays badge-only
 - Track title fallback and environment-diagnose labels follow EN/KO i18n (no hard-coded Korean/English fragments)
 - Overall progress averages selected tracks in the store map (not a dense `1..N` index loop)
@@ -30,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Notes
 
-- Work queue (maintainer): **Sprint 4** remaining after local DMG smoke — default **off** for subtitle download on audio extracts.
+- Sprint 4 smoke follow-ups (classify · history folder · Advanced console · subtitle default off) landed in Unreleased.
 - Deferred: split yt-dlp into download-only then post-process passes (A2-pipe); Wave D extras on demand.
 
 ## [0.2.0] - 2026-09-11
