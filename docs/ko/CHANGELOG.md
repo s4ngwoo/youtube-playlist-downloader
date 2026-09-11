@@ -13,6 +13,7 @@
 - **LGPL FFmpeg / ffprobe** 사이드카 번들 (공식 빌드는 별도 시스템 설치 불필요); 런타임은 번들 우선 → 시스템 PATH
 - `scripts/prepare-ffmpeg-sidecar.sh` — Windows: BtbN `*-lgpl` · macOS: LGPL 소스 빌드
 - 서드파티 고지: [THIRD_PARTY.md](THIRD_PARTY.md) / [ko](ko/THIRD_PARTY.md)
+- 번들 FFmpeg 사용자·메인테이너 가이드: [FFMPEG.md](FFMPEG.md) / [ko](ko/FFMPEG.md); FAQ에 설치 vs 소스 빌드·버전 핀 항목
 
 ### Changed
 

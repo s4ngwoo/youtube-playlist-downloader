@@ -22,6 +22,8 @@
 
 번들 사이드카가 없을 때(손상된 설치·커스텀 빌드 등)는 **시스템 FFmpeg**를 대체로 사용합니다.
 
+**누가 뭘 설치해야 하나:** 공식 Release 설치본 사용자는 Chocolatey/Homebrew FFmpeg가 **필요 없습니다.** 소스 빌드는 `scripts/prepare-ffmpeg-sidecar.sh`를 쓰세요. [FFMPEG.md](FFMPEG.md) 참고.
+
 ## Deno (선택, 번들 안 함)
 
 - **역할:** yt-dlp YouTube JS 챌린지용 선택 런타임 (`--js-runtimes`)

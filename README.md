@@ -97,10 +97,12 @@ This project remains **open source (GPL-3.0)**. Full docs index: [docs/README.md
 | Contributing | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | [docs/ko/CONTRIBUTING.md](docs/ko/CONTRIBUTING.md) |
 | Code of Conduct | [docs/CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) | [docs/ko/CODE_OF_CONDUCT.md](docs/ko/CODE_OF_CONDUCT.md) |
 | FAQ | [docs/FAQ.md](docs/FAQ.md) | [docs/ko/FAQ.md](docs/ko/FAQ.md) |
+| FFmpeg (bundled) | [docs/FFMPEG.md](docs/FFMPEG.md) | [docs/ko/FFMPEG.md](docs/ko/FFMPEG.md) |
 | Concurrent downloads | [docs/CONCURRENCY.md](docs/CONCURRENCY.md) | [docs/ko/CONCURRENCY.md](docs/ko/CONCURRENCY.md) |
 | Output filenames | [docs/FILENAMES.md](docs/FILENAMES.md) | [docs/ko/FILENAMES.md](docs/ko/FILENAMES.md) |
 | Support | [docs/SUPPORT.md](docs/SUPPORT.md) | [docs/ko/SUPPORT.md](docs/ko/SUPPORT.md) |
 | Releasing | [docs/RELEASING.md](docs/RELEASING.md) | [docs/ko/RELEASING.md](docs/ko/RELEASING.md) |
+| Third-party | [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) | [docs/ko/THIRD_PARTY.md](docs/ko/THIRD_PARTY.md) |
 | Changelog | [docs/CHANGELOG.md](docs/CHANGELOG.md) | [docs/ko/CHANGELOG.md](docs/ko/CHANGELOG.md) |
 
 Korean overview: **[README_KO.md](README_KO.md)**
@@ -264,7 +266,7 @@ npm run tauri build
 ## Limitations
 
 - YouTube player / signature changes can temporarily break or throttle downloads; keep `yt-dlp` (and Deno) updated (header **Update yt-dlp** or the next app release).
-- Official builds bundle LGPL FFmpeg; if diagnose shows it missing, reinstall the app (or use a system FFmpeg fallback / prepare sidecars when developing).
+- Official builds bundle LGPL FFmpeg; if diagnose shows it missing, reinstall the app (or use a system FFmpeg fallback / prepare sidecars when developing). See [FFMPEG.md](docs/FFMPEG.md).
 - **Copyright & ToS**: Intended for personal / educational offline use. You are responsible for complying with copyright law and YouTube’s Terms of Service. See [Terms of Use](docs/TERMS.md).
 - DRM-protected media cannot be downloaded.
 
@@ -296,4 +298,4 @@ npm run tauri build
 
 Licensed under the **[GNU General Public License v3.0](LICENSE)**. You may study, modify, and redistribute the software under GPL-3.0 terms; derivative works must remain open source under the same license.
 
-Bundled **FFmpeg** is provided under **LGPL** terms — see [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
+Bundled **FFmpeg** is provided under **LGPL** terms — see [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) and [docs/FFMPEG.md](docs/FFMPEG.md).

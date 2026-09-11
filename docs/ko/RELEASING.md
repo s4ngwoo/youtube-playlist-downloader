@@ -16,6 +16,8 @@
 
 Linux 공식 설치 파일은 **계획 없음**. 서드파티 고지: [THIRD_PARTY.md](THIRD_PARTY.md).
 
+**일반 사용자 vs 소스 빌드**(공식 설치본은 Chocolatey 불필요, git clone은 `prepare-ffmpeg-sidecar.sh` 필요): **[FFMPEG.md](FFMPEG.md)** 참고.
+
 ## 태그 전 체크리스트
 
 1. **버전** — `package.json` · `src-tauri/Cargo.toml` · `src-tauri/tauri.conf.json` 함께 올리기  
@@ -34,7 +36,7 @@ env:
 ```
 
 로컬 준비: `./scripts/prepare-ffmpeg-sidecar.sh`  
-자세한 표·갱신 절차는 영문 [RELEASING.md](../RELEASING.md)와 동일합니다.
+자세한 표·갱신 절차·버전 핀/드리프트는 영문 [RELEASING.md](../RELEASING.md) 및 [FFMPEG.md](FFMPEG.md)와 동일합니다.
 
 ## 인앱 yt-dlp 업데이트 vs 릴리즈 사이드카
 
@@ -43,4 +45,4 @@ FFmpeg는 릴리즈 번들만 제공(인앱 FFmpeg 업데이트 없음).
 
 ## 관련
 
-- [CONTRIBUTING.md](CONTRIBUTING.md) · [FAQ.md](FAQ.md) · [THIRD_PARTY.md](THIRD_PARTY.md) · [CHANGELOG.md](CHANGELOG.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md) · [FAQ.md](FAQ.md) · [FFMPEG.md](FFMPEG.md) · [THIRD_PARTY.md](THIRD_PARTY.md) · [CHANGELOG.md](CHANGELOG.md)

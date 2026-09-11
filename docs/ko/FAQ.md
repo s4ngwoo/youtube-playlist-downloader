@@ -14,6 +14,25 @@
 
 환경설정, 히스토리, 로그는 **기기 내부**에 보관됩니다. 개발자용 분석 계정은 없습니다. 다운로드 과정에서 YouTube에 접속하며, **yt-dlp 업데이트** 시 GitHub에도 접속할 수 있습니다. 자세한 내용: [PRIVACY.md](PRIVACY.md).
 
+## FFmpeg를 직접 설치해야 하나요? (Chocolatey / Scoop / Homebrew)
+
+**공식 macOS / Windows 설치본: 아니요.** 릴리즈에 LGPL `ffmpeg` + `ffprobe`가 앱과 함께 들어 있습니다. 일반 사용자는 Chocolatey·Scoop·winget·Homebrew로 FFmpeg를 깔 필요가 **없습니다.**
+
+**소스에서 빌드**할 때(개발자·Linux): git에 바이너리가 없습니다. `./scripts/prepare-ffmpeg-sidecar.sh`를 실행하거나, 시스템 FFmpeg를 대체로 쓰세요. 자세한 내용: [FFMPEG.md](FFMPEG.md).
+
+## PC에 FFmpeg가 이미 있는데 어떤 걸 쓰나요?
+
+**번들 우선**, 번들이 없을 때만 시스템 `PATH` / 일반 설치 경로입니다. 시스템 설치본을 **덮어쓰지 않습니다.** 푸터 **환경 진단**에 `bundled` / `system`이 표시됩니다.
+
+## 매 릴리즈마다 FFmpeg가 항상 최신인가요?
+
+자동으로 넣긴 하지만 “항상 최신 master”는 아닙니다.
+
+- **Windows:** 기본 BtbN **latest** LGPL zip (떠 있는 latest)
+- **macOS:** 워크플로의 `FFMPEG_TAG`로 **핀** (예: `n7.1.1`)
+
+인앱 FFmpeg 업데이트는 없습니다. 핀·버전 차이: [FFMPEG.md](FFMPEG.md) · [RELEASING.md](RELEASING.md).
+
 ## macOS에서 “개발자를 확인할 수 없음”이라고 나와요
 
 이 프로젝트는 Apple Notarization을 **하지 않습니다**(유료 개발자 계정 없음). **우클릭 → 열기**(또는 개인정보 보호 및 보안의 **확인 없이 열기**)를 사용하세요. 절차는 [README_KO.md](../../README_KO.md)에 있습니다.
@@ -21,9 +40,9 @@
 ## 다운로드가 느리거나 실패해요
 
 1. 상단 **yt-dlp 업데이트** 버튼 사용 (앱 데이터에 최신 바이너리 오버라이드; 릴리즈 번들 사이드카는 덮어쓰지 않음)  
-2. 또는 다음 앱 릴리즈를 기다림 (번들 사이드카 갱신 — 메인테이너: [RELEASING.md](RELEASING.md))  
+2. 또는 다음 앱 릴리즈를 기다림 (yt-dlp / FFmpeg 번들 갱신 — 메인테이너: [RELEASING.md](RELEASING.md))  
 3. **Deno**를 설치하고 `PATH`에 두기 (선택, 권장)  
-4. **FFmpeg** 확인 — 공식 빌드는 LGPL FFmpeg를 번들합니다. 진단에서 없으면 앱 재설치 (개발: `scripts/prepare-ffmpeg-sidecar.sh`, 임시로 시스템 FFmpeg도 가능)  
+4. **FFmpeg** 확인 — 공식 빌드는 번들합니다. 진단에서 없으면 앱 재설치 (개발: `scripts/prepare-ffmpeg-sidecar.sh`, 임시로 시스템 FFmpeg). [FFMPEG.md](FFMPEG.md)  
 5. 하단 **환경 진단**으로 yt-dlp 소스/버전·FFmpeg 소스/Deno 확인  
 6. 앱 **로그 뷰어**에서 오류 확인  
 7. 나중에 다시 시도 — YouTube 측 변경으로 일시적으로 깨질 수 있음  
@@ -35,7 +54,7 @@
 
 ## 공식 설치 파일은 어떤 플랫폼인가요?
 
-**macOS**(Apple Silicon·Intel)와 **Windows x64**는 [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest)에서 받을 수 있습니다. **Linux 공식 설치 파일은 계획하지 않습니다**(GUI가 필요하면 소스 빌드 · 대부분 CLI `yt-dlp`로 충분).
+**macOS**(Apple Silicon·Intel)와 **Windows x64**는 [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest)에서 받을 수 있습니다. 이 빌드에는 FFmpeg가 포함됩니다. **Linux 공식 설치 파일은 계획하지 않습니다**(GUI가 필요하면 소스 빌드 · 대부분 CLI `yt-dlp`로 충분).
 
 ## DRM / 영화 / 유료 대여를 받을 수 있나요?
 
@@ -67,7 +86,7 @@
 
 ## 소스에서 빌드하려면?
 
-[README_KO.md — 설치 및 빌드](../../README_KO.md#설치-및-빌드)를 참고하세요.
+[README_KO.md — 설치 및 빌드](../../README_KO.md#설치-및-빌드)를 참고하세요. FFmpeg는 `./scripts/prepare-ffmpeg-sidecar.sh`(또는 시스템 FFmpeg 대체) — [FFMPEG.md](FFMPEG.md).
 
 ## 버그·보안 이슈는 어디에 신고하나요?
 

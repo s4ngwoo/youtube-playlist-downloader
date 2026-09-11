@@ -2,7 +2,7 @@
 
 ## Getting help
 
-1. Check the [FAQ](FAQ.md) and [README](../README.md)
+1. Check the [FAQ](FAQ.md), [FFMPEG.md](FFMPEG.md) (bundled vs system / source build), and [README](../README.md)
 2. Search [existing issues](https://github.com/s4ngwoo/youtube-playlist-downloader/issues)
 3. Open a new issue with:
    - OS and architecture (e.g. macOS 15 arm64, Windows 11 x64)

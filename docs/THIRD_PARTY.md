@@ -22,6 +22,8 @@ Korean: [ko/THIRD_PARTY.md](ko/THIRD_PARTY.md)
 
 System-installed FFmpeg remains a supported **fallback** if the bundled sidecar is missing (e.g. incomplete install or custom builds).
 
+**Who needs to install what:** end users of official Release installers do **not** need Chocolatey/Homebrew FFmpeg; source builds use `scripts/prepare-ffmpeg-sidecar.sh`. See [FFMPEG.md](FFMPEG.md).
+
 ## Deno (optional, not bundled)
 
 - **Role:** optional JS runtime for yt-dlp YouTube challenge solving (`--js-runtimes`)

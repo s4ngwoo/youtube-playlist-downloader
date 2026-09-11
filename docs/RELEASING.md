@@ -18,6 +18,8 @@ Linux official installers are **not planned** (build from source only; see READM
 
 Third-party notices: [THIRD_PARTY.md](THIRD_PARTY.md).
 
+**End-user vs source-build behavior** (Chocolatey not required for Release installers; git clones need `prepare-ffmpeg-sidecar.sh`): see **[FFMPEG.md](FFMPEG.md)**.
+
 ## Checklist before tagging
 
 1. **Version** — Bump **together**: `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` (then refresh `package-lock.json` / `Cargo.lock` as needed).
@@ -50,6 +52,10 @@ env:
 | `YTDLP_TAG=<tag>` | Download from `…/releases/download/<tag>/<asset>`. |
 | `FFMPEG_TAG` | macOS source checkout branch/tag for the LGPL build. |
 | Windows FFmpeg URL | Default BtbN `ffmpeg-master-latest-win64-lgpl.zip` (override via `FFMPEG_WIN_URL` in the prepare script). |
+
+### Version drift
+
+Windows may float on BtbN `latest` LGPL while macOS stays on `FFMPEG_TAG`. That can diverge over time. Prefer pinning both when you need reproducibility, and re-tag after a smoke test if post-process breaks. User-facing explanation: [FFMPEG.md](FFMPEG.md) · [FAQ.md](FAQ.md).
 
 ### When to pin
 
@@ -96,6 +102,7 @@ FFmpeg is release-bundled only (no in-app FFmpeg updater).
 ## Related
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) — PR checks
-- [FAQ.md](FAQ.md) — download failures / updating yt-dlp
+- [FAQ.md](FAQ.md) — download failures / updating yt-dlp / FFmpeg questions
+- [FFMPEG.md](FFMPEG.md) — bundled FFmpeg model for users and maintainers
 - [THIRD_PARTY.md](THIRD_PARTY.md) — LGPL FFmpeg notices
 - [CHANGELOG.md](CHANGELOG.md)

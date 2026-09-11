@@ -12,12 +12,31 @@ Yes. Source and binaries (when published) are available under **GPL-3.0**. See [
 
 The App keeps preferences, history, and logs **on your device**. It does not provide developer analytics accounts. Downloads contact YouTube as part of normal operation; **Update yt-dlp** may also contact GitHub. Details: [PRIVACY.md](PRIVACY.md).
 
+## Do I need to install FFmpeg myself? (Chocolatey / Scoop / Homebrew)
+
+**Official macOS / Windows installers: no.** Releases ship LGPL `ffmpeg` + `ffprobe` inside the app. You do **not** need Chocolatey, Scoop, winget, or Homebrew for FFmpeg as an end user.
+
+**Building from source** (developers, Linux): binaries are not in git. Run `./scripts/prepare-ffmpeg-sidecar.sh`, or use a system FFmpeg as fallback. Full detail: [FFMPEG.md](FFMPEG.md).
+
+## I already have FFmpeg on my PC. Which one does the app use?
+
+**Bundled first**, then system `PATH` / common locations if the bundle is missing. The app does **not** overwrite your system install. Footer **Environment diagnose** shows `bundled` or `system`.
+
+## Is FFmpeg always the newest on every release?
+
+Not exactly. Release Actions prepare FFmpeg automatically, but:
+
+- **Windows:** default BtbN **latest** LGPL zip (floating)
+- **macOS:** version **pinned** via `FFMPEG_TAG` in the workflow (e.g. `n7.1.1`)
+
+There is no in-app FFmpeg updater. Version pins and drift notes: [FFMPEG.md](FFMPEG.md) · [RELEASING.md](RELEASING.md).
+
 ## Downloads are slow or failing
 
 1. Use the header **Update yt-dlp** button (installs a newer binary under app data; does not rewrite the release-bundled sidecar)  
-2. Or wait for the next app release, which re-bundles yt-dlp (maintainers: [RELEASING.md](RELEASING.md))  
+2. Or wait for the next app release, which re-bundles yt-dlp / FFmpeg (maintainers: [RELEASING.md](RELEASING.md))  
 3. Install **Deno** and ensure it is on your `PATH` (optional but recommended)  
-4. Confirm **FFmpeg** — official builds bundle LGPL FFmpeg; if diagnose shows missing, reinstall the app (dev: `scripts/prepare-ffmpeg-sidecar.sh`, or temporary system FFmpeg)  
+4. Confirm **FFmpeg** — official builds bundle it; if diagnose shows missing, reinstall the app (dev: `scripts/prepare-ffmpeg-sidecar.sh`, or temporary system FFmpeg). See [FFMPEG.md](FFMPEG.md)  
 5. Use **Environment diagnose** in the footer (shows yt-dlp source/version plus FFmpeg source/Deno)  
 6. Check the in-app **log viewer** for errors  
 7. Retry later — YouTube-side changes can cause temporary breakage  
@@ -33,7 +52,7 @@ This project **does not** use Apple Notarization (no paid Apple Developer accoun
 
 ## Which platforms have official installers?
 
-**macOS** (Apple Silicon and Intel) and **Windows x64** via [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest). **Linux official installers are not planned** (build from source if you want the GUI; otherwise `yt-dlp` on the CLI is usually enough).
+**macOS** (Apple Silicon and Intel) and **Windows x64** via [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest). Those builds include bundled FFmpeg. **Linux official installers are not planned** (build from source if you want the GUI; otherwise `yt-dlp` on the CLI is usually enough).
 
 ## Can I download DRM / Movies / paid rentals?
 
@@ -65,7 +84,7 @@ No by default. Audio extract does not request or embed subs. An optional ON togg
 
 ## How do I build from source?
 
-See [README — Installation & Build](../README.md#installation--build).
+See [README — Installation & Build](../README.md#installation--build). Prepare FFmpeg with `./scripts/prepare-ffmpeg-sidecar.sh` (or system FFmpeg fallback) — [FFMPEG.md](FFMPEG.md).
 
 ## How do I report a bug or security issue?
 

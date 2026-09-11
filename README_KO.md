@@ -97,10 +97,12 @@ SmartScreen이 뜨면 **추가 정보 → 실행**을 선택하세요.
 | 기여 가이드 | [docs/ko/CONTRIBUTING.md](docs/ko/CONTRIBUTING.md) | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) |
 | 행동 강령 | [docs/ko/CODE_OF_CONDUCT.md](docs/ko/CODE_OF_CONDUCT.md) | [docs/CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) |
 | FAQ | [docs/ko/FAQ.md](docs/ko/FAQ.md) | [docs/FAQ.md](docs/FAQ.md) |
+| FFmpeg (번들) | [docs/ko/FFMPEG.md](docs/ko/FFMPEG.md) | [docs/FFMPEG.md](docs/FFMPEG.md) |
 | 동시 다운로드 | [docs/ko/CONCURRENCY.md](docs/ko/CONCURRENCY.md) | [docs/CONCURRENCY.md](docs/CONCURRENCY.md) |
 | 저장 파일명 | [docs/ko/FILENAMES.md](docs/ko/FILENAMES.md) | [docs/FILENAMES.md](docs/FILENAMES.md) |
 | 지원 | [docs/ko/SUPPORT.md](docs/ko/SUPPORT.md) | [docs/SUPPORT.md](docs/SUPPORT.md) |
 | 릴리즈 | [docs/ko/RELEASING.md](docs/ko/RELEASING.md) | [docs/RELEASING.md](docs/RELEASING.md) |
+| 서드파티 | [docs/ko/THIRD_PARTY.md](docs/ko/THIRD_PARTY.md) | [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) |
 | 변경 이력 | [docs/ko/CHANGELOG.md](docs/ko/CHANGELOG.md) | [docs/CHANGELOG.md](docs/CHANGELOG.md) |
 
 영문 README(기본): **[README.md](README.md)**
@@ -264,7 +266,7 @@ npm run tauri build
 ## 한계점 및 유의사항
 
 - YouTube 시그니처·정책 변경으로 다운로드가 일시적으로 실패하거나 느려질 수 있습니다. `yt-dlp`(및 Deno)를 최신으로 유지하세요(헤더 **yt-dlp 업데이트** 또는 다음 앱 릴리즈).
-- 공식 빌드는 LGPL FFmpeg를 번들합니다. 진단에서 없으면 앱을 다시 설치하세요(개발 시 사이드카 준비 또는 시스템 FFmpeg 대체 가능).
+- 공식 빌드는 LGPL FFmpeg를 번들합니다. 진단에서 없으면 앱을 다시 설치하세요(개발 시 사이드카 준비 또는 시스템 FFmpeg 대체 가능). [FFMPEG.md](docs/ko/FFMPEG.md) 참고.
 - **저작권·이용약관**: 개인·교육·오프라인 감상 목적의 도구입니다. 관련 법과 YouTube 약관 준수 책임은 사용자에게 있습니다. [이용 약관](docs/ko/TERMS.md)을 참고하세요.
 - DRM 보호 콘텐츠는 받을 수 없습니다.
 
@@ -296,4 +298,4 @@ npm run tauri build
 
 본 프로젝트는 **[GNU General Public License v3.0](LICENSE)**으로 배포됩니다. 소스 열람·수정·재배포가 가능하며, 파생 저작물도 동일 GPL-3.0으로 공개해야 합니다.
 
-번들 **FFmpeg**는 **LGPL**입니다 — [docs/ko/THIRD_PARTY.md](docs/ko/THIRD_PARTY.md).
+번들 **FFmpeg**는 **LGPL**입니다 — [docs/ko/THIRD_PARTY.md](docs/ko/THIRD_PARTY.md), [docs/ko/FFMPEG.md](docs/ko/FFMPEG.md).

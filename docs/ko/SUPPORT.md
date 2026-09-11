@@ -4,7 +4,7 @@
 
 ## 도움 받기
 
-1. [FAQ](FAQ.md)와 [README_KO.md](../../README_KO.md)를 확인하세요
+1. [FAQ](FAQ.md), [FFMPEG.md](FFMPEG.md)(번들 vs 시스템 / 소스 빌드), [README_KO.md](../../README_KO.md)를 확인하세요
 2. [기존 이슈](https://github.com/s4ngwoo/youtube-playlist-downloader/issues)를 검색하세요
 3. 새 이슈를 열 때 다음을 포함하세요.
    - OS와 아키텍처 (예: macOS 15 arm64, Windows 11 x64)

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - **Bundled LGPL FFmpeg / ffprobe** sidecars (no separate system install required for official builds); runtime prefers bundled, then system PATH
 - `scripts/prepare-ffmpeg-sidecar.sh` — Windows: BtbN `*-lgpl`; macOS: LGPL source build
 - Third-party notices: [THIRD_PARTY.md](THIRD_PARTY.md) / [ko](ko/THIRD_PARTY.md)
+- User/maintainer guide for bundled FFmpeg: [FFMPEG.md](FFMPEG.md) / [ko](ko/FFMPEG.md); FAQ entries for install vs source-build and version pins
 
 ### Changed
 
