@@ -5,6 +5,7 @@ import { useDownloadStore } from "../store/downloadStore";
 import { isPostprocessStatus, computeSessionProgress } from "../lib/sessionEta";
 import { mergeTrackTitle } from "../lib/trackProgress";
 import { describeSessionActivity } from "../lib/sessionActivity";
+import { pushTrackConsoleLine } from "../lib/trackConsole";
 import { t } from "../i18n";
 
 /** Wall-clock start of download phase per track index (session-local). */
@@ -125,6 +126,9 @@ export function useDownloadEvents() {
                     ? payload.eta || prevTrack?.eta
                     : undefined,
                 error_message: payload.error_message || prevTrack?.error_message,
+                consoleLines: rawText
+                  ? pushTrackConsoleLine(prevTrack?.consoleLines, rawText)
+                  : prevTrack?.consoleLines,
               });
 
               return next;

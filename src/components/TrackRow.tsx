@@ -10,8 +10,37 @@ interface TrackRowProps {
   viewMode: "basic" | "advanced";
 }
 
+function advancedStageLabel(
+  status: TrackItemType["status"],
+  t: (key: string, vars?: Record<string, string | number>) => string,
+): string {
+  switch (status) {
+    case "completed":
+      return t("track.advanced.completed");
+    case "tagging":
+      return t("track.advanced.tagging");
+    case "converting_art":
+      return t("track.advanced.convertingArt");
+    case "extracting":
+      return t("track.advanced.extracting");
+    case "failed":
+      return t("track.advanced.failed");
+    case "pending":
+      return t("track.advanced.pending");
+    case "downloading":
+      return t("track.advanced.downloading");
+    default:
+      return status;
+  }
+}
+
 export const TrackRow = React.memo(function TrackRow({ track, viewMode }: TrackRowProps) {
   const { t } = useI18n();
+  const isActive =
+    track.status === "downloading" ||
+    track.status === "extracting" ||
+    track.status === "converting_art" ||
+    track.status === "tagging";
 
   return (
     <div
@@ -73,79 +102,75 @@ export const TrackRow = React.memo(function TrackRow({ track, viewMode }: TrackR
               )}
             </>
           ) : (
-            <>
-              {track.status === "completed" && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded-md font-mono">
-                  <CheckCircle2 className="w-3 h-3" />
-                  {t("track.advanced.completed")}
-                </span>
-              )}
-              {track.status === "tagging" && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 bg-amber-950/40 border border-amber-800/50 px-2 py-0.5 rounded-md font-mono">
-                  <Sparkles className="w-3 h-3" />
-                  {t("track.advanced.tagging")}
-                </span>
-              )}
-              {track.status === "converting_art" && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-400 bg-indigo-950/40 border border-indigo-800/50 px-2 py-0.5 rounded-md font-mono">
-                  <Sparkles className="w-3 h-3" />
-                  {t("track.advanced.convertingArt")}
-                </span>
-              )}
-              {track.status === "extracting" && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-400 bg-purple-950/40 border border-purple-800/50 px-2 py-0.5 rounded-md font-mono">
-                  <Music2 className="w-3 h-3" />
-                  {t("track.advanced.extracting")}
-                </span>
-              )}
+            <div className="flex items-center gap-2 font-mono">
               {track.status === "downloading" && (
-                <div className="flex items-center gap-2">
+                <>
                   {track.speed && parseEtaToSeconds(track.eta) != null && (
-                    <span className="text-[10px] text-neutral-400 font-mono tracking-tighter">
-                      {track.speed} | ETA: {track.eta}
+                    <span className="text-[10px] text-neutral-400 tracking-tighter">
+                      {track.speed} | ETA {track.eta}
                     </span>
                   )}
                   {!track.speed && parseEtaToSeconds(track.eta) != null && (
-                    <span className="text-[10px] text-neutral-400 font-mono tracking-tighter">
-                      ETA: {track.eta}
+                    <span className="text-[10px] text-neutral-400 tracking-tighter">
+                      ETA {track.eta}
                     </span>
                   )}
                   {track.speed && parseEtaToSeconds(track.eta) == null && (
-                    <span className="text-[10px] text-neutral-400 font-mono tracking-tighter">
+                    <span className="text-[10px] text-neutral-400 tracking-tighter">
                       {track.speed}
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-400 bg-blue-950/40 border border-blue-800/50 px-2 py-0.5 rounded-md font-mono">
-                    <Download className="w-3 h-3 animate-bounce" />
+                  <span className="text-[11px] font-semibold text-blue-400">
                     {track.progress.toFixed(1)}%
                   </span>
-                </div>
+                </>
               )}
-              {track.status === "failed" && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-400 bg-rose-950/40 border border-rose-800/50 px-2 py-0.5 rounded-md font-mono">
-                  <AlertCircle className="w-3 h-3" />
-                  {t("track.advanced.failed")}
-                </span>
-              )}
-              {track.status === "pending" && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-500 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-mono">
-                  {t("track.advanced.pending")}
-                </span>
-              )}
-            </>
+              <span
+                className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md border ${
+                  track.status === "completed"
+                    ? "text-emerald-400 bg-emerald-950/40 border-emerald-800/50"
+                    : track.status === "failed"
+                      ? "text-rose-400 bg-rose-950/40 border-rose-800/50"
+                      : track.status === "pending"
+                        ? "text-neutral-500 bg-neutral-900 border-neutral-800"
+                        : track.status === "downloading"
+                          ? "text-blue-400 bg-blue-950/40 border-blue-800/50"
+                          : "text-violet-300 bg-violet-950/30 border-violet-800/40"
+                }`}
+              >
+                {track.status === "completed" && <CheckCircle2 className="w-3 h-3" />}
+                {track.status === "failed" && <AlertCircle className="w-3 h-3" />}
+                {track.status === "downloading" && <Download className="w-3 h-3" />}
+                {(track.status === "extracting" ||
+                  track.status === "converting_art" ||
+                  track.status === "tagging") && <Music2 className="w-3 h-3" />}
+                {advancedStageLabel(track.status, t)}
+              </span>
+            </div>
           )}
         </div>
       </div>
 
-      {(track.status === "downloading" ||
-        track.status === "extracting" ||
-        track.status === "converting_art" ||
-        track.status === "tagging") && (
+      {isActive && (
         <div className="w-full h-1.5 bg-neutral-950 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-rose-500 rounded-full transition-all duration-150"
             style={{ width: `${track.progress}%` }}
           />
+        </div>
+      )}
+
+      {viewMode === "advanced" && (track.consoleLines?.length ?? 0) > 0 && (
+        <div
+          className="mt-0.5 rounded-md border border-neutral-800 bg-black/50 px-2.5 py-1.5 font-mono text-[10px] leading-relaxed text-neutral-400 overflow-hidden"
+          aria-label={t("track.advanced.console")}
+        >
+          {track.consoleLines!.map((line, i) => (
+            <div key={`${i}-${line.slice(0, 24)}`} className="truncate">
+              <span className="text-neutral-600 select-none">› </span>
+              {line}
+            </div>
+          ))}
         </div>
       )}
 

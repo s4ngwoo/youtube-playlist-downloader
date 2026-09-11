@@ -260,9 +260,10 @@ npm run tauri build
 2. [x] Private / deleted playlist entries — skipped items + reasons in selection UI  
 3. [x] Failed-only track filter · history folder shortcuts  
 4. [ ] Built-in mini audio preview (extra formats / theme later, on demand)
-5. [ ] Smoke follow-ups: richer Advanced (terminal-like) progress; default subtitle download off for audio
+5. [ ] Smoke follow-ups: default subtitle download off for audio
 6. [x] Accurate private/deleted skip labels (availability + EN/KO titles)
 7. [x] History folder open via reveal-in-dir
+8. [x] Advanced mode terminal-like yt-dlp console per track
 
 Already shipped earlier:
 

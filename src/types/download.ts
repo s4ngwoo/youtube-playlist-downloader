@@ -37,6 +37,8 @@ export interface TrackItem {
   speed?: string;
   eta?: string;
   error_message?: string;
+  /** Recent yt-dlp / progress lines for Advanced (terminal-like) view. */
+  consoleLines?: string[];
 }
 
 // 콘솔 로그 항목 인터페이스

@@ -217,6 +217,8 @@ export const en: MessageCatalog = {
   "track.advanced.extracting": "Extracting Audio",
   "track.advanced.failed": "Failed",
   "track.advanced.pending": "Pending in Queue",
+  "track.advanced.downloading": "Downloading",
+  "track.advanced.console": "yt-dlp output",
 
   "footer.ytdlpUpdate": "Update yt-dlp",
   "footer.ytdlpUpdateTitle": "Download latest yt-dlp into app data and prefer it",

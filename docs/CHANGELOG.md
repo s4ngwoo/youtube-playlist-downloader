@@ -23,13 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Changed
 
+- Advanced track view shows a short yt-dlp console (recent lines + stage labels); Basic stays badge-only
 - Track title fallback and environment-diagnose labels follow EN/KO i18n (no hard-coded Korean/English fragments)
 - Overall progress averages selected tracks in the store map (not a dense `1..N` index loop)
 - yt-dlp stderr no longer marks every line as failed (ERROR / non-zero exit only)
 
 ### Notes
 
-- Work queue (maintainer): **Sprint 4** remaining after local DMG smoke — Advanced mode terminal-like progress, default **off** for subtitle download on audio extracts.
+- Work queue (maintainer): **Sprint 4** remaining after local DMG smoke — default **off** for subtitle download on audio extracts.
 - Deferred: split yt-dlp into download-only then post-process passes (A2-pipe); Wave D extras on demand.
 
 ## [0.2.0] - 2026-09-11
