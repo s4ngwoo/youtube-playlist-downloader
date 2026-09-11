@@ -18,7 +18,7 @@ async function getStore() {
   return storePromise;
 }
 
-function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSettings {
+export function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSettings {
   return {
     downloadDir:
       typeof partial?.downloadDir === "string" ? partial.downloadDir : DEFAULT_SETTINGS.downloadDir,

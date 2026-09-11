@@ -5,6 +5,7 @@ import {
   fetchMetadata,
   type SelectedTrack,
 } from "../api/download";
+import { selectTracksByIndices } from "../lib/downloadSelection";
 import { PlaylistMetadata } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 import { historyService } from "../services/historyService";
@@ -83,9 +84,7 @@ export function useDownloadFlow() {
 
     if (!state.fetchedPlaylist) return;
 
-    const selectedTracks = state.fetchedPlaylist.tracks
-      .filter((tr) => selectedIndices.includes(tr.index))
-      .map((tr) => ({ url: tr.url, index: tr.index }));
+    const selectedTracks = selectTracksByIndices(state.fetchedPlaylist.tracks, selectedIndices);
 
     state.beginDownloadSession();
     state.setTotalItems(selectedTracks.length);
@@ -145,9 +144,7 @@ export function useDownloadFlow() {
     const state = useDownloadStore.getState();
     if (!state.fetchedPlaylist || failedIndices.length === 0) return;
 
-    const selectedTracks = state.fetchedPlaylist.tracks
-      .filter((tr) => failedIndices.includes(tr.index))
-      .map((tr) => ({ url: tr.url, index: tr.index }));
+    const selectedTracks = selectTracksByIndices(state.fetchedPlaylist.tracks, failedIndices);
 
     state.setStatus("downloading");
     state.setStatusMessage(t("status.retrying", { count: failedIndices.length }));

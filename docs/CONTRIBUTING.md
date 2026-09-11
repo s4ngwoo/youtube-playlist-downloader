@@ -47,6 +47,17 @@ cd src-tauri && cargo fmt --check && cargo check && cargo clippy --all-targets -
 
 Clippy treats all warnings as errors (`-D warnings`). Format frontend with `npm run format`; Rust with `cargo fmt` inside `src-tauri/`.
 
+### What to test
+
+Prefer **pure helpers and state transitions** over full Tauri/YouTube E2E:
+
+| Layer | Good targets |
+| :--- | :--- |
+| Frontend | settings merge/clamp, i18n mappers (`mapBackendMessage` / `mapEnvCode`), download track selection, Zustand session resets |
+| Rust | yt-dlp log → progress parsers, NFC helpers, metadata key maps, logger line parse, ZIP export on temp dirs |
+
+Do **not** require live YouTube or GUI E2E in PRs by default. Place new unit tests next to the code (`*.test.ts` / `#[cfg(test)]`).
+
 ### Local macOS verify package (maintainers / AI)
 
 When a change is **feature-like** and needs a manual install check (not just unit tests), build a DMG into the gitignored folder **`local-packages/`** (never commit these files; they are not GitHub Release assets).

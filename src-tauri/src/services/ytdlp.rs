@@ -4,7 +4,7 @@ use tauri_plugin_shell::process::CommandEvent;
 use tauri_plugin_shell::ShellExt;
 
 use crate::models::{DownloadTask, ProgressPayload, YtDlpDump};
-use crate::parser::{clean_title_from_destination, DownloadRegexes};
+use crate::parser::{apply_ytdlp_stdout_line, DownloadRegexes, ProgressParseState};
 use crate::process::AppState;
 use crate::services::{environment, logger, ytdlp_update};
 
@@ -199,62 +199,21 @@ pub async fn handle_command_events(
     let mut exit_success = true;
     let mut exit_code: Option<i32> = None;
 
-    let mut current_item_title: Option<String> = None;
-    let mut current_track_status: Option<String> = Some("downloading".to_string());
-    let mut current_track_progress: Option<f32> = Some(0.0);
-    let mut current_speed: Option<String> = None;
-    let mut current_eta: Option<String> = None;
+    let mut parse = ProgressParseState {
+        item_title: None,
+        track_status: Some("downloading".to_string()),
+        track_progress: Some(0.0),
+        speed: None,
+        eta: None,
+        playlist_title: playlist_title.clone(),
+    };
 
     while let Some(event) = rx.recv().await {
         match event {
             CommandEvent::Stdout(bytes) => {
                 let line = String::from_utf8_lossy(&bytes).trim_end().to_string();
                 if !line.is_empty() {
-                    if let Some(caps) = regexes.re_dest.captures(&line) {
-                        let cleaned = clean_title_from_destination(&caps[1]);
-                        current_item_title = Some(cleaned);
-                    }
-
-                    if let Some(caps) = regexes.re_already.captures(&line) {
-                        let cleaned = clean_title_from_destination(&caps[1]);
-                        current_item_title = Some(cleaned);
-                        current_track_status = Some("completed".to_string());
-                        current_track_progress = Some(100.0);
-                    }
-
-                    if line.contains("[ExtractAudio]") {
-                        current_track_status = Some("extracting".to_string());
-                        current_track_progress = Some(92.0);
-                    } else if line.contains("[ThumbnailsConvertor]") {
-                        current_track_status = Some("converting_art".to_string());
-                        current_track_progress = Some(95.0);
-                    } else if line.contains("[EmbedThumbnail]") || line.contains("[Metadata]") {
-                        current_track_status = Some("tagging".to_string());
-                        current_track_progress = Some(98.0);
-                    }
-
-                    if let Some(caps) = regexes.re_progress.captures(&line) {
-                        if let Ok(p) = caps[1].parse::<f32>() {
-                            current_track_progress = Some(p);
-                            if p >= 100.0 {
-                                current_track_status = Some("downloaded".to_string());
-                            } else {
-                                current_track_status = Some("downloading".to_string());
-                            }
-                        }
-                    }
-
-                    if line.contains("Deleting original file") {
-                        current_track_status = Some("completed".to_string());
-                        current_track_progress = Some(100.0);
-                    }
-
-                    if let Some(caps) = regexes.re_speed.captures(&line) {
-                        current_speed = Some(caps[1].to_string());
-                    }
-                    if let Some(caps) = regexes.re_eta.captures(&line) {
-                        current_eta = Some(caps[1].to_string());
-                    }
+                    apply_ytdlp_stdout_line(&line, &regexes, &mut parse);
 
                     let _ = app.emit(
                         "download-progress",
@@ -262,14 +221,14 @@ pub async fn handle_command_events(
                             line: line.clone(),
                             message: line,
                             is_error: false,
-                            playlist_title: playlist_title.clone(),
+                            playlist_title: parse.playlist_title.clone(),
                             item_index: Some(task.item_index),
                             total_items: Some(task.total_items),
-                            item_title: current_item_title.clone(),
-                            track_progress: current_track_progress,
-                            track_status: current_track_status.clone(),
-                            speed: current_speed.clone(),
-                            eta: current_eta.clone(),
+                            item_title: parse.item_title.clone(),
+                            track_progress: parse.track_progress,
+                            track_status: parse.track_status.clone(),
+                            speed: parse.speed.clone(),
+                            eta: parse.eta.clone(),
                             error_message: None,
                         },
                     );
@@ -296,14 +255,14 @@ pub async fn handle_command_events(
                             line: line.clone(),
                             message: line,
                             is_error: true,
-                            playlist_title: playlist_title.clone(),
+                            playlist_title: parse.playlist_title.clone(),
                             item_index: Some(task.item_index),
                             total_items: Some(task.total_items),
-                            item_title: current_item_title.clone(),
-                            track_progress: current_track_progress,
+                            item_title: parse.item_title.clone(),
+                            track_progress: parse.track_progress,
                             track_status: Some("failed".to_string()),
-                            speed: current_speed.clone(),
-                            eta: current_eta.clone(),
+                            speed: parse.speed.clone(),
+                            eta: parse.eta.clone(),
                             error_message: err_msg,
                         },
                     );
@@ -334,14 +293,14 @@ pub async fn handle_command_events(
                         line: err_msg.clone(),
                         message: err_msg.clone(),
                         is_error: true,
-                        playlist_title: playlist_title.clone(),
+                        playlist_title: parse.playlist_title.clone(),
                         item_index: Some(task.item_index),
                         total_items: Some(task.total_items),
-                        item_title: current_item_title.clone(),
-                        track_progress: current_track_progress,
+                        item_title: parse.item_title.clone(),
+                        track_progress: parse.track_progress,
                         track_status: Some("failed".to_string()),
-                        speed: current_speed.clone(),
-                        eta: current_eta.clone(),
+                        speed: parse.speed.clone(),
+                        eta: parse.eta.clone(),
                         error_message: Some(err_msg.clone()),
                     },
                 );

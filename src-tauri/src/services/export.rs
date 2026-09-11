@@ -88,3 +88,37 @@ pub fn create_mobile_zip(download_dir: String) -> Result<String, crate::AppError
 
     Ok(format!("ok.zip_created:{file_count}"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::io::Write;
+
+    #[test]
+    fn create_mobile_zip_packs_audio_in_tempdir() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let audio = dir.path().join("song.m4a");
+        let mut f = fs::File::create(&audio).unwrap();
+        f.write_all(b"fake-audio").unwrap();
+
+        let result = create_mobile_zip(dir.path().to_string_lossy().into_owned()).expect("zip");
+        assert!(result.starts_with("ok.zip_created:"));
+        assert!(dir.path().join("Mobile_Export.zip").is_file());
+    }
+
+    #[test]
+    fn create_mobile_zip_errors_without_audio() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let err = create_mobile_zip(dir.path().to_string_lossy().into_owned()).unwrap_err();
+        let msg = format!("{err}");
+        assert!(msg.contains("error.no_audio_for_zip") || msg.contains("no_audio"));
+    }
+
+    #[test]
+    fn is_exportable_audio_filters_extensions() {
+        assert!(is_exportable_audio(Path::new("a.m4a")));
+        assert!(is_exportable_audio(Path::new("b.MP3")));
+        assert!(!is_exportable_audio(Path::new("c.txt")));
+    }
+}

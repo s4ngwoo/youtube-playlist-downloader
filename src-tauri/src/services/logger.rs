@@ -127,7 +127,7 @@ pub fn log_file_size() -> u64 {
 }
 
 /// 로그 한 줄을 파싱하여 LogEntry로 변환
-fn parse_log_line(line: &str) -> Option<LogEntry> {
+pub(crate) fn parse_log_line(line: &str) -> Option<LogEntry> {
     // 형식: [2026-09-05 22:15:01] [INFO] [download] 메시지
     if !line.starts_with('[') {
         return None;
@@ -162,4 +162,25 @@ fn parse_log_line(line: &str) -> Option<LogEntry> {
         source,
         message: rest.to_string(),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_log_line_ok() {
+        let entry =
+            parse_log_line("[2026-09-11 12:00:00] [INFO] [download] hello world").expect("parse");
+        assert_eq!(entry.level, LogLevel::Info);
+        assert_eq!(entry.source, "download");
+        assert_eq!(entry.message, "hello world");
+        assert_eq!(entry.timestamp, "2026-09-11 12:00:00");
+    }
+
+    #[test]
+    fn parse_log_line_rejects_garbage() {
+        assert!(parse_log_line("not a log").is_none());
+        assert!(parse_log_line("[ts] [BOGUS] [src] x").is_none());
+    }
 }

@@ -48,6 +48,17 @@ cd src-tauri && cargo fmt --check && cargo check && cargo clippy --all-targets -
 
 Clippy는 모든 경고를 에러로 취급합니다 (`-D warnings`). 프론트 포맷은 `npm run format`, Rust는 `src-tauri/`에서 `cargo fmt`.
 
+### 무엇을 테스트할지
+
+실 YouTube·전체 GUI E2E보다 **순수 헬퍼·상태 전이**를 우선합니다.
+
+| 레이어 | 좋은 대상 |
+| :--- | :--- |
+| Frontend | 설정 merge/clamp, i18n 매퍼, 다운로드 트랙 선택, Zustand 세션 리셋 |
+| Rust | yt-dlp 로그→진행률 파서, NFC, 메타 키 맵, 로그 라인 파싱, tempdir ZIP |
+
+기본 PR에 라이브 YouTube/E2E는 요구하지 않습니다. 단위 테스트는 코드 옆(`*.test.ts` / `#[cfg(test)]`)에 둡니다.
+
 ### 로컬 macOS 검증 패키지 (메인테이너 / AI)
 
 **기능처럼 수동 설치 확인이 필요한 변경**이면, 단위 테스트만으로 끝내지 말고 gitignore된 **`local-packages/`** 에 DMG를 둡니다(커밋·GitHub Release 자산 아님).

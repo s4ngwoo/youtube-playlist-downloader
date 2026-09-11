@@ -44,11 +44,7 @@ export function Footer() {
           ? ["", t("footer.diag.warnings"), ...report.warnings.map((w) => `- ${mapEnvCode(w, t)}`)]
           : ["", t("footer.diag.noWarnings")]),
         ...(report.installHints.length
-          ? [
-              "",
-              t("footer.diag.hints"),
-              ...report.installHints.map((h) => `- ${mapEnvCode(h, t)}`),
-            ]
+          ? ["", t("footer.diag.hints"), ...report.installHints.map((h) => `- ${mapEnvCode(h, t)}`)]
           : []),
         "",
         t("footer.diag.logNote"),

@@ -321,3 +321,18 @@ pub fn write_metadata(
 
     Ok("ok.metadata_updated".into())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use lofty::tag::ItemKey;
+
+    #[test]
+    fn string_to_item_key_maps_common_fields() {
+        assert_eq!(string_to_item_key("title"), None); // lofty uses TrackTitle
+        assert_eq!(string_to_item_key("TrackTitle"), Some(ItemKey::TrackTitle));
+        assert_eq!(string_to_item_key("genre"), Some(ItemKey::Genre));
+        assert_eq!(string_to_item_key("comment"), Some(ItemKey::Comment));
+        assert!(string_to_item_key("not_a_real_key_xyz").is_none());
+    }
+}

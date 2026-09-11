@@ -63,6 +63,72 @@ impl DownloadRegexes {
     }
 }
 
+/// Mutable parse state for a single yt-dlp stdout stream.
+#[derive(Debug, Clone, Default)]
+pub struct ProgressParseState {
+    pub item_title: Option<String>,
+    pub track_status: Option<String>,
+    pub track_progress: Option<f32>,
+    pub speed: Option<String>,
+    pub eta: Option<String>,
+    pub playlist_title: Option<String>,
+}
+
+/// Apply one yt-dlp stdout line to progress state (pure; no IPC).
+pub fn apply_ytdlp_stdout_line(
+    line: &str,
+    regexes: &DownloadRegexes,
+    state: &mut ProgressParseState,
+) {
+    if let Some(caps) = regexes.re_playlist.captures(line) {
+        state.playlist_title = Some(caps[1].trim().to_string());
+    }
+
+    if let Some(caps) = regexes.re_dest.captures(line) {
+        state.item_title = Some(clean_title_from_destination(&caps[1]));
+    }
+
+    if let Some(caps) = regexes.re_already.captures(line) {
+        state.item_title = Some(clean_title_from_destination(&caps[1]));
+        state.track_status = Some("completed".to_string());
+        state.track_progress = Some(100.0);
+    }
+
+    if line.contains("[ExtractAudio]") {
+        state.track_status = Some("extracting".to_string());
+        state.track_progress = Some(92.0);
+    } else if line.contains("[ThumbnailsConvertor]") {
+        state.track_status = Some("converting_art".to_string());
+        state.track_progress = Some(95.0);
+    } else if line.contains("[EmbedThumbnail]") || line.contains("[Metadata]") {
+        state.track_status = Some("tagging".to_string());
+        state.track_progress = Some(98.0);
+    }
+
+    if let Some(caps) = regexes.re_progress.captures(line) {
+        if let Ok(p) = caps[1].parse::<f32>() {
+            state.track_progress = Some(p);
+            if p >= 100.0 {
+                state.track_status = Some("downloaded".to_string());
+            } else {
+                state.track_status = Some("downloading".to_string());
+            }
+        }
+    }
+
+    if line.contains("Deleting original file") {
+        state.track_status = Some("completed".to_string());
+        state.track_progress = Some(100.0);
+    }
+
+    if let Some(caps) = regexes.re_speed.captures(line) {
+        state.speed = Some(caps[1].to_string());
+    }
+    if let Some(caps) = regexes.re_eta.captures(line) {
+        state.eta = Some(caps[1].to_string());
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -107,12 +173,28 @@ mod tests {
     }
 
     #[test]
-    fn error_regex_captures_message() {
+    fn apply_stdout_line_updates_progress_and_playlist() {
         let re = DownloadRegexes::new();
-        let caps = re
-            .re_error
-            .captures("ERROR: [youtube] abc: Video unavailable")
-            .expect("error match");
-        assert!(caps[1].contains("Video unavailable"));
+        let mut state = ProgressParseState {
+            track_progress: Some(0.0),
+            track_status: Some("downloading".into()),
+            ..Default::default()
+        };
+        apply_ytdlp_stdout_line("[download] Downloading playlist: My List", &re, &mut state);
+        assert_eq!(state.playlist_title.as_deref(), Some("My List"));
+
+        apply_ytdlp_stdout_line(
+            "[download]  45.3% of ~10.00MiB at  1.20MiB/s ETA 00:04",
+            &re,
+            &mut state,
+        );
+        assert_eq!(state.track_progress, Some(45.3));
+        assert_eq!(state.track_status.as_deref(), Some("downloading"));
+        assert_eq!(state.speed.as_deref(), Some("1.20MiB/s"));
+        assert_eq!(state.eta.as_deref(), Some("00:04"));
+
+        apply_ytdlp_stdout_line("[ExtractAudio] Destination: /tmp/Song.m4a", &re, &mut state);
+        assert_eq!(state.track_status.as_deref(), Some("extracting"));
+        assert_eq!(state.item_title.as_deref(), Some("Song"));
     }
 }

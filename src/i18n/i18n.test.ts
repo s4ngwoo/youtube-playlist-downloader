@@ -29,12 +29,23 @@ describe("mapBackendMessage", () => {
     expect(mapBackendMessage("ok.download_partial:2:1", t)).toBe(
       'ok.downloadPartial:{"success":"2","fail":"1"}',
     );
+    expect(mapBackendMessage("ok.metadata_updated", t)).toBe("ok.metadataUpdated");
+    expect(mapBackendMessage("ok.cancelled", t)).toBe("ok.cancelled");
+  });
+
+  it("maps empty url and zip codes", () => {
+    expect(mapBackendMessage("error.empty_url", t)).toBe("errors.emptyUrl");
+    expect(mapBackendMessage("ok.zip_created:3", t)).toBe('ok.zipCreated:{"count":"3"}');
   });
 
   it("maps ytdlp update failure", () => {
     expect(mapBackendMessage("download_error: error.ytdlp_update_failed:HTTP 404", t)).toBe(
       'errors.ytdlpUpdateFailed:{"detail":"HTTP 404"}',
     );
+  });
+
+  it("falls back to generic for unknown", () => {
+    expect(mapBackendMessage("weird.raw", t)).toBe('errors.generic:{"detail":"weird.raw"}');
   });
 });
 
@@ -48,5 +59,9 @@ describe("mapEnvCode", () => {
 
   it("passes through unknown codes", () => {
     expect(mapEnvCode("unknown.code", t)).toBe("unknown.code");
+  });
+
+  it("maps empty-ish codes safely", () => {
+    expect(mapEnvCode("", t)).toBe("");
   });
 });
