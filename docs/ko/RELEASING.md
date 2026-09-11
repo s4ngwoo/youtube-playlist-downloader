@@ -73,6 +73,8 @@ chmod +x src-tauri/bin/yt-dlp-aarch64-apple-darwin
 
 명시적으로 벤더하지 않는 한 대용량 사이드카는 커밋하지 않는다.
 
+**트리플 주의:** 개발과 `npm run package:local-dmg`는 **이 호스트** Rust 트리플(`rustc -vV` → `host:`)용 사이드카가 필요하다. 릴리즈/CI는 다른 트리플을 따로 받고, `src-tauri/bin/`에 이름을 섞어 두면 로컬에서 “사이드카 없음”이 자주 난다.
+
 ## 이 체크리스트 범위 밖
 
 - **Apple Notarization** — **영구 제외** (비용 · 유료 Apple Developer 계정 없음). Gatekeeper 첫 실행 안내는 README·릴리즈 노트에 유지. “연기”가 아님.

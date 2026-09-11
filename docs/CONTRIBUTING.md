@@ -63,11 +63,13 @@ Do **not** require live YouTube or GUI E2E in PRs by default. Place new unit tes
 When a change is **feature-like** and needs a manual install check (not just unit tests), build a DMG into the gitignored folder **`local-packages/`** (never commit these files; they are not GitHub Release assets).
 
 ```bash
-# Requires yt-dlp sidecar under src-tauri/bin/ for this machine's triple
+# Requires yt-dlp sidecar under `src-tauri/bin/` for this machine's triple
 npm run package:local-dmg
 # → local-packages/<dated>-YoutubePlaylistDownloader-<arch>.dmg
 # (copies Tauri DMG when available; otherwise builds a UDZO DMG from the .app via hdiutil)
 ```
+
+**Sidecar triple caution (H3):** `tauri build` / `package:local-dmg` resolve `yt-dlp-<rustc-host-triple>`. On Apple Silicon that is `yt-dlp-aarch64-apple-darwin`. An Intel-named binary, a Windows `.exe`, or the CI placeholder will not satisfy a local arm64 package. Match the name to `rustc -vV` → `host:`; do not copy another machine’s `bin/` folder blindly.
 
 Or manually:
 

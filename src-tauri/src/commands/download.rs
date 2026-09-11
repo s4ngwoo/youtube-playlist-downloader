@@ -7,7 +7,10 @@ use crate::parser::DownloadRegexes;
 use crate::process::AppState;
 use crate::services::environment;
 use crate::services::logger;
-use crate::services::ytdlp::{fetch_playlist_dump, playlist_metadata_from_dump, process_item};
+use crate::services::ytdlp::{
+    enrich_skipped_with_probe_targets, fetch_playlist_dump, playlist_metadata_from_dump,
+    probe_targets_from_dump, process_item,
+};
 
 /// 플레이리스트 또는 단일 영상의 메타데이터(제목 및 트랙 목록)를 가져오는 Command
 #[tauri::command]
@@ -20,7 +23,10 @@ pub async fn fetch_metadata(
     }
 
     let dump = fetch_playlist_dump(&app, &url).await?;
-    Ok(playlist_metadata_from_dump(dump, &url))
+    let targets = probe_targets_from_dump(&dump);
+    let mut meta = playlist_metadata_from_dump(dump, &url);
+    enrich_skipped_with_probe_targets(&app, targets, &mut meta).await;
+    Ok(meta)
 }
 
 /// 프론트엔드에서 사용자가 다운로드를 즉시 취소할 수 있는 Command

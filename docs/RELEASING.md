@@ -73,6 +73,8 @@ chmod +x src-tauri/bin/yt-dlp-aarch64-apple-darwin
 
 Do **not** commit large sidecars unless the project explicitly decides to vendor them.
 
+**Triple caution:** Development and `npm run package:local-dmg` need the sidecar for **this host’s** Rust triple (`rustc -vV` → `host:`). Shipping/CI download other triples separately; mixing names under `src-tauri/bin/` is a common cause of local “sidecar not found” failures.
+
 ## Not covered by this checklist
 
 - **Apple Notarization** — **out of scope permanently** (cost / no paid Apple Developer account). First-launch Gatekeeper steps stay in the README / release notes. Do not treat as deferred work.

@@ -217,6 +217,8 @@ src-tauri/bin/yt-dlp-x86_64-pc-windows-msvc.exe
 
 [yt-dlp 릴리즈](https://github.com/yt-dlp/yt-dlp/releases)에서 받아 이름을 맞추고, Unix에서는 `chmod +x`를 부여하세요.
 
+**트리플은 지금 개발·패키징하는 머신과 일치해야 합니다.** Apple Silicon은 `aarch64-apple-darwin`, Intel Mac은 `x86_64-apple-darwin`. 잘못된 파일(또는 CI용 stub만)을 `bin/`에 두면 `tauri dev`·로컬 DMG에서 사이드카 없음/메타 fetch 실패가 납니다. 머신 전환 시 트리플을 섞지 말고, **이 호스트용** 이름 하나만 두세요.
+
 ### 3. 개발 실행
 
 ```bash

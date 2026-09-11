@@ -82,6 +82,116 @@ pub fn classify_entry(entry: &crate::models::YtDlpEntry) -> &'static str {
     "unknown"
 }
 
+/// Map yt-dlp single-video probe stderr/stdout to a skip reason.
+pub fn classify_probe_message(text: &str) -> &'static str {
+    let lower = text.to_lowercase();
+    if lower.contains("private video") || lower.contains("this video is private") {
+        return "private";
+    }
+    if lower.contains("deleted video")
+        || lower.contains("video unavailable")
+        || lower.contains("account associated with this video has been terminated")
+    {
+        return "deleted";
+    }
+    "unknown"
+}
+
+/// Flat entries that need a network probe: classified unknown with a video id.
+pub fn probe_targets_from_dump(dump: &YtDlpDump) -> Vec<(usize, String)> {
+    let Some(entries) = dump.entries.as_ref() else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    for (idx, slot) in entries.iter().enumerate() {
+        let index = idx + 1;
+        let Some(entry) = slot.as_ref() else {
+            continue;
+        };
+        if classify_entry(entry) != "unknown" {
+            continue;
+        }
+        if let Some(id) = entry
+            .id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+        {
+            out.push((index, id.to_string()));
+        }
+    }
+    out
+}
+
+/// Apply probed reasons onto matching unknown skipped rows (by playlist index).
+pub fn apply_probed_reasons(
+    meta: &mut crate::models::PlaylistMetadata,
+    probed: &[(usize, &'static str)],
+) {
+    for skipped in &mut meta.skipped {
+        if skipped.reason != "unknown" {
+            continue;
+        }
+        if let Some((_, reason)) = probed.iter().find(|(i, _)| *i == skipped.index) {
+            skipped.reason = (*reason).to_string();
+        }
+    }
+}
+
+/// Probe one video id with yt-dlp (no download) and classify stderr.
+pub async fn probe_video_unavailability(
+    app: &tauri::AppHandle,
+    video_id: &str,
+) -> &'static str {
+    let url = format!("https://www.youtube.com/watch?v={video_id}");
+    let args = vec![
+        "--skip-download".into(),
+        "--no-playlist".into(),
+        "--ignore-errors".into(),
+        "--no-colors".into(),
+        url,
+    ];
+    let Ok(cmd) = open_ytdlp(app) else {
+        return "unknown";
+    };
+    match cmd.args(args).output().await {
+        Ok(output) => {
+            let combined = format!(
+                "{}\n{}",
+                String::from_utf8_lossy(&output.stderr),
+                String::from_utf8_lossy(&output.stdout)
+            );
+            classify_probe_message(&combined)
+        }
+        Err(_) => "unknown",
+    }
+}
+
+/// For flat unknown skips with ids, probe yt-dlp and rewrite reasons.
+pub async fn enrich_skipped_with_probe_targets(
+    app: &tauri::AppHandle,
+    targets: Vec<(usize, String)>,
+    meta: &mut crate::models::PlaylistMetadata,
+) {
+    if targets.is_empty() {
+        return;
+    }
+    logger::info(
+        "ytdlp",
+        &format!("불가 항목 {}개 사유 probe 시작", targets.len()),
+    );
+    let mut probed: Vec<(usize, &'static str)> = Vec::with_capacity(targets.len());
+    for (index, id) in targets {
+        let reason = probe_video_unavailability(app, &id).await;
+        logger::info(
+            "ytdlp",
+            &format!("probe #{index} id={id} → {reason}"),
+        );
+        probed.push((index, reason));
+    }
+    apply_probed_reasons(meta, &probed);
+}
+
 /// 비공개/삭제/비활성화된 영상(제목이 없거나 [Private video] 등)은 제외합니다.
 pub fn is_valid_entry(entry: &crate::models::YtDlpEntry) -> bool {
     classify_entry(entry) == "available"
@@ -473,7 +583,7 @@ pub async fn process_item(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::YtDlpEntry;
+    use crate::models::{PlaylistMetadata, SkippedTrack, YtDlpEntry};
 
     fn entry(title: Option<&str>) -> YtDlpEntry {
         entry_with(title, None)
@@ -664,5 +774,93 @@ mod tests {
         let raw = r#"{"id":"abc","title":null,"availability":"private"}"#;
         let entry: YtDlpEntry = serde_json::from_str(raw).expect("entry");
         assert_eq!(classify_entry(&entry), "private");
+    }
+
+    #[test]
+    fn classify_probe_message_private_and_unavailable() {
+        assert_eq!(
+            classify_probe_message(
+                "ERROR: [youtube] gcKNmsEYF_8: Private video. Sign in if you've been granted access"
+            ),
+            "private"
+        );
+        assert_eq!(
+            classify_probe_message("ERROR: [youtube] ssCtZ1aQy1A: Video unavailable"),
+            "deleted"
+        );
+        assert_eq!(
+            classify_probe_message("ERROR: [youtube] x: This video is private"),
+            "private"
+        );
+        assert_eq!(
+            classify_probe_message("ERROR: [youtube] x: Account associated with this video has been terminated"),
+            "deleted"
+        );
+        assert_eq!(classify_probe_message("some other warning"), "unknown");
+    }
+
+    #[test]
+    fn probe_targets_only_unknown_with_id() {
+        let dump = YtDlpDump {
+            _type: Some("playlist".into()),
+            title: Some("AI powered".into()),
+            entries: Some(vec![
+                Some(entry(Some("Ok"))),
+                Some(YtDlpEntry {
+                    url: Some("https://www.youtube.com/watch?v=ssCtZ1aQy1A".into()),
+                    id: Some("ssCtZ1aQy1A".into()),
+                    title: None,
+                    availability: None,
+                }),
+                Some(entry(Some("[Private video]"))),
+                Some(YtDlpEntry {
+                    url: Some("https://www.youtube.com/watch?v=gcKNmsEYF_8".into()),
+                    id: Some("gcKNmsEYF_8".into()),
+                    title: None,
+                    availability: None,
+                }),
+                None,
+            ]),
+        };
+        let targets = probe_targets_from_dump(&dump);
+        assert_eq!(
+            targets,
+            vec![
+                (2, "ssCtZ1aQy1A".into()),
+                (4, "gcKNmsEYF_8".into()),
+            ]
+        );
+    }
+
+    #[test]
+    fn apply_probed_reasons_rewrites_unknown_only() {
+        let mut meta = PlaylistMetadata {
+            title: "PL".into(),
+            tracks: vec![],
+            skipped: vec![
+                SkippedTrack {
+                    index: 5,
+                    title: "Track 5".into(),
+                    reason: "unknown".into(),
+                },
+                SkippedTrack {
+                    index: 13,
+                    title: "Track 13".into(),
+                    reason: "unknown".into(),
+                },
+                SkippedTrack {
+                    index: 99,
+                    title: "Already".into(),
+                    reason: "private".into(),
+                },
+            ],
+        };
+        apply_probed_reasons(
+            &mut meta,
+            &[(5, "deleted"), (13, "private"), (99, "deleted")],
+        );
+        assert_eq!(meta.skipped[0].reason, "deleted");
+        assert_eq!(meta.skipped[1].reason, "private");
+        assert_eq!(meta.skipped[2].reason, "private");
     }
 }

@@ -23,6 +23,7 @@
 ### Fixed
 
 - 건너뛴 플레이리스트 항목: 제목(EN/KO)·`availability`·null 슬롯으로 비공개/삭제 분류 — 가짜 “기타(unknown)” 감소
+- flat 플레이리스트에서 title/`availability`가 비어 있는 건너뜀 슬롯: id별 yt-dlp probe stderr로 비공개 vs 삭제 구분 (B1c)
 - 히스토리 「폴더」가 reveal-in-dir 사용 (`opener:default` 허용); `openPath`는 거부되어 항상 실패했음
 - 앱 로그 뷰어: reveal-in-dir로 로그 파일 표시; 창 라벨로 로그 창 감지; 새로고침/열기 오류 안내
 
@@ -91,7 +92,7 @@
 - 영문 `README.md`를 기본으로 설정하고 `README_KO.md` 추가
 - `docs/ko/`에 한국어 문서 전체 추가
 
-## [0.1.0] - 2025-09
+## [0.1.0] - 2026-09-05
 
 Tauri v2 기반 공개 데스크톱 앱 초기 라인.
 

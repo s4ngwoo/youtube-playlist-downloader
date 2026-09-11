@@ -217,6 +217,8 @@ src-tauri/bin/yt-dlp-x86_64-pc-windows-msvc.exe
 
 Download from [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases), rename to the Tauri sidecar triple, and `chmod +x` on Unix.
 
+**Triple must match the machine you run/package on.** Apple Silicon needs `aarch64-apple-darwin`; Intel Mac needs `x86_64-apple-darwin`. Putting the wrong file (or only a CI stub) under `bin/` causes “sidecar missing” / failed fetch during `tauri dev` and local DMG builds. Do not mix triples when switching machines; keep one binary named for *this* host’s target.
+
 ### 3. Develop
 
 ```bash

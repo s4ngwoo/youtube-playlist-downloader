@@ -70,6 +70,8 @@ npm run package:local-dmg
 # (Tauri DMG가 있으면 복사, 없으면 .app에서 hdiutil UDZO 생성)
 ```
 
+**사이드카 트리플 주의 (H3):** `tauri build` / `package:local-dmg`는 `yt-dlp-<rustc-host-triple>`을 찾습니다. Apple Silicon이면 `yt-dlp-aarch64-apple-darwin`. Intel 이름·Windows `.exe`·CI placeholder는 로컬 arm64 패키지에 맞지 않습니다. `rustc -vV`의 `host:`와 파일명을 맞추고, 다른 머신의 `bin/`을 그대로 복사하지 마세요.
+
 또는:
 
 ```bash

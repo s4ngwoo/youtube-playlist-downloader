@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 ### Fixed
 
 - Skipped playlist entries: classify private/deleted via title (EN/KO), `availability`, and null slots — fewer false “unknown” labels
+- Flat-playlist skip slots with empty title/`availability`: per-id yt-dlp probe maps stderr to private vs deleted (B1c)
 - History “Folder” uses reveal-in-dir (allowed by `opener:default`); `openPath` was denied and always failed
 - App log viewer: reveal log file via reveal-in-dir; detect log window by Tauri label; clearer refresh/open errors
 
@@ -90,7 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Set English `README.md` as default; added `README_KO.md`
 - Added full Korean translations under `docs/ko/`
 
-## [0.1.0] - 2025-09
+## [0.1.0] - 2026-09-05
 
 Initial public desktop app release line (Tauri v2).
 
