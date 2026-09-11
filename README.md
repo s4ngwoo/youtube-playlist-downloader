@@ -69,8 +69,8 @@ If SmartScreen appears: **More info → Run anyway**.
 - **Selective download** — Fetch playlist metadata first, then choose which tracks to download.
 - **Skipped private / deleted** — Unavailable playlist slots show as skipped with reasons (flat dump + per-id probe when needed).
 - **Audio formats** — Export as **`.m4a` or `.mp3`** with embedded cover art and tags (subtitles off by default).
-- **Concurrency controls** — Run **1–8** parallel downloads (default 3); saved in app settings. See [CONCURRENCY.md](docs/CONCURRENCY.md).
-- **Clean filenames** — Saves as `Title.ext` (no `[video id]`); skips if that file already exists. See [FILENAMES.md](docs/FILENAMES.md).
+- **Concurrency controls** — Run **1–8** parallel downloads (default 3); saved in app settings. See [APP.md](docs/APP.md#concurrent-downloads).
+- **Clean filenames** — Saves as `Title.ext` (no `[video id]`); skips if that file already exists. See [APP.md](docs/APP.md#output-filenames).
 - **EN / KO UI** — Switch language in the header; preference stored in `settings.json`.
 - **Metadata editing** — Adjust title/artist (and related tags) before or alongside export flows.
 - **Download history** — Revisit previous playlist URLs and reload them from a local history store.
@@ -87,23 +87,16 @@ If SmartScreen appears: **More info → Run anyway**.
 
 ## Documentation
 
-This project remains **open source (GPL-3.0)**. Full docs index: [docs/README.md](docs/README.md) · Korean: [docs/ko/README.md](docs/ko/README.md)
+This project remains **open source (GPL-3.0)**. Docs are grouped by audience in **[docs/README.md](docs/README.md)** · Korean: **[docs/ko/README.md](docs/ko/README.md)**.
 
-| Document | English | Korean |
+| | English | Korean |
 | :--- | :--- | :--- |
-| Privacy Policy | [docs/PRIVACY.md](docs/PRIVACY.md) | [docs/ko/PRIVACY.md](docs/ko/PRIVACY.md) |
-| Terms of Use | [docs/TERMS.md](docs/TERMS.md) | [docs/ko/TERMS.md](docs/ko/TERMS.md) |
-| Security | [docs/SECURITY.md](docs/SECURITY.md) | [docs/ko/SECURITY.md](docs/ko/SECURITY.md) |
+| Hub (start here) | [docs/README.md](docs/README.md) | [docs/ko/README.md](docs/ko/README.md) |
+| FAQ & help | [docs/FAQ.md](docs/FAQ.md) | [docs/ko/FAQ.md](docs/ko/FAQ.md) |
+| App behavior | [docs/APP.md](docs/APP.md) | [docs/ko/APP.md](docs/ko/APP.md) |
 | Contributing | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | [docs/ko/CONTRIBUTING.md](docs/ko/CONTRIBUTING.md) |
-| Code of Conduct | [docs/CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) | [docs/ko/CODE_OF_CONDUCT.md](docs/ko/CODE_OF_CONDUCT.md) |
-| FAQ | [docs/FAQ.md](docs/FAQ.md) | [docs/ko/FAQ.md](docs/ko/FAQ.md) |
-| FFmpeg (bundled) | [docs/FFMPEG.md](docs/FFMPEG.md) | [docs/ko/FFMPEG.md](docs/ko/FFMPEG.md) |
-| Concurrent downloads | [docs/CONCURRENCY.md](docs/CONCURRENCY.md) | [docs/ko/CONCURRENCY.md](docs/ko/CONCURRENCY.md) |
-| Output filenames | [docs/FILENAMES.md](docs/FILENAMES.md) | [docs/ko/FILENAMES.md](docs/ko/FILENAMES.md) |
-| Support | [docs/SUPPORT.md](docs/SUPPORT.md) | [docs/ko/SUPPORT.md](docs/ko/SUPPORT.md) |
 | Releasing | [docs/RELEASING.md](docs/RELEASING.md) | [docs/ko/RELEASING.md](docs/ko/RELEASING.md) |
-| Release failures (patterns) | [docs/RELEASE_FAILURES.md](docs/RELEASE_FAILURES.md) | [docs/ko/RELEASE_FAILURES.md](docs/ko/RELEASE_FAILURES.md) |
-| Third-party | [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) | [docs/ko/THIRD_PARTY.md](docs/ko/THIRD_PARTY.md) |
+| Legal (privacy / terms / security) | [docs/PRIVACY.md](docs/PRIVACY.md) · [TERMS](docs/TERMS.md) · [SECURITY](docs/SECURITY.md) | [docs/ko/…](docs/ko/PRIVACY.md) |
 | Changelog | [docs/CHANGELOG.md](docs/CHANGELOG.md) | [docs/ko/CHANGELOG.md](docs/ko/CHANGELOG.md) |
 
 Korean overview: **[README_KO.md](README_KO.md)**

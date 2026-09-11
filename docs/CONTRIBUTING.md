@@ -95,11 +95,11 @@ See also [RELEASING.md](RELEASING.md) (official tags vs local verify).
 | Sidecar | `src-tauri/bin/yt-dlp-<triple>`, `ffmpeg-<triple>`, `ffprobe-<triple>` (see [FFMPEG.md](FFMPEG.md)) |
 | Agent rules | `.cursor/rules/*.mdc` (project conventions for Cursor) |
 
-Run checks from the **repo root**. CI mirrors the commands above on Ubuntu. Rust uses stub sidecars via [`scripts/ci-prepare-sidecar-stubs.sh`](../scripts/ci-prepare-sidecar-stubs.sh) (see `.github/workflows/ci.yml`). If you change `tauri.conf.json` `externalBin` / `resources`, update that script — see [RELEASE_FAILURES.md](RELEASE_FAILURES.md).
+Run checks from the **repo root**. CI mirrors the commands above on Ubuntu. Rust uses stub sidecars via [`scripts/ci-prepare-sidecar-stubs.sh`](../scripts/ci-prepare-sidecar-stubs.sh) (see `.github/workflows/ci.yml`). If you change `tauri.conf.json` `externalBin` / `resources`, update that script — see [RELEASING.md](RELEASING.md#failure-patterns--lessons).
 
 ## Cutting a release
 
-Maintainers: see **[RELEASING.md](RELEASING.md)** for the `v*` tag workflow, platform matrix, and how to pin/renew the bundled yt-dlp / FFmpeg sidecars ([FFMPEG.md](FFMPEG.md)). Recurring break patterns and the pre-merge checklist: **[RELEASE_FAILURES.md](RELEASE_FAILURES.md)**.
+Maintainers: see **[RELEASING.md](RELEASING.md)** for the `v*` tag workflow, platform matrix, sidecar pins, and failure-pattern checklist ([FFMPEG.md](FFMPEG.md)). Docs hub: [README.md](README.md).
 
 ## Project conventions
 

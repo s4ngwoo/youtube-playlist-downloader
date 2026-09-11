@@ -69,8 +69,8 @@ SmartScreen이 뜨면 **추가 정보 → 실행**을 선택하세요.
 - **선택 다운로드** — 메타데이터를 먼저 불러온 뒤 원하는 트랙만 골라 받을 수 있습니다.
 - **비공개·삭제 건너뜀** — 받을 수 없는 슬롯은 사유와 함께 건너뜀으로 표시합니다(flat dump + 필요 시 id별 probe).
 - **오디오 포맷** — **`.m4a` 또는 `.mp3`**로 추출하고 커버아트·태그를 임베딩합니다(자막은 기본 OFF).
-- **동시 다운로드** — **1–8** 병렬(기본 3); 앱 설정에 저장됩니다. [CONCURRENCY.md](docs/ko/CONCURRENCY.md) 참고.
-- **깔끔한 파일명** — `제목.확장자`로 저장(`[영상 ID]` 없음); 같은 파일이 있으면 건너뜁니다. [FILENAMES.md](docs/ko/FILENAMES.md).
+- **동시 다운로드** — **1–8** 병렬(기본 3); 앱 설정에 저장됩니다. [APP.md](docs/ko/APP.md#동시-다운로드) 참고.
+- **깔끔한 파일명** — `제목.확장자`로 저장(`[영상 ID]` 없음); 같은 파일이 있으면 건너뜁니다. [APP.md](docs/ko/APP.md#저장-파일명).
 - **EN / KO UI** — 헤더에서 언어 전환; `settings.json`에 locale 저장.
 - **메타데이터 편집** — 제목/아티스트 등 태그를 조정할 수 있습니다.
 - **다운로드 히스토리** — 이전에 받은 플레이리스트 URL을 로컬에 저장하고 다시 불러옵니다.
@@ -87,23 +87,16 @@ SmartScreen이 뜨면 **추가 정보 → 실행**을 선택하세요.
 
 ## 문서
 
-한국어 문서는 [`docs/ko/`](docs/ko/README.md)에, 영문은 [`docs/`](docs/README.md)에 있습니다. 프로젝트는 **오픈소스(GPL-3.0)** 로 유지됩니다.
+역할별 목차: **[docs/ko/README.md](docs/ko/README.md)** · 영문: **[docs/README.md](docs/README.md)**. 프로젝트는 **오픈소스(GPL-3.0)** 입니다.
 
-| 문서 | 한국어 | 영문 |
+| | 한국어 | 영문 |
 | :--- | :--- | :--- |
-| 개인정보 처리방침 | [docs/ko/PRIVACY.md](docs/ko/PRIVACY.md) | [docs/PRIVACY.md](docs/PRIVACY.md) |
-| 이용 약관 | [docs/ko/TERMS.md](docs/ko/TERMS.md) | [docs/TERMS.md](docs/TERMS.md) |
-| 보안 | [docs/ko/SECURITY.md](docs/ko/SECURITY.md) | [docs/SECURITY.md](docs/SECURITY.md) |
-| 기여 가이드 | [docs/ko/CONTRIBUTING.md](docs/ko/CONTRIBUTING.md) | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) |
-| 행동 강령 | [docs/ko/CODE_OF_CONDUCT.md](docs/ko/CODE_OF_CONDUCT.md) | [docs/CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) |
-| FAQ | [docs/ko/FAQ.md](docs/ko/FAQ.md) | [docs/FAQ.md](docs/FAQ.md) |
-| FFmpeg (번들) | [docs/ko/FFMPEG.md](docs/ko/FFMPEG.md) | [docs/FFMPEG.md](docs/FFMPEG.md) |
-| 동시 다운로드 | [docs/ko/CONCURRENCY.md](docs/ko/CONCURRENCY.md) | [docs/CONCURRENCY.md](docs/CONCURRENCY.md) |
-| 저장 파일명 | [docs/ko/FILENAMES.md](docs/ko/FILENAMES.md) | [docs/FILENAMES.md](docs/FILENAMES.md) |
-| 지원 | [docs/ko/SUPPORT.md](docs/ko/SUPPORT.md) | [docs/SUPPORT.md](docs/SUPPORT.md) |
+| 허브 (여기부터) | [docs/ko/README.md](docs/ko/README.md) | [docs/README.md](docs/README.md) |
+| FAQ · 도움 | [docs/ko/FAQ.md](docs/ko/FAQ.md) | [docs/FAQ.md](docs/FAQ.md) |
+| 앱 동작 | [docs/ko/APP.md](docs/ko/APP.md) | [docs/APP.md](docs/APP.md) |
+| 기여 | [docs/ko/CONTRIBUTING.md](docs/ko/CONTRIBUTING.md) | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) |
 | 릴리즈 | [docs/ko/RELEASING.md](docs/ko/RELEASING.md) | [docs/RELEASING.md](docs/RELEASING.md) |
-| 릴리즈 실패 패턴 | [docs/ko/RELEASE_FAILURES.md](docs/ko/RELEASE_FAILURES.md) | [docs/RELEASE_FAILURES.md](docs/RELEASE_FAILURES.md) |
-| 서드파티 | [docs/ko/THIRD_PARTY.md](docs/ko/THIRD_PARTY.md) | [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) |
+| 법률 (개인정보·약관·보안) | [docs/ko/PRIVACY.md](docs/ko/PRIVACY.md) · [약관](docs/ko/TERMS.md) · [보안](docs/ko/SECURITY.md) | [docs/…](docs/PRIVACY.md) |
 | 변경 이력 | [docs/ko/CHANGELOG.md](docs/ko/CHANGELOG.md) | [docs/CHANGELOG.md](docs/CHANGELOG.md) |
 
 영문 README(기본): **[README.md](README.md)**

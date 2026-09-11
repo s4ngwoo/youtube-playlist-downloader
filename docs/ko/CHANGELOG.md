@@ -15,7 +15,7 @@
 
 ### Docs
 
-- [RELEASE_FAILURES.md](RELEASE_FAILURES.md) / [영문](../RELEASE_FAILURES.md) — CI/릴리즈 반복 실패 클래스·일반화·체크리스트; CI stub는 `scripts/ci-prepare-sidecar-stubs.sh`
+- 공개 문서를 역할별 허브로 재편 ([README.md](README.md)); 동시 다운로드·파일명 → [APP.md](APP.md); 지원 → [FAQ.md](FAQ.md); 릴리즈 실패 패턴 → [RELEASING.md](RELEASING.md#실패-패턴--교훈); CI stub는 `scripts/ci-prepare-sidecar-stubs.sh`
 
 ### Notes
 
@@ -74,8 +74,8 @@
 - 전체 진행 바 안정화 (다운로드 구간 0–90% 가중 · 미세 역행 무시)
 - 플레이리스트 fetch 시 비공개·삭제 등 건너뛴 항목·사유 표시 (다운로드 대상 아님)
 - 실패 트랙만 보기 필터; 히스토리에 저장 폴더 기록·폴더 열기
-- 동시 다운로드 사용자 가이드 ([CONCURRENCY.md](CONCURRENCY.md)); UI 호버 안내
-- 파일명 가이드 ([FILENAMES.md](FILENAMES.md)): 제목만 저장, 기존 경로 건너뜀
+- 동시 다운로드 사용자 가이드 ([APP.md](APP.md#동시-다운로드)); UI 호버 안내
+- 파일명 가이드 ([APP.md](APP.md#저장-파일명)): 제목만 저장, 기존 경로 건너뜀
 - yt-dlp 업데이트를 헤더로 이동; 푸터는 크레딧·연락처 세로 배치 + 진단·로그만 유지
 
 ### Fixed

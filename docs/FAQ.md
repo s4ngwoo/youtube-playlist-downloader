@@ -40,11 +40,11 @@ There is no in-app FFmpeg updater. Version pins and drift notes: [FFMPEG.md](FFM
 5. Use **Environment diagnose** in the footer (shows yt-dlp source/version plus FFmpeg source/Deno)  
 6. Check the in-app **log viewer** for errors  
 7. Retry later — YouTube-side changes can cause temporary breakage  
-8. Raising **Concurrency** alone often does not speed things up — see [CONCURRENCY.md](CONCURRENCY.md)
+8. Raising **Concurrency** alone often does not speed things up — see [APP.md](APP.md#concurrent-downloads)
 
 ## Why doesn’t higher concurrency feel much faster?
 
-Each slot runs download **and** FFmpeg extract/embed on a shared link and CPU. Guide: [CONCURRENCY.md](CONCURRENCY.md).
+Each slot runs download **and** FFmpeg extract/embed on a shared link and CPU. Guide: [APP.md](APP.md#concurrent-downloads).
 
 ## Why does macOS say the developer cannot be verified?
 
@@ -72,7 +72,7 @@ Use the App’s **mobile-friendly ZIP** export (NFC normalization).
 
 ## Why don’t filenames include `[video id]` anymore?
 
-Files are saved as `Title.ext` (yt-dlp `-o %(title)s.%(ext)s`). If that path already exists, the download is **skipped** (`--no-overwrites`) instead of overwriting. Details: [FILENAMES.md](FILENAMES.md).
+Files are saved as `Title.ext` (yt-dlp `-o %(title)s.%(ext)s`). If that path already exists, the download is **skipped** (`--no-overwrites`) instead of overwriting. Details: [APP.md](APP.md#output-filenames).
 
 ## Why are some playlist tracks marked skipped (private / deleted)?
 
@@ -86,8 +86,16 @@ No by default. Audio extract does not request or embed subs. An optional ON togg
 
 See [README — Installation & Build](../README.md#installation--build). Prepare FFmpeg with `./scripts/prepare-ffmpeg-sidecar.sh` (or system FFmpeg fallback) — [FFMPEG.md](FFMPEG.md).
 
-## How do I report a bug or security issue?
+## How do I report a bug or get help?
 
-- Bugs / features: [GitHub Issues](https://github.com/s4ngwoo/youtube-playlist-downloader/issues)  
-- Security: [SECURITY.md](SECURITY.md)  
-- General help: [SUPPORT.md](SUPPORT.md)
+1. Check this FAQ, [FFMPEG.md](FFMPEG.md), and the [README](../README.md)
+2. Search [existing issues](https://github.com/s4ngwoo/youtube-playlist-downloader/issues)
+3. Open a new issue with OS/arch, app version, steps, expected vs actual, and log excerpts (redact personal paths)
+
+| Channel | Use for |
+| :--- | :--- |
+| [GitHub Issues](https://github.com/s4ngwoo/youtube-playlist-downloader/issues) | Bugs, feature requests |
+| [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases) | Builds & release notes |
+| Email: [s4ngwoo.lee@gmail.com](mailto:s4ngwoo.lee@gmail.com) | Private / security contact |
+
+This is a personal open-source project on a best-effort basis (no SLA). Security reports: [SECURITY.md](SECURITY.md) — do not post exploits publicly.

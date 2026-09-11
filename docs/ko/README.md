@@ -1,30 +1,58 @@
-# 문서 (한국어)
+# 문서
 
-**YouTube Playlist & Audio Downloader** 한국어 문서입니다.  
-영문 원문: [../README.md](../README.md)
+**YouTube Playlist & Audio Downloader** 공개 문서입니다 (GPL-3.0).
 
-| 문서 | 설명 |
+영문 허브: [../README.md](../README.md)
+
+역할별로 고르세요. 파일 전체를 나열해 두지 않습니다.
+
+---
+
+## 사용자
+
+| 문서 | 용도 |
 | :--- | :--- |
-| [PRIVACY.md](PRIVACY.md) | 개인정보 처리방침 |
-| [TERMS.md](TERMS.md) | 이용 약관 |
-| [SECURITY.md](SECURITY.md) | 보안·취약점 신고 |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | 기여 가이드 |
-| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | 행동 강령 |
-| [FAQ.md](FAQ.md) | 자주 묻는 질문 |
-| [CONCURRENCY.md](CONCURRENCY.md) | 동시 다운로드 의미·권장 값 |
-| [FILENAMES.md](FILENAMES.md) | 저장 파일명 — 제목만, 덮어쓰기 안 함 |
-| [SUPPORT.md](SUPPORT.md) | 지원 안내 |
+| [FAQ.md](FAQ.md) | 자주 묻는 질문 · 도움 받기 |
+| [APP.md](APP.md) | 동시 다운로드 · 저장 파일명 |
+| [FFMPEG.md](FFMPEG.md) | 번들 vs 시스템 FFmpeg |
 | [CHANGELOG.md](CHANGELOG.md) | 변경 이력 |
-| [RELEASING.md](RELEASING.md) | 태그 릴리즈·yt-dlp / FFmpeg 사이드카 정책 |
-| [RELEASE_FAILURES.md](RELEASE_FAILURES.md) | CI/릴리즈 반복 실패 패턴·클래스·체크리스트 |
-| [FFMPEG.md](FFMPEG.md) | 번들 LGPL FFmpeg — 일반 사용자 vs 소스 빌드, 핀, 탐색 순서 |
-| [THIRD_PARTY.md](THIRD_PARTY.md) | 번들 yt-dlp + LGPL FFmpeg 고지 |
 
-## README
+제품 진입: [../../README_KO.md](../../README_KO.md)
 
-- 한국어: [../../README_KO.md](../../README_KO.md)
-- 영문(기본): [../../README.md](../../README.md)
+## 기여자
+
+| 문서 | 용도 |
+| :--- | :--- |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | 개발 환경 · 검사 · 로컬 DMG |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | 행동 강령 |
+
+## 유지보수자
+
+| 문서 | 용도 |
+| :--- | :--- |
+| [RELEASING.md](RELEASING.md) | 태그 · 사이드카 핀 · **CI/릴리즈 실패 패턴** |
+| [THIRD_PARTY.md](THIRD_PARTY.md) | yt-dlp + LGPL FFmpeg 고지 |
+| [FFMPEG.md](FFMPEG.md) | prepare · 핀 · 탐색 순서 |
+
+## 법률·정책
+
+| 문서 | 용도 |
+| :--- | :--- |
+| [PRIVACY.md](PRIVACY.md) | 개인정보 |
+| [TERMS.md](TERMS.md) | 이용 약관 |
+| [SECURITY.md](SECURITY.md) | 취약점 신고 |
+
+---
+
+## 구조
+
+```
+docs/ko/     ← 이 트리 (영문과 동일 basename)
+docs/        ← 영문 원문
+```
+
+비공개 작업 노트는 gitignore된 `notes/`에만 둡니다.
 
 ## 라이선스
 
-앱 코드는 **GPL-3.0**입니다. 번들 FFmpeg는 **LGPL** — [THIRD_PARTY.md](THIRD_PARTY.md). [../../LICENSE](../../LICENSE)를 참고하세요.
+앱: [../../LICENSE](../../LICENSE) (GPL-3.0). 번들 FFmpeg: LGPL — [THIRD_PARTY.md](THIRD_PARTY.md).

@@ -95,11 +95,11 @@ cp src-tauri/target/release/bundle/dmg/*.dmg \
 | 사이드카 | `src-tauri/bin/yt-dlp-<target-triple>` (README 참고) |
 | 에이전트 규칙 | `.cursor/rules/*.mdc` (Cursor용 프로젝트 컨벤션) |
 
-검사는 **레포 루트**에서 실행하세요. CI는 Ubuntu에서 동일 명령을 돌립니다. Rust 사이드카 stub는 [`scripts/ci-prepare-sidecar-stubs.sh`](../../scripts/ci-prepare-sidecar-stubs.sh) (`.github/workflows/ci.yml`). `tauri.conf.json`의 `externalBin` / `resources`를 바꾸면 이 스크립트도 맞춰 주세요 — [RELEASE_FAILURES.md](RELEASE_FAILURES.md).
+검사는 **레포 루트**에서 실행하세요. CI는 Ubuntu에서 동일 명령을 돌립니다. Rust 사이드카 stub는 [`scripts/ci-prepare-sidecar-stubs.sh`](../../scripts/ci-prepare-sidecar-stubs.sh) (`.github/workflows/ci.yml`). `tauri.conf.json`의 `externalBin` / `resources`를 바꾸면 이 스크립트도 맞춰 주세요 — [RELEASING.md](RELEASING.md#실패-패턴--교훈).
 
 ## 릴리즈
 
-메인테이너: 태그(`v*`) 워크플로·플랫폼 매트릭스·번들 yt-dlp / FFmpeg는 **[RELEASING.md](RELEASING.md)** · [FFMPEG.md](FFMPEG.md). 반복 실패 패턴·체크리스트: **[RELEASE_FAILURES.md](RELEASE_FAILURES.md)**.
+메인테이너: 태그(`v*`)·사이드카·실패 패턴은 **[RELEASING.md](RELEASING.md)** · [FFMPEG.md](FFMPEG.md). 문서 허브: [README.md](README.md).
 
 ## 프로젝트 규칙
 

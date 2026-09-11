@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Docs
 
-- [RELEASE_FAILURES.md](RELEASE_FAILURES.md) / [ko](ko/RELEASE_FAILURES.md) — recurring CI/release failure classes, generalization, checklist; CI stubs via `scripts/ci-prepare-sidecar-stubs.sh`
+- Restructure public docs by audience ([README.md](README.md)); merge concurrency + filenames → [APP.md](APP.md); fold support into [FAQ.md](FAQ.md); fold release-failure patterns into [RELEASING.md](RELEASING.md#failure-patterns--lessons); CI stubs via `scripts/ci-prepare-sidecar-stubs.sh`
 
 ### Notes
 
@@ -73,8 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Smoother overall progress bar (download phase weighted 0–90%; ignore tiny regressions)
 - Playlist fetch surfaces skipped private/deleted/unavailable entries with reasons (still not downloadable)
 - Failed-only track list filter; history entries store download folder and can open it
-- User guide for concurrent downloads ([CONCURRENCY.md](CONCURRENCY.md) / [ko](ko/CONCURRENCY.md)); concurrency control hover hint in the UI
-- Filename guide ([FILENAMES.md](FILENAMES.md)): title-only output, skip existing paths
+- User guide for concurrent downloads ([APP.md](APP.md#concurrent-downloads)); concurrency control hover hint in the UI
+- Filename guide ([APP.md](APP.md#output-filenames)): title-only output, skip existing paths
 - Header hosts yt-dlp update; footer stacks credit/contact lines and keeps diagnose + logs only
 
 ### Fixed

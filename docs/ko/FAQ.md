@@ -46,11 +46,11 @@
 5. 하단 **환경 진단**으로 yt-dlp 소스/버전·FFmpeg 소스/Deno 확인  
 6. 앱 **로그 뷰어**에서 오류 확인  
 7. 나중에 다시 시도 — YouTube 측 변경으로 일시적으로 깨질 수 있음  
-8. **동시 다운로드**만 올려도 체감이 크게 안 나아질 수 있음 — [CONCURRENCY.md](CONCURRENCY.md)
+8. **동시 다운로드**만 올려도 체감이 크게 안 나아질 수 있음 — [APP.md](APP.md#동시-다운로드)
 
 ## 동시 다운로드를 올려도 별로 안 빨라요
 
-슬롯마다 받기 + FFmpeg 추출/임베드가 돌아가고, 회선·CPU를 나눠 씁니다. 가이드: [CONCURRENCY.md](CONCURRENCY.md).
+슬롯마다 받기 + FFmpeg 추출/임베드가 돌아가고, 회선·CPU를 나눠 씁니다. 가이드: [APP.md](APP.md#동시-다운로드).
 
 ## 공식 설치 파일은 어떤 플랫폼인가요?
 
@@ -74,7 +74,7 @@
 
 ## 파일명에 `[영상 ID]`가 없어요
 
-`제목.확장자`로 저장합니다 (`-o %(title)s.%(ext)s`). 같은 경로 파일이 이미 있으면 **덮어쓰지 않고 건너뜁니다** (`--no-overwrites`). 자세한 내용: [FILENAMES.md](FILENAMES.md).
+`제목.확장자`로 저장합니다 (`-o %(title)s.%(ext)s`). 같은 경로 파일이 이미 있으면 **덮어쓰지 않고 건너뜁니다** (`--no-overwrites`). 자세한 내용: [APP.md](APP.md#저장-파일명).
 
 ## 플레이리스트에 비공개·삭제로 건너뛴 트랙이 보여요
 
@@ -88,8 +88,16 @@
 
 [README_KO.md — 설치 및 빌드](../../README_KO.md#설치-및-빌드)를 참고하세요. FFmpeg는 `./scripts/prepare-ffmpeg-sidecar.sh`(또는 시스템 FFmpeg 대체) — [FFMPEG.md](FFMPEG.md).
 
-## 버그·보안 이슈는 어디에 신고하나요?
+## 버그 신고·도움 받기
 
-- 버그 / 기능: [GitHub Issues](https://github.com/s4ngwoo/youtube-playlist-downloader/issues)  
-- 보안: [SECURITY.md](SECURITY.md)  
-- 일반 도움: [SUPPORT.md](SUPPORT.md)
+1. 이 FAQ, [FFMPEG.md](FFMPEG.md), [README_KO.md](../../README_KO.md)를 확인하세요
+2. [기존 이슈](https://github.com/s4ngwoo/youtube-playlist-downloader/issues)를 검색하세요
+3. 새 이슈에 OS/아키텍처, 앱 버전, 재현 절차, 기대 vs 실제, 로그 발췌(개인 경로 마스킹)를 포함하세요
+
+| 채널 | 용도 |
+| :--- | :--- |
+| [GitHub Issues](https://github.com/s4ngwoo/youtube-playlist-downloader/issues) | 버그, 기능 요청 |
+| [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases) | 빌드·릴리즈 노트 |
+| 이메일: [s4ngwoo.lee@gmail.com](mailto:s4ngwoo.lee@gmail.com) | 비공개 / 보안 연락 |
+
+개인 오픈소스 · 최선의 노력(SLA 없음). 보안: [SECURITY.md](SECURITY.md) — 익스플로잇을 공개로 올리지 마세요.
