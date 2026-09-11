@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { DownloadHistoryItem } from "../types/history";
-import { Trash2, Download, Clock } from "lucide-react";
+import { Trash2, Download, Clock, FolderOpen } from "lucide-react";
+import { openPath } from "@tauri-apps/plugin-opener";
 import { historyService } from "../services/historyService";
+import { resolveHistoryFolder } from "../lib/historyFolder";
+import { useDownloadStore } from "../store/downloadStore";
 import { useI18n } from "../i18n";
 
 interface HistoryTabProps {
@@ -10,6 +13,7 @@ interface HistoryTabProps {
 
 export function HistoryTab({ onLoadUrl }: HistoryTabProps) {
   const { t, locale } = useI18n();
+  const downloadDir = useDownloadStore((s) => s.downloadDir);
   const [historyItems, setHistoryItems] = useState<DownloadHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,6 +36,20 @@ export function HistoryTab({ onLoadUrl }: HistoryTabProps) {
       setHistoryItems((prev) => prev.filter((item) => item.url !== url));
     } else {
       alert(t("history.deleteFailed"));
+    }
+  };
+
+  const handleOpenFolder = async (item: DownloadHistoryItem) => {
+    const folder = resolveHistoryFolder(item, downloadDir);
+    if (!folder) {
+      alert(t("history.openFolderMissing"));
+      return;
+    }
+    try {
+      await openPath(folder);
+    } catch (err) {
+      console.error("Open history folder failed:", err);
+      alert(t("history.openFolderFailed"));
     }
   };
 
@@ -84,6 +102,16 @@ export function HistoryTab({ onLoadUrl }: HistoryTabProps) {
 
             <div className="flex items-center gap-2">
               <button
+                type="button"
+                onClick={() => handleOpenFolder(item)}
+                className="flex items-center gap-1 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-md transition-colors text-sm whitespace-nowrap"
+                title={t("history.openFolderTitle")}
+              >
+                <FolderOpen className="w-4 h-4" />
+                <span>{t("history.openFolder")}</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => onLoadUrl(item.url)}
                 className="flex items-center gap-1 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-md transition-colors text-sm whitespace-nowrap"
                 title={t("history.redownloadTitle")}
@@ -92,6 +120,7 @@ export function HistoryTab({ onLoadUrl }: HistoryTabProps) {
                 <span>{t("history.redownload")}</span>
               </button>
               <button
+                type="button"
                 onClick={() => handleDelete(item.url)}
                 className="p-2 bg-neutral-800 hover:bg-red-900/50 hover:text-red-400 text-neutral-400 rounded-md transition-colors"
                 title={t("history.deleteTitle")}

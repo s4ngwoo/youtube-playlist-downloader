@@ -256,12 +256,12 @@ npm run tauri build
 
 권장 순서: **실패·진행 UX → 불가 항목 → 히스토리 → 부가**
 
-1. **지금** — Batch progress & failure UX: keep real titles on failure (not “Track #N”), pin failed tracks to top; session ETA estimate for download phase + post-process counts; early activity; smoother overall progress bar  
-2. Private / deleted playlist entries — show skipped items and reasons (today filtered silently)  
-3. Richer history / folder shortcuts · failed-only filter  
-4. Built-in mini audio preview (extra formats / theme later, on demand)
+1. [x] Batch progress & failure UX — real titles on failure, pin failed tracks, session ETA + post-process counts, live activity, smoother progress bar  
+2. [x] Private / deleted playlist entries — skipped items + reasons in selection UI  
+3. [x] Failed-only track filter · history folder shortcuts  
+4. [ ] Built-in mini audio preview (extra formats / theme later, on demand)
 
-Already shipped:
+Already shipped earlier:
 
 - [x] More output formats — **m4a / mp3** (FLAC, WAV, OPUS later)
 - [x] Broader concurrent download controls — **1–8 workers**

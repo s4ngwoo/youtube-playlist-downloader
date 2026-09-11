@@ -58,6 +58,7 @@ export function useDownloadFlow() {
       await historyService.saveHistory(
         (options.urlForHistory ?? state.url).trim(),
         playlist.title || "Unknown Title",
+        state.downloadDir,
       );
     }
 

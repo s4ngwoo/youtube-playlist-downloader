@@ -46,14 +46,17 @@ export const historyService = {
   /**
    * 다운로드 완료된 항목을 기록에 저장합니다.
    */
-  async saveHistory(url: string, title: string): Promise<void> {
+  async saveHistory(url: string, title: string, downloadDir?: string | null): Promise<void> {
     try {
       const store = await getStore();
-      await store.set(url, {
+      const payload: DownloadHistoryItem = {
         url,
         title: title || "Unknown Title",
         date: new Date().toISOString(),
-      });
+      };
+      const dir = downloadDir?.trim();
+      if (dir) payload.downloadDir = dir;
+      await store.set(url, payload);
       await store.save();
     } catch (err) {
       console.warn("히스토리 저장 실패:", err);

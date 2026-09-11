@@ -4,12 +4,14 @@ import { useShallow } from "zustand/react/shallow";
 import { useDownloadStore } from "../store/downloadStore";
 import { useDownloadFlow } from "../hooks/useDownloadFlow";
 import { sortTracksForDisplay } from "../lib/trackProgress";
+import { filterTracksByStatus, type TrackFilterMode } from "../lib/trackFilters";
 import { TrackRow } from "./TrackRow";
 import { useI18n } from "../i18n";
 
 export function TrackList() {
   const { t } = useI18n();
   const [viewMode, setViewMode] = useState<"basic" | "advanced">("basic");
+  const [filterMode, setFilterMode] = useState<TrackFilterMode>("all");
   const { playlistTitle, totalItems, tracks } = useDownloadStore(
     useShallow((s) => ({
       playlistTitle: s.playlistTitle,
@@ -19,11 +21,19 @@ export function TrackList() {
   );
   const { handleRetryFailedDownloads } = useDownloadFlow();
 
-  const trackList = useMemo(() => {
+  const sortedTracks = useMemo(() => {
     return sortTracksForDisplay(Array.from(tracks.values()));
   }, [tracks]);
 
-  const failedTracks = useMemo(() => trackList.filter((tr) => tr.status === "failed"), [trackList]);
+  const trackList = useMemo(
+    () => filterTracksByStatus(sortedTracks, filterMode),
+    [sortedTracks, filterMode],
+  );
+
+  const failedTracks = useMemo(
+    () => sortedTracks.filter((tr) => tr.status === "failed"),
+    [sortedTracks],
+  );
   const failedCount = failedTracks.length;
 
   const onRetryFailed = () => {
@@ -34,9 +44,9 @@ export function TrackList() {
 
   return (
     <section className="bg-neutral-900/70 border border-neutral-800/90 rounded-2xl overflow-hidden shadow-xl">
-      <div className="px-5 py-3.5 bg-neutral-950/80 border-b border-neutral-800 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <ListOrdered className="w-4 h-4 text-rose-400" />
+      <div className="px-5 py-3.5 bg-neutral-950/80 border-b border-neutral-800 flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <ListOrdered className="w-4 h-4 text-rose-400 shrink-0" />
           <h2 className="text-sm font-semibold text-neutral-200">{t("tracks.title")}</h2>
           {playlistTitle && (
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-950/50 text-rose-300 border border-rose-800/40 font-medium truncate max-w-md">
@@ -45,9 +55,37 @@ export function TrackList() {
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap justify-end">
+          {failedCount > 0 && (
+            <div className="flex items-center bg-neutral-900 rounded-md border border-neutral-800 p-0.5">
+              <button
+                type="button"
+                onClick={() => setFilterMode("all")}
+                className={`px-2 py-1 text-[10px] font-medium rounded-sm transition-colors ${
+                  filterMode === "all"
+                    ? "bg-neutral-800 text-neutral-200 shadow-sm"
+                    : "text-neutral-500 hover:text-neutral-300"
+                }`}
+              >
+                {t("tracks.filterAll")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterMode("failed")}
+                className={`px-2 py-1 text-[10px] font-medium rounded-sm transition-colors ${
+                  filterMode === "failed"
+                    ? "bg-rose-900/60 text-rose-200 shadow-sm"
+                    : "text-neutral-500 hover:text-neutral-300"
+                }`}
+              >
+                {t("tracks.filterFailed", { count: failedCount })}
+              </button>
+            </div>
+          )}
+
           <div className="flex items-center bg-neutral-900 rounded-md border border-neutral-800 p-0.5">
             <button
+              type="button"
               onClick={() => setViewMode("basic")}
               className={`px-2 py-1 text-[10px] font-medium rounded-sm transition-colors ${
                 viewMode === "basic"
@@ -58,6 +96,7 @@ export function TrackList() {
               {t("tracks.basic")}
             </button>
             <button
+              type="button"
               onClick={() => setViewMode("advanced")}
               className={`px-2 py-1 text-[10px] font-medium rounded-sm transition-colors ${
                 viewMode === "advanced"
@@ -71,6 +110,7 @@ export function TrackList() {
 
           {failedCount > 0 && (
             <button
+              type="button"
               onClick={onRetryFailed}
               className="px-2.5 py-1 text-xs font-semibold bg-rose-500 hover:bg-rose-600 text-white rounded-md transition-colors shadow-sm flex items-center gap-1"
             >
@@ -82,7 +122,7 @@ export function TrackList() {
             {totalItems > 0
               ? t("tracks.summary", {
                   total: totalItems,
-                  found: trackList.length,
+                  found: sortedTracks.length,
                 })
               : t("tracks.empty")}
           </span>
@@ -93,7 +133,9 @@ export function TrackList() {
         {trackList.length === 0 ? (
           <div className="py-10 flex flex-col items-center justify-center text-neutral-600 gap-2 text-center">
             <Disc3 className="w-8 h-8 opacity-40 animate-[spin_8s_linear_infinite]" />
-            <p className="text-xs text-neutral-500">{t("tracks.emptyHint")}</p>
+            <p className="text-xs text-neutral-500">
+              {filterMode === "failed" ? t("tracks.emptyFailedFilter") : t("tracks.emptyHint")}
+            </p>
           </div>
         ) : (
           trackList.map((track) => <TrackRow key={track.index} track={track} viewMode={viewMode} />)

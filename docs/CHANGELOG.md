@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Live activity status (receiving / queued / post-process) in header and form while downloading
 - Smoother overall progress bar (download phase weighted 0–90%; ignore tiny regressions)
 - Playlist fetch surfaces skipped private/deleted/unavailable entries with reasons (still not downloadable)
+- Failed-only track list filter; history entries store download folder and can open it
 
 ### Changed
 
@@ -23,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Notes
 
-- Work queue (maintainer): **C1→C2** next (Sprint 1–2 done), then extras (D).
+- Work queue (maintainer): Sprint 1–3 (A–C) done; Wave D extras on demand.
 - Deferred: split yt-dlp into download-only then post-process passes (A2-pipe).
 
 ## [0.2.0] - 2026-09-11
