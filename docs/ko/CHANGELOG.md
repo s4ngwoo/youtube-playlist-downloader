@@ -8,13 +8,15 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-11
+
 ### Added
 
 - PR/`main`용 GitHub Actions CI (프론트 typecheck, Rust check/clippy/test)
 - parser·NFC·yt-dlp 엔트리 검증 단위 테스트
 - `npm run typecheck`, `npm run test:rust` 스크립트
 - FFmpeg/Deno 환경 탐색 강화 (Windows 일반 설치 경로 포함)
-- 다운로드 전 FFmpeg 필수 검사(한국어 설치 안내); Deno 미설치는 경고만
+- 다운로드 전 FFmpeg 필수 검사(설치 안내); Deno 미설치는 경고만
 - 사이드카 오류에 플랫폼별 기대 yt-dlp 파일명 표시
 - 푸터 **환경 진단** (`diagnose_environment`)
 - 앱 설정 저장 (`settings.json`): 저장 폴더, 동시성(1–8), 오디오 포맷(m4a/mp3)
@@ -26,6 +28,7 @@
 - 프론트 `vitest` (settings/i18n 순수 헬퍼; `npm test`); CI frontend job에 테스트 포함
 - **yt-dlp 원클릭 업데이트**(푸터): GitHub latest 자산을 앱 데이터 `sidecars/` 오버라이드로 설치; 런타임이 번들보다 오버라이드 우선 (`update_ytdlp` / `ytdlp_status`)
 - 환경 진단: 경고/힌트 안정 코드 + yt-dlp 소스/버전; 메타 에디터·로그 뷰어·advanced 라벨 i18n 완료
+- Cursor 프로젝트 규칙 (`.cursor/rules/`) 및 로컬 검증 패키징 (`npm run package:local-dmg` → `local-packages/`)
 
 ### Changed
 
@@ -77,5 +80,6 @@ Tauri v2 기반 공개 데스크톱 앱 초기 라인.
 
 - 정확한 태그 날짜와 에셋 이름: [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases)
 
-[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.2.0
 [0.1.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.1.0

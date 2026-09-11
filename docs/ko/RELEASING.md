@@ -26,8 +26,8 @@ Linux 공식 설치 파일은 **계획하지 않습니다** (소스 빌드만 ·
 6. **태그 푸시**
 
 ```bash
-git tag v0.1.1
-git push origin v0.1.1
+git tag v0.2.1
+git push origin v0.2.1
 ```
 
 7. **확인** — GitHub Release에 DMG(aarch64 + x64)·Windows 설치 파일이 올라갔는지, 워크플로 로그의 사이드카 다운로드 단계를 훑는다.

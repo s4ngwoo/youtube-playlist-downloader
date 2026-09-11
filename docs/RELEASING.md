@@ -26,8 +26,8 @@ Linux official installers are **not planned** (build from source only; see READM
 6. **Tag and push**
 
 ```bash
-git tag v0.1.1
-git push origin v0.1.1
+git tag v0.2.1
+git push origin v0.2.1
 ```
 
 7. **Verify** — On the GitHub Release page, confirm DMG (aarch64 + x64) and Windows installers uploaded; skim the workflow logs for the sidecar download step.

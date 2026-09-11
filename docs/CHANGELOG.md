@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-11
+
 ### Added
 
 - GitHub Actions CI on PRs and `main` (frontend typecheck, Rust check/clippy/test)
 - Unit tests for parser title cleaning/regexes, NFC name normalization, and yt-dlp entry validation
 - `npm run typecheck` and `npm run test:rust` scripts
 - Stronger environment detection for FFmpeg/Deno (including common Windows install paths)
-- Pre-download FFmpeg requirement check with Korean install hints; Deno missing is warning-only
+- Pre-download FFmpeg requirement check with install hints; Deno missing is warning-only
 - Sidecar errors now include the expected yt-dlp binary name for the current platform
 - In-app **Environment diagnose** action (footer) via `diagnose_environment`
 - Persistent app settings (`settings.json`): download folder, concurrency (1–8), audio format (m4a/mp3)
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Frontend `vitest` for settings/i18n pure helpers (`npm test`); CI frontend job runs tests
 - One-click **yt-dlp update** (footer): downloads latest GitHub asset into app-data `sidecars/` override; runtime prefers override over bundled sidecar (`update_ytdlp` / `ytdlp_status`)
 - Environment diagnose returns stable warning/hint codes plus yt-dlp source/version; metadata editor / log viewer / advanced track labels fully i18n
+- Cursor project rules under `.cursor/rules/` and local verify packaging (`npm run package:local-dmg` → `local-packages/`)
 
 ### Changed
 
@@ -76,5 +79,6 @@ Initial public desktop app release line (Tauri v2).
 
 - Exact tag dates and asset names: see [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases).
 
-[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.2.0
 [0.1.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.1.0
