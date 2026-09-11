@@ -11,6 +11,8 @@
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 기여 가이드 |
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | 행동 강령 |
 | [FAQ.md](FAQ.md) | 자주 묻는 질문 |
+| [CONCURRENCY.md](CONCURRENCY.md) | 동시 다운로드 의미·권장 값 |
+| [FILENAMES.md](FILENAMES.md) | 저장 파일명 — 제목만, 덮어쓰기 안 함 |
 | [SUPPORT.md](SUPPORT.md) | 지원 안내 |
 | [CHANGELOG.md](CHANGELOG.md) | 변경 이력 |
 | [RELEASING.md](RELEASING.md) | 태그 릴리즈·yt-dlp 사이드카 정책 |

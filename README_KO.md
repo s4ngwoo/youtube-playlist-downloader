@@ -68,13 +68,14 @@ SmartScreen이 뜨면 **추가 정보 → 실행**을 선택하세요.
 - **플레이리스트·단일 영상 지원** — URL만 넣으면 트랙을 감지하고 일괄 다운로드합니다.
 - **선택 다운로드** — 메타데이터를 먼저 불러온 뒤 원하는 트랙만 골라 받을 수 있습니다.
 - **오디오 포맷** — **`.m4a` 또는 `.mp3`**로 추출하고 커버아트·태그를 임베딩합니다.
-- **동시 다운로드** — **1–8** 병렬(기본 3); 앱 설정에 저장됩니다.
+- **동시 다운로드** — **1–8** 병렬(기본 3); 앱 설정에 저장됩니다. [CONCURRENCY.md](docs/ko/CONCURRENCY.md) 참고.
+- **깔끔한 파일명** — `제목.확장자`로 저장(`[영상 ID]` 없음); 같은 파일이 있으면 건너뜁니다. [FILENAMES.md](docs/ko/FILENAMES.md).
 - **EN / KO UI** — 헤더에서 언어 전환; `settings.json`에 locale 저장.
 - **메타데이터 편집** — 제목/아티스트 등 태그를 조정할 수 있습니다.
 - **다운로드 히스토리** — 이전에 받은 플레이리스트 URL을 로컬에 저장하고 다시 불러옵니다.
 - **모바일 호환 ZIP (NFC)** — macOS NFD 파일명 깨짐을 줄이기 위해 NFC로 정규화한 ZIP을 만듭니다.
 - **환경 진단** — 푸터에서 FFmpeg·Deno·yt-dlp 소스/버전을 확인합니다.
-- **앱 내 yt-dlp 업데이트** — 최신 바이너리를 앱 데이터 `sidecars/`에 받아 사용(오버라이드; 릴리즈 번들 사이드카는 덮어쓰지 않음).
+- **앱 내 yt-dlp 업데이트** — 최신 바이너리를 앱 데이터 `sidecars/`에 받아 사용(오버라이드; 릴리즈 번들 사이드카는 덮어쓰지 않음). 버튼은 **헤더**.
 - **프로세스 트리 정리** — 취소·창 닫기·종료 시 `yt-dlp` / `ffmpeg` 하위 프로세스를 정리합니다.
 - **Deno 연동 yt-dlp** — 시스템에 Deno가 있으면 YouTube JS 챌린지 해결에 활용합니다.
 - **앱 로그 뷰어** — 로컬에 남는 로그를 전용 창에서 확인할 수 있습니다.
@@ -94,6 +95,8 @@ SmartScreen이 뜨면 **추가 정보 → 실행**을 선택하세요.
 | 기여 가이드 | [docs/ko/CONTRIBUTING.md](docs/ko/CONTRIBUTING.md) | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) |
 | 행동 강령 | [docs/ko/CODE_OF_CONDUCT.md](docs/ko/CODE_OF_CONDUCT.md) | [docs/CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) |
 | FAQ | [docs/ko/FAQ.md](docs/ko/FAQ.md) | [docs/FAQ.md](docs/FAQ.md) |
+| 동시 다운로드 | [docs/ko/CONCURRENCY.md](docs/ko/CONCURRENCY.md) | [docs/CONCURRENCY.md](docs/CONCURRENCY.md) |
+| 저장 파일명 | [docs/ko/FILENAMES.md](docs/ko/FILENAMES.md) | [docs/FILENAMES.md](docs/FILENAMES.md) |
 | 지원 | [docs/ko/SUPPORT.md](docs/ko/SUPPORT.md) | [docs/SUPPORT.md](docs/SUPPORT.md) |
 | 릴리즈 | [docs/ko/RELEASING.md](docs/ko/RELEASING.md) | [docs/RELEASING.md](docs/RELEASING.md) |
 | 변경 이력 | [docs/ko/CHANGELOG.md](docs/ko/CHANGELOG.md) | [docs/CHANGELOG.md](docs/CHANGELOG.md) |
@@ -238,14 +241,14 @@ npm run tauri build
 3. 유튜브 영상 또는 플레이리스트 URL을 붙여넣습니다.
 4. 메타데이터를 불러온 뒤 필요하면 트랙을 선택하고 다운로드를 시작합니다.
 5. 트랙별 진행 상태를 확인하고, 실패 항목은 재시도할 수 있습니다.
-6. 모바일용 ZIP, **환경 진단**, **yt-dlp 업데이트**(푸터), 앱 로그 뷰어를 사용할 수 있습니다.
+6. 모바일용 ZIP, **환경 진단**(푸터), **yt-dlp 업데이트**(헤더), 앱 로그 뷰어를 사용할 수 있습니다.
 7. **취소** 시 백그라운드 프로세스까지 정리됩니다.
 
 ---
 
 ## 한계점 및 유의사항
 
-- YouTube 시그니처·정책 변경으로 다운로드가 일시적으로 실패하거나 느려질 수 있습니다. `yt-dlp`(및 Deno)를 최신으로 유지하세요(푸터 **yt-dlp 업데이트** 또는 다음 앱 릴리즈).
+- YouTube 시그니처·정책 변경으로 다운로드가 일시적으로 실패하거나 느려질 수 있습니다. `yt-dlp`(및 Deno)를 최신으로 유지하세요(헤더 **yt-dlp 업데이트** 또는 다음 앱 릴리즈).
 - FFmpeg가 `PATH`(또는 일반 설치 경로)에 있어야 합니다.
 - **저작권·이용약관**: 개인·교육·오프라인 감상 목적의 도구입니다. 관련 법과 YouTube 약관 준수 책임은 사용자에게 있습니다. [이용 약관](docs/ko/TERMS.md)을 참고하세요.
 - DRM 보호 콘텐츠는 받을 수 없습니다.
@@ -270,7 +273,7 @@ npm run tauri build
 
 - [x] 오디오 포맷 선택 — **m4a / mp3** (FLAC, WAV, OPUS는 추후)
 - [x] 동시 다운로드 수 설정 — **1–8**
-- [x] 앱 내 yt-dlp 업데이트 — 앱 데이터 오버라이드(푸터); 릴리즈 번들 사이드카와는 별개
+- [x] 앱 내 yt-dlp 업데이트 — 앱 데이터 오버라이드(헤더); 릴리즈 번들 사이드카와는 별개
 - [x] Intel macOS 공식 릴리즈 바이너리
 - [x] Linux 공식 바이너리 — **계획 없음**
 - [x] Apple Notarization — **하지 않음** (Gatekeeper 안내는 README 유지)

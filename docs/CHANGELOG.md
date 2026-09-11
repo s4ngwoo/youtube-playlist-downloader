@@ -15,15 +15,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Smoother overall progress bar (download phase weighted 0–90%; ignore tiny regressions)
 - Playlist fetch surfaces skipped private/deleted/unavailable entries with reasons (still not downloadable)
 - Failed-only track list filter; history entries store download folder and can open it
+- User guide for concurrent downloads ([CONCURRENCY.md](CONCURRENCY.md) / [ko](ko/CONCURRENCY.md)); concurrency control hover hint in the UI
+- Filename guide ([FILENAMES.md](FILENAMES.md)): title-only output, skip existing paths
+- Header hosts yt-dlp update; footer stacks credit/contact lines and keeps diagnose + logs only
 
 ### Fixed
 
 - Skipped playlist entries: classify private/deleted via title (EN/KO), `availability`, and null slots — fewer false “unknown” labels
 - History “Folder” uses reveal-in-dir (allowed by `opener:default`); `openPath` was denied and always failed
+- App log viewer: reveal log file via reveal-in-dir; detect log window by Tauri label; clearer refresh/open errors
 
 ### Changed
 
 - Audio extract no longer requests/embeds subtitles by default (`--write-subs` / `--embed-subs` removed; optional toggle later)
+- Output files use `%(title)s.%(ext)s` with `--no-overwrites` (no default `[id]` suffix)
 - Advanced track view shows a short yt-dlp console (recent lines + stage labels); Basic stays badge-only
 - Track title fallback and environment-diagnose labels follow EN/KO i18n (no hard-coded Korean/English fragments)
 - Overall progress averages selected tracks in the store map (not a dense `1..N` index loop)

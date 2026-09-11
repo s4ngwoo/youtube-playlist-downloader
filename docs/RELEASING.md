@@ -80,7 +80,7 @@ Do **not** commit large sidecars unless the project explicitly decides to vendor
 
 ## In-app yt-dlp update vs release sidecar
 
-Users can install a newer yt-dlp via the footer **Update yt-dlp** action. That writes an **override** under the app local data `sidecars/` directory and prefers it at runtime. It does **not** rewrite the release-bundled `externalBin` sidecar. The next GitHub Release still ships its own pinned/latest sidecar independently of any user’s override.
+Users can install a newer yt-dlp via the header **Update yt-dlp** action. That writes an **override** under the app local data `sidecars/` directory and prefers it at runtime. It does **not** rewrite the release-bundled `externalBin` sidecar. The next GitHub Release still ships its own pinned/latest sidecar independently of any user’s override.
 
 ## Related
 

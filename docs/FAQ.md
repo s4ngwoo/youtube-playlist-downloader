@@ -14,13 +14,18 @@ The App keeps preferences, history, and logs **on your device**. It does not pro
 
 ## Downloads are slow or failing
 
-1. Use the footer **Update yt-dlp** button (installs a newer binary under app data; does not rewrite the release-bundled sidecar)  
+1. Use the header **Update yt-dlp** button (installs a newer binary under app data; does not rewrite the release-bundled sidecar)  
 2. Or wait for the next app release, which re-bundles yt-dlp (maintainers: [RELEASING.md](RELEASING.md))  
 3. Install **Deno** and ensure it is on your `PATH`  
 4. Confirm **FFmpeg** is installed (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin`, or PATH)  
 5. Use **Environment diagnose** in the footer (shows yt-dlp source/version plus FFmpeg/Deno)  
 6. Check the in-app **log viewer** for errors  
 7. Retry later — YouTube-side changes can cause temporary breakage  
+8. Raising **Concurrency** alone often does not speed things up — see [CONCURRENCY.md](CONCURRENCY.md)
+
+## Why doesn’t higher concurrency feel much faster?
+
+Each slot runs download **and** FFmpeg extract/embed on a shared link and CPU. Guide: [CONCURRENCY.md](CONCURRENCY.md).
 
 ## Why does macOS say the developer cannot be verified?
 
@@ -45,6 +50,10 @@ Yes — fetch metadata first, then select tracks in the selection UI before down
 ## Korean filenames look broken on Android
 
 Use the App’s **mobile-friendly ZIP** export (NFC normalization).
+
+## Why don’t filenames include `[video id]` anymore?
+
+Files are saved as `Title.ext` (yt-dlp `-o %(title)s.%(ext)s`). If that path already exists, the download is **skipped** (`--no-overwrites`) instead of overwriting. Details: [FILENAMES.md](FILENAMES.md).
 
 ## How do I build from source?
 

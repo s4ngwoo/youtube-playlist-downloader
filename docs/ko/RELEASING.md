@@ -80,7 +80,7 @@ chmod +x src-tauri/bin/yt-dlp-aarch64-apple-darwin
 
 ## 앱 내 yt-dlp 갱신 vs 릴리즈 사이드카
 
-사용자는 푸터 **yt-dlp 업데이트**로 최신 바이너리를 받을 수 있다. 이는 앱 로컬 데이터 `sidecars/` **오버라이드**이며, 릴리즈에 포함된 `externalBin` 사이드카를 덮어쓰지 않는다. 다음 GitHub Release의 번들 사이드카는 사용자 오버라이드와 별개로 고정/최신 정책에 따라 다시 패키징된다.
+사용자는 헤더 **yt-dlp 업데이트**로 최신 바이너리를 받을 수 있다. 이는 앱 로컬 데이터 `sidecars/` **오버라이드**이며, 릴리즈에 포함된 `externalBin` 사이드카를 덮어쓰지 않는다. 다음 GitHub Release의 번들 사이드카는 사용자 오버라이드와 별개로 고정/최신 정책에 따라 다시 패키징된다.
 
 ## 관련 문서
 
