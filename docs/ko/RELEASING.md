@@ -20,12 +20,14 @@ Linux 공식 설치 파일은 **계획 없음**. 서드파티 고지: [THIRD_PAR
 
 ## 태그 전 체크리스트
 
+0. **Actions 토큰** — Settings → Actions → Workflow permissions이 **Read and write** 이거나, 워크플로 top-level `permissions: contents: write`로 상승 가능해야 함. 아니면 create-a-release에서 `Resource not accessible by integration`.
 1. **버전** — `package.json` · `src-tauri/Cargo.toml` · `src-tauri/tauri.conf.json` 함께 올리기
 2. **CHANGELOG** — `[Unreleased]` → 새 섹션 (`docs/CHANGELOG.md` + `docs/ko/CHANGELOG.md`)
 3. **README 플랫폼 표** — 매트릭스와 일치하는지 확인
 4. **yt-dlp / FFmpeg 핀** — `YTDLP_TAG` / `FFMPEG_TAG`
 5. **로컬 스모크** (권장) — `npm run typecheck` · `npm test` · `npm run test:rust`
-6. 태그 푸시 후 릴리즈 자산·워크플로 로그(yt-dlp **및** FFmpeg 준비 단계) 확인. 매트릭스 **전 OS**가 끝날 때까지 기다릴 것(한 OS 초록 ≠ 완료).
+6. **같은 커밋 CI 초록**
+7. 태그 푸시 후 릴리즈 자산·워크플로 로그(yt-dlp **및** FFmpeg 준비 단계) 확인. 매트릭스 **전 OS**가 끝날 때까지 기다릴 것(한 OS 초록 ≠ 완료).
 
 새 방식으로 CI/릴리즈가 깨지면 아래 **[실패 패턴 · 교훈](#실패-패턴--교훈)** 과 필요 시 `notes/errors/` 를 갱신합니다.
 
@@ -101,7 +103,7 @@ FFmpeg는 릴리즈 번들만 제공(인앱 FFmpeg 업데이트 없음).
 
 #### C — 릴리즈 액션 / 매트릭스
 
-`releaseName`, OS 매트릭스, 사이드카 파일명, `YTDLP_TAG`/`FFMPEG_TAG`를 `release.yml` 수정 후 리허설합니다.
+`releaseName`, OS 매트릭스, 사이드카 파일명, `YTDLP_TAG`/`FFMPEG_TAG`, 그리고 **Actions Workflow permissions(write)** 를 확인합니다. 기본 토큰이 read면 create-a-release가 `Resource not accessible by integration`으로 실패합니다.
 
 #### D — 빌더 ≠ 사용자
 

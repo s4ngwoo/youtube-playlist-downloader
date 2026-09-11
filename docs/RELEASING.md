@@ -22,19 +22,21 @@ Third-party notices: [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## Checklist before tagging
 
+0. **Actions token** — Repo Settings → Actions → General → Workflow permissions must allow **Read and write** (or workflows must successfully elevate with top-level `permissions: contents: write`). Otherwise `tauri-action` fails with `Resource not accessible by integration` on create-a-release.
 1. **Version** — Bump **together**: `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` (then refresh `package-lock.json` / `Cargo.lock` as needed).
 2. **CHANGELOG** — Move finished items from `[Unreleased]` into a new section in `docs/CHANGELOG.md` and `docs/ko/CHANGELOG.md`.
 3. **README platform table** — Confirm Official vs build-from-source rows match the matrix.
 4. **yt-dlp / FFmpeg policy** — Decide `YTDLP_TAG` / `FFMPEG_TAG` (see below).
 5. **Local smoke** (optional but recommended) — `npm run typecheck`, `npm test`, and `npm run test:rust`.
-6. **Tag and push**
+6. **CI green** on the same commit you will tag.
+7. **Tag and push**
 
 ```bash
-git tag v0.4.1
-git push origin v0.4.1
+git tag v0.4.2
+git push origin v0.4.2
 ```
 
-7. **Verify** — On the GitHub Release page, confirm DMG (aarch64 + x64) and Windows installers uploaded; skim the workflow logs for the yt-dlp **and** FFmpeg prepare steps. Wait for **all** matrix jobs (do not treat one green OS as done).
+8. **Verify** — On the GitHub Release page, confirm DMG (aarch64 + x64) and Windows installers uploaded; skim the workflow logs for the yt-dlp **and** FFmpeg prepare steps. Wait for **all** matrix jobs (do not treat one green OS as done). If create-a-release 403 appears, re-check step 0.
 
 If a release or CI run fails in a new way, update the **Failure patterns** section below and a private note under `notes/errors/` when useful.
 
@@ -181,11 +183,11 @@ Whenever you **add or rename** an `externalBin` or `resources` entry, update **a
 
 #### C — Release action / matrix configuration
 
-**Rule:** GitHub Release uploads depend on tauri-action inputs and a correct OS matrix (Apple Silicon + Intel + Windows). Missing inputs fail late or produce incomplete releases.
+**Rule:** GitHub Release uploads depend on tauri-action inputs, a correct OS matrix, **and** a `GITHUB_TOKEN` that can create releases.
 
-**Already solved for known cases:** `releaseName` set; Intel Mac on `macos-13` for native x86_64 FFmpeg.
+**Already solved for known cases:** `releaseName` set; Intel Mac on `macos-13`; workflow top-level `permissions: contents: write`; repo Actions default token set to **write** (read-only default → `Resource not accessible by integration` on create-a-release).
 
-**Process:** After any `release.yml` edit, read one dry-run mental checklist: matrix rows, sidecar download names, prepare env (`YTDLP_TAG` / `FFMPEG_TAG`), smoke `test -f` paths.
+**Process:** After any `release.yml` edit, dry-run: matrix rows, sidecar names, prepare env, smoke `test -f`, and Settings → Actions → Workflow permissions.
 
 #### D — “Builds on the builder” ≠ “runs on the user”
 

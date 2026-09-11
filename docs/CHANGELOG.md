@@ -7,18 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+### Notes
+
+- Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
+
+## [0.4.2] - 2026-09-12
+
 ### Fixed
 
 - Cancel stops the rest of the queue (not only in-flight PIDs) and returns `ok.cancelled` without treating the job as completed/history-worthy
 - yt-dlp stderr `WARNING:` lines no longer mark tracks as failed (only `ERROR:` does)
+- Release workflow: ensure `GITHUB_TOKEN` can create releases (`permissions: contents: write` + repo Actions workflow permissions write) — fixes `Resource not accessible by integration` that blocked `v0.4.1` asset publish
+- CI: stub `resources/libmp3lame.0.dylib` on Linux via `scripts/ci-prepare-sidecar-stubs.sh`
 
 ### Docs
 
-- Restructure public docs by audience ([README.md](README.md)); merge concurrency + filenames → [APP.md](APP.md); fold support into [FAQ.md](FAQ.md); fold release-failure patterns into [RELEASING.md](RELEASING.md#failure-patterns--lessons); CI stubs via `scripts/ci-prepare-sidecar-stubs.sh`
+- Restructure public docs by audience ([README.md](README.md)); merge concurrency + filenames → [APP.md](APP.md); fold support into [FAQ.md](FAQ.md); fold release-failure patterns into [RELEASING.md](RELEASING.md#failure-patterns--lessons)
 
 ### Notes
 
-- Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
+- `v0.4.1` tag existed but GitHub Release assets never published (token permission). Treat **0.4.2** as the first successful ship of the portable FFmpeg fixes from 0.4.1 plus cancel/CI fixes.
 
 ## [0.4.1] - 2026-09-11
 
@@ -30,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 ### Docs
 
 - FAQ / FFMPEG / CONTRIBUTING / CONCURRENCY / docs index cross-links; fix broken KO changelog relative links
+
+### Notes
+
+- Tag `v0.4.1` did not publish installers (see 0.4.2).
 
 ## [0.4.0] - 2026-09-11
 

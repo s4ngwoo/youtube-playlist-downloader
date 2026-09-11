@@ -5,6 +5,12 @@ on:
     tags:
       - 'v*'
 
+# Required for tauri-action to create/upload GitHub Releases.
+# Repo "Workflow permissions" default must allow this elevation (prefer write,
+# or at least allow workflows to request contents: write).
+permissions:
+  contents: write
+
 # Sidecar policy: yt-dlp "latest" by default; FFmpeg is LGPL (see docs/RELEASING.md).
 # Pin with YTDLP_TAG / FFMPEG_TAG when needed.
 env:

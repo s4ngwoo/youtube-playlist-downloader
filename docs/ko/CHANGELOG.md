@@ -8,18 +8,26 @@
 
 ## [Unreleased]
 
+### Notes
+
+- 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
+
+## [0.4.2] - 2026-09-12
+
 ### Fixed
 
 - 취소 시 진행 중 PID뿐 아니라 대기열 트랙도 중단하고 `ok.cancelled`로 완료/히스토리 저장을 막음
 - yt-dlp stderr `WARNING:` 줄이 트랙을 실패로 표시하지 않음 (`ERROR:`만 실패 처리)
+- 릴리즈: `GITHUB_TOKEN`이 Release를 만들 수 있게 함 (`permissions: contents: write` + Actions workflow permissions write) — `v0.4.1` 자산 게시를 막았던 `Resource not accessible by integration` 수정
+- CI: Linux에서 `resources/libmp3lame.0.dylib` stub (`scripts/ci-prepare-sidecar-stubs.sh`)
 
 ### Docs
 
-- 공개 문서를 역할별 허브로 재편 ([README.md](README.md)); 동시 다운로드·파일명 → [APP.md](APP.md); 지원 → [FAQ.md](FAQ.md); 릴리즈 실패 패턴 → [RELEASING.md](RELEASING.md#실패-패턴--교훈); CI stub는 `scripts/ci-prepare-sidecar-stubs.sh`
+- 공개 문서를 역할별 허브로 재편 ([README.md](README.md)); 동시 다운로드·파일명 → [APP.md](APP.md); 지원 → [FAQ.md](FAQ.md); 릴리즈 실패 패턴 → [RELEASING.md](RELEASING.md#실패-패턴--교훈)
 
 ### Notes
 
-- 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
+- `v0.4.1` 태그는 있었으나 GitHub Release 자산 미게시(토큰 권한). 휴대 FFmpeg(0.4.1) + 취소/CI 수정의 **첫 성공 출하**는 **0.4.2**.
 
 ## [0.4.1] - 2026-09-11
 
@@ -32,6 +40,9 @@
 
 - FAQ / FFMPEG / CONTRIBUTING / CONCURRENCY / 문서 인덱스 교차 링크; KO CHANGELOG 깨진 상대 경로 수정
 
+### Notes
+
+- 태그 `v0.4.1`은 설치본을 게시하지 못함 (0.4.2 참고).
 ## [0.4.0] - 2026-09-11
 
 ### Added
