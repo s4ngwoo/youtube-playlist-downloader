@@ -661,6 +661,7 @@ mod tests {
             url: "https://example.com/v".into(),
             item_index: 1,
             total_items: 1,
+            title: None,
         };
         let args = build_ytdlp_args(&task, "/Music/YouTube", "MP3");
         assert!(args
