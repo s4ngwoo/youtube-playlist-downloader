@@ -1,8 +1,11 @@
-import { CheckCircle2, AlertCircle, ListMusic, Edit3 } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, AlertCircle, ListMusic, Edit3, RefreshCw } from "lucide-react";
 import { useDownloadStore } from "../store/downloadStore";
 import { useI18n } from "../i18n";
 import { AppLocale } from "../types/settings";
 import { useSettingsActions } from "../hooks/useSettingsActions";
+import { updateYtdlp } from "../api/environment";
+import { mapBackendMessage } from "../i18n/mapBackendMessage";
 
 interface HeaderProps {
   onOpenMetadataEditor?: () => void;
@@ -13,17 +16,41 @@ export function Header({ onOpenMetadataEditor }: HeaderProps) {
   const statusMessage = useDownloadStore((s) => s.statusMessage);
   const { t, locale } = useI18n();
   const { handleLocaleChange } = useSettingsActions();
+  const [ytdlpBusy, setYtdlpBusy] = useState(false);
+
+  const handleUpdateYtdlp = async () => {
+    if (ytdlpBusy) return;
+    setYtdlpBusy(true);
+    try {
+      const statusResult = await updateYtdlp();
+      window.alert(
+        t("footer.ytdlpUpdateOk", {
+          version: statusResult.version ?? t("footer.diag.none"),
+          path: statusResult.path ?? statusResult.overridePath,
+        }),
+      );
+    } catch (err) {
+      console.error("yt-dlp update failed:", err);
+      window.alert(
+        t("footer.ytdlpUpdateFailed", {
+          error: mapBackendMessage(String(err), t),
+        }),
+      );
+    } finally {
+      setYtdlpBusy(false);
+    }
+  };
 
   return (
     <header
       data-tauri-drag-region
       className="shrink-0 w-full flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-neutral-800/80 gap-4 select-none cursor-default"
     >
-      <div data-tauri-drag-region className="flex items-center gap-3.5">
+      <div data-tauri-drag-region className="flex items-center gap-3.5 min-w-0">
         <div className="p-2.5 bg-gradient-to-tr from-rose-600 to-red-500 rounded-xl shadow-lg shadow-rose-600/30 flex items-center justify-center shrink-0">
           <ListMusic className="w-6 h-6 text-white" />
         </div>
-        <div data-tauri-drag-region className="flex flex-col justify-center">
+        <div data-tauri-drag-region className="flex flex-col justify-center min-w-0">
           <h1
             data-tauri-drag-region
             className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-neutral-100 to-neutral-400 bg-clip-text text-transparent leading-tight"
@@ -32,7 +59,7 @@ export function Header({ onOpenMetadataEditor }: HeaderProps) {
           </h1>
           <p
             data-tauri-drag-region
-            className="text-xs text-neutral-400 flex items-center gap-1.5 mt-1"
+            className="text-xs text-neutral-400 flex items-center gap-1.5 mt-1 flex-wrap"
           >
             <span>{t("header.taglineStack")}</span>
             <span className="inline-block w-1 h-1 rounded-full bg-neutral-600" />
@@ -41,7 +68,21 @@ export function Header({ onOpenMetadataEditor }: HeaderProps) {
         </div>
       </div>
 
-      <div data-tauri-drag-region="false" className="flex items-center gap-2.5 shrink-0">
+      <div
+        data-tauri-drag-region="false"
+        className="flex items-center gap-2.5 shrink-0 flex-wrap justify-end"
+      >
+        <button
+          type="button"
+          onClick={() => void handleUpdateYtdlp()}
+          disabled={ytdlpBusy}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900/80 border border-neutral-800 shadow-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-all cursor-pointer text-xs font-semibold disabled:opacity-50 disabled:cursor-wait"
+          title={t("footer.ytdlpUpdateTitle")}
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${ytdlpBusy ? "animate-spin" : ""}`} />
+          {ytdlpBusy ? t("footer.ytdlpUpdating") : t("footer.ytdlpUpdate")}
+        </button>
+
         <label className="flex items-center gap-1.5 text-xs text-neutral-400">
           <span className="sr-only">{t("lang.switch")}</span>
           <select

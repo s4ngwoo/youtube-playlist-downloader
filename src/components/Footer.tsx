@@ -1,7 +1,6 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Mail, FileText, Stethoscope, RefreshCw } from "lucide-react";
-import { useState } from "react";
-import { diagnoseEnvironment, openLogWindow, updateYtdlp } from "../api/environment";
+import { Mail, FileText, Stethoscope } from "lucide-react";
+import { diagnoseEnvironment, openLogWindow } from "../api/environment";
 import { useI18n } from "../i18n";
 import { mapBackendMessage } from "../i18n/mapBackendMessage";
 import { mapEnvCode } from "../i18n/mapEnvCode";
@@ -9,7 +8,6 @@ import { GithubIcon } from "./icons/GithubIcon";
 
 export function Footer() {
   const { t } = useI18n();
-  const [ytdlpBusy, setYtdlpBusy] = useState(false);
 
   const handleOpenLogWindow = async () => {
     try {
@@ -64,73 +62,40 @@ export function Footer() {
     }
   };
 
-  const handleUpdateYtdlp = async () => {
-    if (ytdlpBusy) return;
-    setYtdlpBusy(true);
-    try {
-      const status = await updateYtdlp();
-      window.alert(
-        t("footer.ytdlpUpdateOk", {
-          version: status.version ?? t("footer.diag.none"),
-          path: status.path ?? status.overridePath,
-        }),
-      );
-    } catch (err) {
-      console.error("yt-dlp update failed:", err);
-      window.alert(
-        t("footer.ytdlpUpdateFailed", {
-          error: mapBackendMessage(String(err), t),
-        }),
-      );
-    } finally {
-      setYtdlpBusy(false);
-    }
-  };
-
   return (
-    <footer className="w-full max-w-5xl mt-auto pt-4 border-t border-neutral-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-        <div className="flex items-center gap-2">
-          <span>YouTube Playlist Downloader</span>
-          <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-neutral-700" />
+    <footer className="w-full max-w-5xl mt-auto pt-4 border-t border-neutral-800/80 flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-xs text-neutral-500">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 min-w-0">
+        <div className="flex flex-col gap-0.5 leading-relaxed">
+          <span className="text-neutral-400">YouTube Playlist Downloader</span>
           <span>
-            Developed by <span className="text-neutral-300 font-medium">Lee SangWoo</span>
+            {t("footer.developedBy")}{" "}
+            <span className="text-neutral-300 font-medium">Lee SangWoo</span>
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-0.5 items-start">
           <button
             type="button"
             onClick={() => openUrl("mailto:s4ngwoo.lee@gmail.com")}
-            className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-neutral-800/80 text-neutral-400 hover:text-rose-400 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-1.5 py-0.5 -mx-1.5 rounded hover:bg-neutral-800/80 text-neutral-400 hover:text-rose-400 transition-colors cursor-pointer"
             title={t("footer.emailTitle")}
           >
-            <Mail className="w-3.5 h-3.5" />
+            <Mail className="w-3.5 h-3.5 shrink-0" />
             <span>s4ngwoo.lee@gmail.com</span>
           </button>
           <button
             type="button"
             onClick={() => openUrl("https://github.com/s4ngwoo")}
-            className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-neutral-800/80 text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-1.5 py-0.5 -mx-1.5 rounded hover:bg-neutral-800/80 text-neutral-400 hover:text-white transition-colors cursor-pointer"
             title={t("footer.githubTitle")}
           >
-            <GithubIcon className="w-3.5 h-3.5" />
+            <GithubIcon className="w-3.5 h-3.5 shrink-0" />
             <span>github.com/s4ngwoo</span>
           </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 flex-wrap justify-center">
-        <button
-          type="button"
-          onClick={handleUpdateYtdlp}
-          disabled={ytdlpBusy}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
-          title={t("footer.ytdlpUpdateTitle")}
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${ytdlpBusy ? "animate-spin" : ""}`} />
-          {ytdlpBusy ? t("footer.ytdlpUpdating") : t("footer.ytdlpUpdate")}
-        </button>
+      <div className="flex items-center gap-2 shrink-0 self-start sm:self-end">
         <button
           type="button"
           onClick={runEnvironmentDiagnose}

@@ -91,6 +91,7 @@ export const en: MessageCatalog = {
   "footer.diagnose": "Environment diagnose",
   "footer.diagnoseTitle": "Diagnose FFmpeg / Deno / yt-dlp sidecar",
   "footer.logs": "App logs",
+  "footer.developedBy": "Developed by",
   "footer.emailTitle": "Send email",
   "footer.githubTitle": "Open GitHub profile",
   "footer.diag.none": "not found",

@@ -91,6 +91,7 @@ export const ko: MessageCatalog = {
   "footer.diagnose": "환경 진단",
   "footer.diagnoseTitle": "FFmpeg / Deno / yt-dlp 사이드카 진단",
   "footer.logs": "앱 로그",
+  "footer.developedBy": "Developed by",
   "footer.emailTitle": "이메일 보내기",
   "footer.githubTitle": "GitHub 프로필 열기",
   "footer.diag.none": "없음",
