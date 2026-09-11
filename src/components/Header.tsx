@@ -10,6 +10,7 @@ interface HeaderProps {
 
 export function Header({ onOpenMetadataEditor }: HeaderProps) {
   const status = useDownloadStore((s) => s.status);
+  const statusMessage = useDownloadStore((s) => s.statusMessage);
   const { t, locale } = useI18n();
   const { handleLocaleChange } = useSettingsActions();
 
@@ -67,9 +68,14 @@ export function Header({ onOpenMetadataEditor }: HeaderProps) {
         )}
 
         {status === "downloading" && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30 animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
-            {t("header.status.downloading")}
+          <span
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30 animate-pulse max-w-[min(100%,20rem)]"
+            title={statusMessage || t("header.status.downloading")}
+          >
+            <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping shrink-0" />
+            <span className="truncate">
+              {statusMessage || t("header.status.downloading")}
+            </span>
           </span>
         )}
         {status === "completed" && (

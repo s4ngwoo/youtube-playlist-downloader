@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 - Session download ETA estimate (`~M:SS`) from download-phase work only; post-process count when extract/tag remains (no fake `00:00` sticky ETA)
 - Failed tracks keep playlist titles (not only “Track #N”) and sort to the top of the per-track list; download tasks carry title for progress events
+- Live activity status (receiving / queued / post-process) in header and form while downloading
 
 ### Changed
 
@@ -20,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Notes
 
-- Work queue (maintainer): **A1→A3** next (**A2·A4·A5 done**), then private/deleted (B), history/filters (C), extras (D).
+- Work queue (maintainer): **A3** next (**A1·A2·A4·A5 done**), then private/deleted (B), history/filters (C), extras (D).
 - Deferred: split yt-dlp into download-only then post-process passes (A2-pipe).
 
 ## [0.2.0] - 2026-09-11

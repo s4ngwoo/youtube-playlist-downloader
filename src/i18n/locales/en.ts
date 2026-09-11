@@ -36,6 +36,10 @@ export const en: MessageCatalog = {
   "form.receiving": "Receiving {recv}/{total}",
   "form.postprocess": "Post-processing {count}",
   "status.preparingDownloads": "Preparing {count} track(s)...",
+  "status.activityReceiving": "Receiving {recv} · queued {queued} (of {total})",
+  "status.activityPostprocess": "Post-processing {count} track(s)...",
+  "status.activityMixed": "Receiving {recv} · post-processing {post}",
+  "header.status.downloadingDetail": "Working…",
 
   "tracks.title": "Per-track progress",
   "tracks.basic": "Basic",

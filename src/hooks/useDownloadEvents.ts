@@ -2,8 +2,9 @@ import { useEffect } from "react";
 import { onDownloadProgress } from "../api/download";
 import { ProgressPayload, TrackItem } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
-import { isPostprocessStatus } from "../lib/sessionEta";
+import { isPostprocessStatus, computeSessionProgress } from "../lib/sessionEta";
 import { mergeTrackTitle } from "../lib/trackProgress";
+import { describeSessionActivity } from "../lib/sessionActivity";
 import { t } from "../i18n";
 
 /** Wall-clock start of download phase per track index (session-local). */
@@ -129,12 +130,21 @@ export function useDownloadEvents() {
               return next;
             });
 
-            store.setStatusMessage(
-              t("status.downloadingTrack", {
-                index: idx,
-                total: payload.total_items || "?",
-              }),
+            const latest = useDownloadStore.getState();
+            const session = computeSessionProgress(
+              latest.tracks.values(),
+              latest.concurrency,
+              latest.avgDownloadSec,
             );
+            const activity = describeSessionActivity({
+              receiving: session.receivingCount,
+              queued: session.queuedCount,
+              postprocess: session.postprocessCount,
+              completed: session.completedCount,
+              failed: session.failedCount,
+              total: session.totalCount || latest.totalItems,
+            });
+            latest.setStatusMessage(t(activity.key, activity.vars));
           }
         });
 

@@ -36,6 +36,10 @@ export const ko: MessageCatalog = {
   "form.receiving": "받는 중 {recv}/{total}",
   "form.postprocess": "후처리 {count}곡",
   "status.preparingDownloads": "{count}곡 준비 중...",
+  "status.activityReceiving": "받는 중 {recv} · 대기 {queued} (전체 {total})",
+  "status.activityPostprocess": "후처리 중 {count}곡...",
+  "status.activityMixed": "받는 중 {recv} · 후처리 {post}",
+  "header.status.downloadingDetail": "작업 중…",
 
   "tracks.title": "트랙별 진행 상태",
   "tracks.basic": "기본 모드",
