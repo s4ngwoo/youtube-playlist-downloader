@@ -6,14 +6,9 @@ const { store, mockStore } = vi.hoisted(() => {
   const mockStore = {
     entries: vi.fn(async () => Array.from(store.entries())),
     get: vi.fn(async (key: string) => store.get(key)),
-    set: vi.fn(
-      async (
-        key: string,
-        value: { url: string; title: string; date: string }
-      ) => {
-        store.set(key, value);
-      }
-    ),
+    set: vi.fn(async (key: string, value: { url: string; title: string; date: string }) => {
+      store.set(key, value);
+    }),
     delete: vi.fn(async (key: string) => {
       store.delete(key);
     }),
@@ -37,12 +32,9 @@ describe("historyService", () => {
     mockStore.entries.mockImplementation(async () => Array.from(store.entries()));
     mockStore.get.mockImplementation(async (key: string) => store.get(key));
     mockStore.set.mockImplementation(
-      async (
-        key: string,
-        value: { url: string; title: string; date: string }
-      ) => {
+      async (key: string, value: { url: string; title: string; date: string }) => {
         store.set(key, value);
-      }
+      },
     );
     mockStore.delete.mockImplementation(async (key: string) => {
       store.delete(key);
@@ -81,9 +73,7 @@ describe("historyService", () => {
     });
 
     await expect(historyService.hasHistory("https://a.example/1")).resolves.toBe(true);
-    await expect(historyService.hasHistory("https://missing.example")).resolves.toBe(
-      false
-    );
+    await expect(historyService.hasHistory("https://missing.example")).resolves.toBe(false);
   });
 
   it("stores a fallback title when none is provided", async () => {

@@ -78,7 +78,7 @@ describe("settingsService", () => {
     expect(loaded.downloadDir).toBe("/legacy/downloads");
     expect(mockStore.set).toHaveBeenCalledWith(
       "app",
-      expect.objectContaining({ downloadDir: "/legacy/downloads" })
+      expect.objectContaining({ downloadDir: "/legacy/downloads" }),
     );
     expect(mockStore.save).toHaveBeenCalled();
     expect(memory.has("yt_download_dir")).toBe(false);
