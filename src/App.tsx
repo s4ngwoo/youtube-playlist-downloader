@@ -13,10 +13,11 @@ import { useDownloadStore } from "./store/downloadStore";
 import { useDownloadEvents } from "./hooks/useDownloadEvents";
 import { useDownloadFlow } from "./hooks/useDownloadFlow";
 import { useI18n, t as translate } from "./i18n";
+import { isLogViewerWindow } from "./lib/logWindow";
 import "./App.css";
 
 export default function App() {
-  const isLogWindow = window.location.search.includes("window=log");
+  const isLogWindow = isLogViewerWindow();
 
   const contentRef = useRef<HTMLDivElement>(null);
   const [isMetadataEditorOpen, setIsMetadataEditorOpen] = useState(false);

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { openPath } from "@tauri-apps/plugin-opener";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import {
   AlertTriangle,
   AlertCircle,
@@ -17,7 +17,7 @@ import {
   type LogEntry,
   type LogLevel,
 } from "../api/logs";
-import { useI18n } from "../i18n";
+import { useI18n, t as translate } from "../i18n";
 
 type FilterMode = "ALL" | "WARN_ERROR" | "ERROR";
 
@@ -58,11 +58,16 @@ export function AppLogViewer() {
   const refreshLogs = useCallback(async () => {
     setIsLoading(true);
     try {
-      const entries = await readAppLogs(2000);
+      const [entries, path] = await Promise.all([
+        readAppLogs(2000),
+        getAppLogPath().catch(() => ""),
+      ]);
       setLogs(entries);
+      if (path) setLogPath(path);
       setLastRefreshed(new Date());
     } catch (e) {
       console.error("로그 읽기 실패:", e);
+      alert(translate("log.refreshFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -73,10 +78,13 @@ export function AppLogViewer() {
 
     (async () => {
       try {
-        const [entries, path] = await Promise.all([readAppLogs(2000), getAppLogPath()]);
+        const [entries, path] = await Promise.all([
+          readAppLogs(2000),
+          getAppLogPath().catch(() => ""),
+        ]);
         if (cancelled) return;
         setLogs(entries);
-        setLogPath(path);
+        if (path) setLogPath(path);
         setLastRefreshed(new Date());
       } catch (e) {
         console.error("로그 초기 로드 실패:", e);
@@ -105,17 +113,24 @@ export function AppLogViewer() {
     try {
       await clearAppLogs();
       setLogs([]);
+      setLastRefreshed(new Date());
     } catch (e) {
       console.error("로그 초기화 실패:", e);
+      alert(translate("log.clearFailed"));
     }
   };
 
-  const handleOpenFile = async () => {
-    if (!logPath) return;
+  const handleRevealLog = async () => {
+    if (!logPath) {
+      alert(translate("log.openFileMissing"));
+      return;
+    }
     try {
-      await openPath(logPath);
+      // opener:default allows reveal-item-in-dir, not open-path
+      await revealItemInDir(logPath);
     } catch (e) {
-      console.error("파일 열기 실패:", e);
+      console.error("로그 파일 위치 열기 실패:", e);
+      alert(translate("log.openFileFailed"));
     }
   };
 
@@ -195,6 +210,7 @@ export function AppLogViewer() {
           <div className="flex items-center gap-1.5">
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setShowFilterMenu(!showFilterMenu)}
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-all cursor-pointer font-mono"
               >
@@ -206,6 +222,7 @@ export function AppLogViewer() {
                 <div className="absolute right-0 top-full mt-1 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl z-10 overflow-hidden min-w-[100px]">
                   {(["ALL", "WARN_ERROR", "ERROR"] as FilterMode[]).map((f) => (
                     <button
+                      type="button"
                       key={f}
                       onClick={() => {
                         setFilter(f);
@@ -225,6 +242,7 @@ export function AppLogViewer() {
             </div>
 
             <button
+              type="button"
               onClick={() => void refreshLogs()}
               disabled={isLoading}
               title={t("log.refresh")}
@@ -234,7 +252,8 @@ export function AppLogViewer() {
             </button>
 
             <button
-              onClick={handleOpenFile}
+              type="button"
+              onClick={() => void handleRevealLog()}
               disabled={!logPath}
               title={t("log.openFile")}
               className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-50"
@@ -243,7 +262,8 @@ export function AppLogViewer() {
             </button>
 
             <button
-              onClick={handleClearLogs}
+              type="button"
+              onClick={() => void handleClearLogs()}
               title={t("log.clear")}
               className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-950/30 transition-all cursor-pointer"
             >
@@ -269,7 +289,7 @@ export function AppLogViewer() {
               const Icon = cfg.icon;
               return (
                 <div
-                  key={i}
+                  key={`${log.timestamp}-${log.source}-${i}`}
                   className={`flex items-start gap-2 px-2 py-1 rounded transition-colors ${cfg.bg}`}
                 >
                   <Icon className={`w-3 h-3 mt-0.5 shrink-0 ${cfg.color}`} />
