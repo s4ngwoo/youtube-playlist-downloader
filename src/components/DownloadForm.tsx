@@ -1,10 +1,11 @@
 import { Folder, FolderOpen, Square, Download, Sparkles, Clock, Archive } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useDownloadStore } from "../store/downloadStore";
 import { useDownloadFlow } from "../hooks/useDownloadFlow";
 import { useSettingsActions } from "../hooks/useSettingsActions";
 import { computeSessionProgress } from "../lib/sessionEta";
+import { computeOverallPercent, smoothOverallPercent } from "../lib/overallProgress";
 import { AudioFormat, MAX_CONCURRENCY, MIN_CONCURRENCY } from "../types/settings";
 import { useI18n } from "../i18n";
 
@@ -59,14 +60,16 @@ export function DownloadForm() {
   );
   const completedCount = sessionProgress.completedCount;
   const progressDenom = trackList.length > 0 ? trackList.length : totalItems;
-  const overallPercent = useMemo(() => {
-    if (progressDenom <= 0) return 0;
-    const sum = trackList.reduce(
-      (acc, tr) => acc + (tr.status === "completed" ? 100 : tr.progress),
-      0,
-    );
-    return Math.min(100, Math.max(0, sum / progressDenom));
-  }, [trackList, progressDenom]);
+  const [overallPercent, setOverallPercent] = useState(0);
+  useEffect(() => {
+    const raw = computeOverallPercent(trackList);
+    setOverallPercent((prev) => {
+      if (status !== "downloading" && status !== "completed") {
+        return raw;
+      }
+      return smoothOverallPercent(prev, raw);
+    });
+  }, [trackList, status]);
 
   const controlsDisabled = status === "downloading" || isZipping || isFetchingMetadata;
 
