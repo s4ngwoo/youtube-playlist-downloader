@@ -41,6 +41,7 @@ export const en: MessageCatalog = {
   "tracks.summary": "{found} of {total} tracks discovered",
   "tracks.empty": "No tracks",
   "tracks.emptyHint": "Tracks appear here once a download starts.",
+  "tracks.fallbackTitle": "Track #{index}",
 
   "track.status.completed": "Completed",
   "track.status.optimizing": "Optimizing & saving...",
@@ -72,6 +73,8 @@ export const en: MessageCatalog = {
   "footer.emailTitle": "Send email",
   "footer.githubTitle": "Open GitHub profile",
   "footer.diag.none": "not found",
+  "footer.diag.os": "OS: {os} / {arch}",
+  "footer.diag.ytdlpPath": "yt-dlp path: {path}",
   "footer.diag.denoNone": "not found (recommended)",
   "footer.diag.sidecar": "Expected yt-dlp sidecar: {name}",
   "footer.diag.warnings": "Warnings:",

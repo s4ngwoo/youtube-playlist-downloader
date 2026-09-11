@@ -29,7 +29,7 @@ export function Footer() {
     try {
       const report = await diagnoseEnvironment();
       const lines = [
-        `OS: ${report.os} / ${report.arch}`,
+        t("footer.diag.os", { os: report.os, arch: report.arch }),
         `FFmpeg: ${report.ffmpegFound ? report.ffmpegLocation : t("footer.diag.none")}`,
         `Deno: ${report.denoFound ? report.denoPath : t("footer.diag.denoNone")}`,
         t("footer.diag.sidecar", { name: report.sidecarExpectedName }),
@@ -39,7 +39,7 @@ export function Footer() {
         t("footer.diag.ytdlpVersion", {
           version: report.ytdlpVersion ?? t("footer.diag.none"),
         }),
-        ...(report.ytdlpPath ? [`yt-dlp path: ${report.ytdlpPath}`] : []),
+        ...(report.ytdlpPath ? [t("footer.diag.ytdlpPath", { path: report.ytdlpPath })] : []),
         ...(report.warnings.length
           ? ["", t("footer.diag.warnings"), ...report.warnings.map((w) => `- ${mapEnvCode(w, t)}`)]
           : ["", t("footer.diag.noWarnings")]),

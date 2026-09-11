@@ -41,6 +41,7 @@ export const ko: MessageCatalog = {
   "tracks.summary": "총 {total}개 트랙 중 {found}개 탐색됨",
   "tracks.empty": "트랙 없음",
   "tracks.emptyHint": "다운로드를 시작하면 트랙 목록이 여기에 표시됩니다.",
+  "tracks.fallbackTitle": "트랙 #{index}",
 
   "track.status.completed": "다운로드 완료",
   "track.status.optimizing": "파일 최적화 및 저장 중...",
@@ -72,6 +73,8 @@ export const ko: MessageCatalog = {
   "footer.emailTitle": "이메일 보내기",
   "footer.githubTitle": "GitHub 프로필 열기",
   "footer.diag.none": "없음",
+  "footer.diag.os": "OS: {os} / {arch}",
+  "footer.diag.ytdlpPath": "yt-dlp 경로: {path}",
   "footer.diag.denoNone": "없음 (권장)",
   "footer.diag.sidecar": "yt-dlp 사이드카 기대 파일: {name}",
   "footer.diag.warnings": "경고:",

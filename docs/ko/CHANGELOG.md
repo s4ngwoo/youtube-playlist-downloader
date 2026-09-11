@@ -8,6 +8,15 @@
 
 ## [Unreleased]
 
+### Added
+
+- 프론트 ESLint/Prettier 게이트 및 CI `cargo fmt --check` (CONTRIBUTING에 기여자 경로)
+- CONTRIBUTING에 “무엇을 단위 테스트할지” 절 (순수 헬퍼/파서; 기본에 실 YouTube E2E 없음)
+
+### Changed
+
+- 트랙 제목 폴백·환경 진단 라벨이 EN/KO i18n을 따르도록 정리 (하드코딩 조각 제거)
+
 ## [0.2.0] - 2026-09-11
 
 ### Added

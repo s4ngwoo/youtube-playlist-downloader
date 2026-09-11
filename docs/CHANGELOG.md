@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+### Added
+
+- Frontend ESLint/Prettier gates and CI `cargo fmt --check` (contributor path in CONTRIBUTING)
+- CONTRIBUTING section on what to unit-test (pure helpers / parsers; no live YouTube E2E by default)
+
+### Changed
+
+- Track title fallback and environment-diagnose labels follow EN/KO i18n (no hard-coded Korean/English fragments)
+
 ## [0.2.0] - 2026-09-11
 
 ### Added

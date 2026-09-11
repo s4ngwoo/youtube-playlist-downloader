@@ -48,7 +48,11 @@ export function useDownloadEvents() {
               const existing = next.get(idx);
 
               const currentTitle =
-                payload.item_title || existing?.title || `트랙 #${idx.toString().padStart(2, "0")}`;
+                payload.item_title ||
+                existing?.title ||
+                t("tracks.fallbackTitle", {
+                  index: idx.toString().padStart(2, "0"),
+                });
 
               let trackStatus: TrackItem["status"] = "downloading";
               if (payload.track_status === "completed") {
