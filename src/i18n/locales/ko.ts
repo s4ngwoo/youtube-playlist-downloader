@@ -63,6 +63,12 @@ export const ko: MessageCatalog = {
   "select.selectedCount": "{count}개 선택됨",
   "select.cancel": "취소",
   "select.download": "{count}곡 다운로드 시작",
+  "select.skippedSummary": "받을 수 없는 항목 {count}개를 건너뛰었습니다",
+  "select.skippedBreakdown": "비공개: {private} · 삭제: {deleted} · 기타: {unknown}",
+  "select.skippedSection": "건너뛴 항목 (다운로드 불가)",
+  "select.skip.private": "비공개",
+  "select.skip.deleted": "삭제됨",
+  "select.skip.unknown": "불가",
 
   "history.title": "다운로드 기록",
   "history.loading": "불러오는 중...",

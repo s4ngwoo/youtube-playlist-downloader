@@ -74,7 +74,16 @@ export interface TrackMetadata {
   url: string;
 }
 
+export type SkipReason = "private" | "deleted" | "unknown";
+
+export interface SkippedTrack {
+  index: number;
+  title: string;
+  reason: SkipReason | string;
+}
+
 export interface PlaylistMetadata {
   title: string;
   tracks: TrackMetadata[];
+  skipped?: SkippedTrack[];
 }

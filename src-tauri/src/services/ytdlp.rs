@@ -27,23 +27,26 @@ fn open_ytdlp(
     })
 }
 
-/// yt-dlp 덤프 엔트리가 유효하고 다운로드 가능한 정상 영상인지 검증합니다.
+/// yt-dlp 덤프 엔트리 분류 (다운로드 가능 여부).
+pub fn classify_entry(entry: &crate::models::YtDlpEntry) -> &'static str {
+    match entry.title.as_deref().map(str::trim) {
+        None | Some("") => "unknown",
+        Some(t) => {
+            let lower = t.to_lowercase();
+            if t == "[Private video]" || lower.contains("private video") {
+                "private"
+            } else if t == "[Deleted video]" || lower.contains("deleted video") {
+                "deleted"
+            } else {
+                "available"
+            }
+        }
+    }
+}
+
 /// 비공개/삭제/비활성화된 영상(제목이 없거나 [Private video] 등)은 제외합니다.
 pub fn is_valid_entry(entry: &crate::models::YtDlpEntry) -> bool {
-    if let Some(title) = &entry.title {
-        let t = title.trim();
-        if t.is_empty()
-            || t == "[Private video]"
-            || t == "[Deleted video]"
-            || t.to_lowercase().contains("private video")
-            || t.to_lowercase().contains("deleted video")
-        {
-            return false;
-        }
-        true
-    } else {
-        false
-    }
+    classify_entry(entry) == "available"
 }
 
 /// Map a yt-dlp JSON dump into app playlist metadata (playlist or single video).
@@ -51,25 +54,39 @@ pub fn playlist_metadata_from_dump(
     dump: YtDlpDump,
     fallback_url: &str,
 ) -> crate::models::PlaylistMetadata {
-    use crate::models::{PlaylistMetadata, TrackMetadata};
+    use crate::models::{PlaylistMetadata, SkippedTrack, TrackMetadata};
 
     let mut tracks = Vec::new();
+    let mut skipped = Vec::new();
     let playlist_title = dump.title.unwrap_or_else(|| "Unknown".to_string());
 
     if dump._type.as_deref() == Some("playlist") {
         if let Some(entries) = dump.entries {
-            let valid_entries: Vec<_> = entries.into_iter().filter(is_valid_entry).collect();
-            for (idx, entry) in valid_entries.into_iter().enumerate() {
-                let id = entry.id.unwrap_or_else(|| "".into());
-                let track_url = entry
-                    .url
-                    .unwrap_or_else(|| format!("https://www.youtube.com/watch?v={}", id));
-                tracks.push(TrackMetadata {
-                    index: idx + 1,
-                    title: entry.title.unwrap_or_else(|| format!("Track {}", idx + 1)),
-                    id,
-                    url: track_url,
-                });
+            for (idx, entry) in entries.into_iter().enumerate() {
+                let index = idx + 1;
+                let reason = classify_entry(&entry);
+                let title = entry
+                    .title
+                    .clone()
+                    .unwrap_or_else(|| format!("Track {index}"));
+                if reason == "available" {
+                    let id = entry.id.unwrap_or_else(|| "".into());
+                    let track_url = entry
+                        .url
+                        .unwrap_or_else(|| format!("https://www.youtube.com/watch?v={}", id));
+                    tracks.push(TrackMetadata {
+                        index,
+                        title,
+                        id,
+                        url: track_url,
+                    });
+                } else {
+                    skipped.push(SkippedTrack {
+                        index,
+                        title,
+                        reason: reason.to_string(),
+                    });
+                }
             }
         }
     } else {
@@ -84,6 +101,7 @@ pub fn playlist_metadata_from_dump(
     PlaylistMetadata {
         title: playlist_title,
         tracks,
+        skipped,
     }
 }
 
@@ -459,12 +477,34 @@ mod tests {
     }
 
     #[test]
-    fn rejects_private_and_deleted_markers() {
-        assert!(!is_valid_entry(&entry(Some("[Private video]"))));
-        assert!(!is_valid_entry(&entry(Some("[Deleted video]"))));
-        assert!(!is_valid_entry(&entry(Some(
-            "this is a Private Video copy"
-        ))));
-        assert!(!is_valid_entry(&entry(Some("Deleted video placeholder"))));
+    fn classify_private_deleted_unknown() {
+        assert_eq!(classify_entry(&entry(Some("[Private video]"))), "private");
+        assert_eq!(classify_entry(&entry(Some("[Deleted video]"))), "deleted");
+        assert_eq!(classify_entry(&entry(None)), "unknown");
+        assert_eq!(classify_entry(&entry(Some("  "))), "unknown");
+        assert_eq!(classify_entry(&entry(Some("Normal"))), "available");
+    }
+
+    #[test]
+    fn playlist_dump_keeps_skipped_with_original_index() {
+        let dump = YtDlpDump {
+            _type: Some("playlist".into()),
+            title: Some("PL".into()),
+            entries: Some(vec![
+                entry(Some("A")),
+                entry(Some("[Private video]")),
+                entry(Some("B")),
+                entry(Some("[Deleted video]")),
+            ]),
+        };
+        let meta = playlist_metadata_from_dump(dump, "https://example.com");
+        assert_eq!(meta.tracks.len(), 2);
+        assert_eq!(meta.tracks[0].index, 1);
+        assert_eq!(meta.tracks[1].index, 3);
+        assert_eq!(meta.skipped.len(), 2);
+        assert_eq!(meta.skipped[0].index, 2);
+        assert_eq!(meta.skipped[0].reason, "private");
+        assert_eq!(meta.skipped[1].index, 4);
+        assert_eq!(meta.skipped[1].reason, "deleted");
     }
 }

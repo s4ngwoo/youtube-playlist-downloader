@@ -63,6 +63,12 @@ export const en: MessageCatalog = {
   "select.selectedCount": "{count} selected",
   "select.cancel": "Cancel",
   "select.download": "Download {count} tracks",
+  "select.skippedSummary": "{count} unavailable item(s) were skipped",
+  "select.skippedBreakdown": "Private: {private} · Deleted: {deleted} · Unknown: {unknown}",
+  "select.skippedSection": "Skipped (not downloadable)",
+  "select.skip.private": "Private",
+  "select.skip.deleted": "Deleted",
+  "select.skip.unknown": "Unavailable",
 
   "history.title": "Download history",
   "history.loading": "Loading...",

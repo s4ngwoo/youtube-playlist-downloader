@@ -151,6 +151,7 @@ export default function App() {
           isOpen={isSelectionModalOpen}
           playlistTitle={fetchedPlaylist.title}
           tracks={fetchedPlaylist.tracks}
+          skipped={fetchedPlaylist.skipped}
           onClose={() => setIsSelectionModalOpen(false)}
           onDownloadSelected={handleDownloadSelected}
         />

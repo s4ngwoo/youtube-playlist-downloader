@@ -56,9 +56,19 @@ pub struct TrackMetadata {
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+pub struct SkippedTrack {
+    pub index: usize,
+    pub title: String,
+    /// "private" | "deleted" | "unknown"
+    pub reason: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct PlaylistMetadata {
     pub title: String,
     pub tracks: Vec<TrackMetadata>,
+    #[serde(default)]
+    pub skipped: Vec<SkippedTrack>,
 }
 
 #[derive(serde::Deserialize, Debug, Clone)]

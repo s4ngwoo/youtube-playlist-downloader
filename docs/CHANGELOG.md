@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Failed tracks keep playlist titles (not only “Track #N”) and sort to the top of the per-track list; download tasks carry title for progress events
 - Live activity status (receiving / queued / post-process) in header and form while downloading
 - Smoother overall progress bar (download phase weighted 0–90%; ignore tiny regressions)
+- Playlist fetch surfaces skipped private/deleted/unavailable entries with reasons (still not downloadable)
 
 ### Changed
 
@@ -22,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Notes
 
-- Work queue (maintainer): **B1** next (Sprint 1 A1–A5 done), then history/filters (C), extras (D).
+- Work queue (maintainer): **C1→C2** next (Sprint 1–2 done), then extras (D).
 - Deferred: split yt-dlp into download-only then post-process passes (A2-pipe).
 
 ## [0.2.0] - 2026-09-11
