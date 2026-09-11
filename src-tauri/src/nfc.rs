@@ -107,7 +107,8 @@ mod tests {
         let err = normalize_directory_nfc(&path).expect_err("missing dir should fail");
         let msg = err.to_string();
         assert!(
-            msg.contains("유효하지 않은 다운로드 디렉토리") || msg.contains("error.invalid_download_dir"),
+            msg.contains("유효하지 않은 다운로드 디렉토리")
+                || msg.contains("error.invalid_download_dir"),
             "unexpected error: {msg}"
         );
     }

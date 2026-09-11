@@ -670,7 +670,10 @@ mod tests {
         assert!(args
             .windows(2)
             .any(|w| w[0] == "-P" && w[1] == "/Music/YouTube"));
-        assert_eq!(args.last().map(String::as_str), Some("https://example.com/v"));
+        assert_eq!(
+            args.last().map(String::as_str),
+            Some("https://example.com/v")
+        );
     }
 
     #[test]

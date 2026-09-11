@@ -259,9 +259,6 @@ mod tests {
             clean_title_from_destination("/tmp/Live Set.m4a.ytdl"),
             "Live Set"
         );
-        assert_eq!(
-            clean_title_from_destination("Song.webm.temp"),
-            "Song"
-        );
+        assert_eq!(clean_title_from_destination("Song.webm.temp"), "Song");
     }
 }
