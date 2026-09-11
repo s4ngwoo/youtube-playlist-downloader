@@ -1,32 +1,33 @@
 import { useState, useMemo } from "react";
 import { ListOrdered, Disc3, AlertCircle } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 import { useDownloadStore } from "../store/downloadStore";
-import { useDownloadActions } from "../hooks/useDownloadActions";
+import { useDownloadFlow } from "../hooks/useDownloadFlow";
 import { TrackRow } from "./TrackRow";
 import { useI18n } from "../i18n";
 
 export function TrackList() {
   const { t } = useI18n();
   const [viewMode, setViewMode] = useState<"basic" | "advanced">("basic");
-  const { playlistTitle, totalItems, tracks } = useDownloadStore();
-  const { handleRetryFailedDownloads } = useDownloadActions();
+  const { playlistTitle, totalItems, tracks } = useDownloadStore(
+    useShallow((s) => ({
+      playlistTitle: s.playlistTitle,
+      totalItems: s.totalItems,
+      tracks: s.tracks,
+    })),
+  );
+  const { handleRetryFailedDownloads } = useDownloadFlow();
 
   const trackList = useMemo(() => {
     return Array.from(tracks.values()).sort((a, b) => a.index - b.index);
   }, [tracks]);
 
-  const failedTracks = useMemo(
-    () => trackList.filter((tr) => tr.status === "failed"),
-    [trackList]
-  );
+  const failedTracks = useMemo(() => trackList.filter((tr) => tr.status === "failed"), [trackList]);
   const failedCount = failedTracks.length;
 
   const onRetryFailed = () => {
     if (failedCount > 0) {
-      handleRetryFailedDownloads(
-        failedTracks.map((tr) => tr.index).join(","),
-        failedCount
-      );
+      handleRetryFailedDownloads(failedTracks.map((tr) => tr.index));
     }
   };
 
@@ -35,9 +36,7 @@ export function TrackList() {
       <div className="px-5 py-3.5 bg-neutral-950/80 border-b border-neutral-800 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <ListOrdered className="w-4 h-4 text-rose-400" />
-          <h2 className="text-sm font-semibold text-neutral-200">
-            {t("tracks.title")}
-          </h2>
+          <h2 className="text-sm font-semibold text-neutral-200">{t("tracks.title")}</h2>
           {playlistTitle && (
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-950/50 text-rose-300 border border-rose-800/40 font-medium truncate max-w-md">
               {playlistTitle}
@@ -96,9 +95,7 @@ export function TrackList() {
             <p className="text-xs text-neutral-500">{t("tracks.emptyHint")}</p>
           </div>
         ) : (
-          trackList.map((track) => (
-            <TrackRow key={track.index} track={track} viewMode={viewMode} />
-          ))
+          trackList.map((track) => <TrackRow key={track.index} track={track} viewMode={viewMode} />)
         )}
       </div>
     </section>

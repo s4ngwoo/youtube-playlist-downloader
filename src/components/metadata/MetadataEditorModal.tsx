@@ -16,7 +16,7 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
   const [viewMode, setViewMode] = useState<"grid" | "single">("grid");
   const [activeFile, setActiveFile] = useState<string>("");
   const [activeMetadata, setActiveMetadata] = useState<AudioMetadata>({});
-  
+
   const {
     fileList,
     modifiedFiles,
@@ -65,8 +65,11 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
     setViewMode("grid");
   };
 
-  const handleSingleMetadataChange = (field: keyof AudioMetadata, value: any) => {
-    setActiveMetadata(prev => ({ ...prev, [field]: value }));
+  const handleSingleMetadataChange = (
+    field: keyof AudioMetadata,
+    value: AudioMetadata[keyof AudioMetadata],
+  ) => {
+    setActiveMetadata((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSelectCover = async () => {
@@ -78,18 +81,18 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
 
   const handleAddCustomTag = (keyName: string) => {
     if (keyName && keyName.trim() !== "") {
-      setActiveMetadata(prev => ({
+      setActiveMetadata((prev) => ({
         ...prev,
         custom_tags: {
           ...(prev.custom_tags || {}),
-          [keyName.trim()]: ""
-        }
+          [keyName.trim()]: "",
+        },
       }));
     }
   };
 
   const handleRemoveCustomTag = (key: string) => {
-    setActiveMetadata(prev => {
+    setActiveMetadata((prev) => {
       const tags = { ...(prev.custom_tags || {}) };
       delete tags[key];
       return { ...prev, custom_tags: tags };
@@ -154,7 +157,7 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
                   <p className="text-sm">{t("meta.emptyHint")}</p>
                 </div>
               ) : (
-                <MetadataGridView 
+                <MetadataGridView
                   fileList={fileList}
                   modifiedFiles={modifiedFiles}
                   onGridChange={updateFileInGrid}
@@ -182,7 +185,7 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
           >
             {t("meta.cancel")}
           </button>
-          
+
           {viewMode === "grid" ? (
             <button
               onClick={handleSaveAll}

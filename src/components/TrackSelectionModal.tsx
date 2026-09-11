@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { X, CheckSquare, Square, Download } from "lucide-react";
 import { TrackMetadata } from "../types/download";
 import { TrackSelectionItem } from "./TrackSelectionItem";
@@ -12,23 +12,23 @@ interface TrackSelectionModalProps {
   onDownloadSelected: (selectedIndices: number[]) => void;
 }
 
-export function TrackSelectionModal({
-  isOpen,
+export function TrackSelectionModal(props: TrackSelectionModalProps) {
+  if (!props.isOpen) return null;
+  // Remount when playlist identity changes so selection resets without setState-in-effect.
+  const selectionKey = props.tracks.map((tr) => tr.index).join(",");
+  return <TrackSelectionModalBody key={selectionKey} {...props} />;
+}
+
+function TrackSelectionModalBody({
   playlistTitle,
   tracks,
   onClose,
   onDownloadSelected,
 }: TrackSelectionModalProps) {
   const { t } = useI18n();
-  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
-    new Set()
+  const [selectedIndices, setSelectedIndices] = useState(
+    () => new Set(tracks.map((tr) => tr.index)),
   );
-
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedIndices(new Set(tracks.map((tr) => tr.index)));
-    }
-  }, [isOpen, tracks]);
 
   const handleToggleSelectAll = () => {
     if (selectedIndices.size === tracks.length) {
@@ -49,8 +49,6 @@ export function TrackSelectionModal({
       return next;
     });
   }, []);
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -111,11 +109,7 @@ export function TrackSelectionModal({
             {t("select.cancel")}
           </button>
           <button
-            onClick={() =>
-              onDownloadSelected(
-                Array.from(selectedIndices).sort((a, b) => a - b)
-              )
-            }
+            onClick={() => onDownloadSelected(Array.from(selectedIndices).sort((a, b) => a - b))}
             disabled={selectedIndices.size === 0}
             className="px-4 py-2 rounded-xl text-sm font-medium bg-rose-600 hover:bg-rose-500 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors shadow-lg shadow-rose-600/20"
           >

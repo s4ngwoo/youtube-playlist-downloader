@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { useShallow } from "zustand/react/shallow";
+import { getDefaultDownloadDir } from "./api/download";
 import { Header } from "./components/Header";
 import { DownloadForm } from "./components/DownloadForm";
 import { TrackList } from "./components/TrackList";
@@ -10,7 +11,7 @@ import { HistoryTab } from "./components/HistoryTab";
 import { AppLogViewer } from "./components/AppLogViewer";
 import { useDownloadStore } from "./store/downloadStore";
 import { useDownloadEvents } from "./hooks/useDownloadEvents";
-import { useDownloadActions } from "./hooks/useDownloadActions";
+import { useDownloadFlow } from "./hooks/useDownloadFlow";
 import { useI18n, t as translate } from "./i18n";
 import "./App.css";
 
@@ -31,9 +32,18 @@ export default function App() {
     setIsSelectionModalOpen,
     fetchedPlaylist,
     setStatusMessage,
-  } = useDownloadStore();
+  } = useDownloadStore(
+    useShallow((s) => ({
+      setUrl: s.setUrl,
+      downloadDir: s.downloadDir,
+      isSelectionModalOpen: s.isSelectionModalOpen,
+      setIsSelectionModalOpen: s.setIsSelectionModalOpen,
+      fetchedPlaylist: s.fetchedPlaylist,
+      setStatusMessage: s.setStatusMessage,
+    })),
+  );
 
-  const { handleDownloadSelected } = useDownloadActions();
+  const { handleDownloadSelected } = useDownloadFlow();
 
   useEffect(() => {
     if (isLogWindow) return;
@@ -46,7 +56,7 @@ export default function App() {
 
         if (!settings.downloadDir) {
           try {
-            const dir = await invoke<string>("get_default_download_dir");
+            const dir = await getDefaultDownloadDir();
             if (dir) {
               settings = await settingsService.update({ downloadDir: dir });
             }

@@ -2,6 +2,9 @@
 export type AudioFormat = "m4a" | "mp3";
 export type AppLocale = "ko" | "en";
 
+/** Canonical locale list (shared with i18n). */
+export const LOCALES: AppLocale[] = ["ko", "en"];
+
 export interface AppSettings {
   downloadDir: string;
   /** Parallel download workers (clamped 1–8). Default 3. */

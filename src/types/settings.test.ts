@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  clampConcurrency,
-  normalizeAudioFormat,
-  normalizeLocale,
-} from "./settings";
+import { clampConcurrency, normalizeAudioFormat, normalizeLocale } from "./settings";
 
 describe("clampConcurrency", () => {
   it("clamps to 1–8", () => {

@@ -9,7 +9,12 @@ interface MetadataGridViewProps {
   onEditSingle: (file: AudioFileEntry) => void;
 }
 
-export function MetadataGridView({ fileList, modifiedFiles, onGridChange, onEditSingle }: MetadataGridViewProps) {
+export function MetadataGridView({
+  fileList,
+  modifiedFiles,
+  onGridChange,
+  onEditSingle,
+}: MetadataGridViewProps) {
   const { t } = useI18n();
 
   return (
@@ -17,12 +22,24 @@ export function MetadataGridView({ fileList, modifiedFiles, onGridChange, onEdit
       <table className="w-full text-left text-sm text-neutral-300">
         <thead className="bg-neutral-900 text-neutral-400 font-medium">
           <tr>
-            <th className="px-4 py-3 border-b border-neutral-800 truncate max-w-[200px]">{t("meta.col.file")}</th>
-            <th className="px-4 py-3 border-b border-neutral-800 min-w-[150px]">{t("meta.col.title")}</th>
-            <th className="px-4 py-3 border-b border-neutral-800 min-w-[120px]">{t("meta.col.artist")}</th>
-            <th className="px-4 py-3 border-b border-neutral-800 min-w-[120px]">{t("meta.col.album")}</th>
-            <th className="px-4 py-3 border-b border-neutral-800 w-24 text-center">{t("meta.col.status")}</th>
-            <th className="px-4 py-3 border-b border-neutral-800 w-24 text-center">{t("meta.col.edit")}</th>
+            <th className="px-4 py-3 border-b border-neutral-800 truncate max-w-[200px]">
+              {t("meta.col.file")}
+            </th>
+            <th className="px-4 py-3 border-b border-neutral-800 min-w-[150px]">
+              {t("meta.col.title")}
+            </th>
+            <th className="px-4 py-3 border-b border-neutral-800 min-w-[120px]">
+              {t("meta.col.artist")}
+            </th>
+            <th className="px-4 py-3 border-b border-neutral-800 min-w-[120px]">
+              {t("meta.col.album")}
+            </th>
+            <th className="px-4 py-3 border-b border-neutral-800 w-24 text-center">
+              {t("meta.col.status")}
+            </th>
+            <th className="px-4 py-3 border-b border-neutral-800 w-24 text-center">
+              {t("meta.col.edit")}
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-800/50">

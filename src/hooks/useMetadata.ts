@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
+import { listAudioFiles, readMetadata, writeMetadata } from "../api/metadata";
 import { AudioMetadata, AudioFileEntry } from "../types/download";
 
 export function useMetadata() {
@@ -13,7 +13,7 @@ export function useMetadata() {
   const loadDirectory = useCallback(async (dir: string) => {
     setIsLoading(true);
     try {
-      const files = await invoke<AudioFileEntry[]>("list_audio_files", { dirPath: dir });
+      const files = await listAudioFiles(dir);
       setFileList(files);
       setModifiedFiles(new Set());
     } catch (err) {
@@ -26,8 +26,7 @@ export function useMetadata() {
 
   const loadMetadata = useCallback(async (path: string) => {
     try {
-      const data = await invoke<AudioMetadata>("read_metadata", { filePath: path });
-      return data;
+      return await readMetadata(path);
     } catch (err) {
       console.error("메타데이터 읽기 실패:", err);
       throw err;
@@ -74,17 +73,20 @@ export function useMetadata() {
     }
   }, []);
 
-  const updateFileInGrid = useCallback((path: string, field: keyof AudioMetadata, value: string) => {
-    setFileList((prev) =>
-      prev.map((f) => {
-        if (f.file_path === path) {
-          return { ...f, metadata: { ...f.metadata, [field]: value } };
-        }
-        return f;
-      })
-    );
-    setModifiedFiles((prev) => new Set(prev).add(path));
-  }, []);
+  const updateFileInGrid = useCallback(
+    (path: string, field: keyof AudioMetadata, value: string) => {
+      setFileList((prev) =>
+        prev.map((f) => {
+          if (f.file_path === path) {
+            return { ...f, metadata: { ...f.metadata, [field]: value } };
+          }
+          return f;
+        }),
+      );
+      setModifiedFiles((prev) => new Set(prev).add(path));
+    },
+    [],
+  );
 
   const saveAllMetadata = useCallback(async () => {
     if (modifiedFiles.size === 0) return;
@@ -93,7 +95,7 @@ export function useMetadata() {
       for (const path of modifiedFiles) {
         const file = fileList.find((f) => f.file_path === path);
         if (file) {
-          await invoke("write_metadata", { filePath: path, metadata: file.metadata });
+          await writeMetadata(path, file.metadata);
         }
       }
       setModifiedFiles(new Set());
@@ -108,10 +110,8 @@ export function useMetadata() {
   const saveSingleMetadata = useCallback(async (filePath: string, metadata: AudioMetadata) => {
     setIsSaving(true);
     try {
-      await invoke("write_metadata", { filePath, metadata });
-      setFileList((prev) =>
-        prev.map((f) => (f.file_path === filePath ? { ...f, metadata } : f))
-      );
+      await writeMetadata(filePath, metadata);
+      setFileList((prev) => prev.map((f) => (f.file_path === filePath ? { ...f, metadata } : f)));
       setModifiedFiles((prev) => {
         const next = new Set(prev);
         next.delete(filePath);

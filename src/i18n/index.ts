@@ -22,11 +22,7 @@ function format(template: string, vars?: Vars): string {
   return out;
 }
 
-export function translate(
-  locale: Locale,
-  key: string,
-  vars?: Vars
-): string {
+export function translate(locale: Locale, key: string, vars?: Vars): string {
   const catalog = catalogs[locale] ?? catalogs.ko;
   const template = catalog[key] ?? catalogs.ko[key] ?? key;
   return format(template, vars);

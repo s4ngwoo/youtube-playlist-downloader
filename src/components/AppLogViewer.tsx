@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { openPath } from "@tauri-apps/plugin-opener";
 import {
   AlertTriangle,
@@ -11,17 +10,16 @@ import {
   Filter,
   ChevronDown,
 } from "lucide-react";
+import {
+  clearAppLogs,
+  getAppLogPath,
+  readAppLogs,
+  type LogEntry,
+  type LogLevel,
+} from "../api/logs";
 import { useI18n } from "../i18n";
 
-type LogLevel = "INFO" | "WARN" | "ERROR";
 type FilterMode = "ALL" | "WARN_ERROR" | "ERROR";
-
-interface LogEntry {
-  level: LogLevel;
-  timestamp: string;
-  source: string;
-  message: string;
-}
 
 const LEVEL_CONFIG: Record<
   LogLevel,
@@ -52,17 +50,15 @@ export function AppLogViewer() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [filter, setFilter] = useState<FilterMode>("ALL");
   const [logPath, setLogPath] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const autoScrollRef = useRef<HTMLDivElement>(null);
 
-  const fetchLogs = useCallback(async () => {
+  const refreshLogs = useCallback(async () => {
     setIsLoading(true);
     try {
-      const entries = await invoke<LogEntry[]>("read_app_logs", {
-        maxLines: 2000,
-      });
+      const entries = await readAppLogs(2000);
       setLogs(entries);
       setLastRefreshed(new Date());
     } catch (e) {
@@ -72,33 +68,42 @@ export function AppLogViewer() {
     }
   }, []);
 
-  const fetchLogPath = useCallback(async () => {
-    try {
-      const path = await invoke<string>("get_app_log_path");
-      setLogPath(path);
-    } catch (e) {
-      console.error("로그 경로 읽기 실패:", e);
-    }
-  }, []);
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const [entries, path] = await Promise.all([readAppLogs(2000), getAppLogPath()]);
+        if (cancelled) return;
+        setLogs(entries);
+        setLogPath(path);
+        setLastRefreshed(new Date());
+      } catch (e) {
+        console.error("로그 초기 로드 실패:", e);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
+
+    const interval = setInterval(() => {
+      void refreshLogs();
+    }, 30_000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [refreshLogs]);
 
   useEffect(() => {
-    fetchLogs();
-    fetchLogPath();
-    // 30초마다 자동 갱신
-    const interval = setInterval(fetchLogs, 30_000);
-    return () => clearInterval(interval);
-  }, [fetchLogs, fetchLogPath]);
-
-  // 에러 발생 시 자동 하단 스크롤
-  useEffect(() => {
-    if (autoScrollRef.current) {
-      autoScrollRef.current.scrollTop = autoScrollRef.current.scrollHeight;
-    }
+    const el = autoScrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [logs]);
 
   const handleClearLogs = async () => {
     try {
-      await invoke("clear_app_logs");
+      await clearAppLogs();
       setLogs([]);
     } catch (e) {
       console.error("로그 초기화 실패:", e);
@@ -116,8 +121,7 @@ export function AppLogViewer() {
 
   const filteredLogs = logs.filter((log) => {
     if (filter === "ERROR") return log.level === "ERROR";
-    if (filter === "WARN_ERROR")
-      return log.level === "ERROR" || log.level === "WARN";
+    if (filter === "WARN_ERROR") return log.level === "ERROR" || log.level === "WARN";
     return true;
   });
 
@@ -132,14 +136,15 @@ export function AppLogViewer() {
 
   return (
     <div className="flex flex-col h-full gap-4">
-      {/* 요약 카드 */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 flex items-center gap-3">
           <div className="p-2 rounded-lg bg-neutral-800">
             <Info className="w-4 h-4 text-sky-400/80" />
           </div>
           <div>
-            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">{t("log.info")}</p>
+            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">
+              {t("log.info")}
+            </p>
             <p className="text-lg font-bold text-neutral-200 leading-none mt-0.5">
               {logs.filter((l) => l.level === "INFO").length}
             </p>
@@ -150,10 +155,10 @@ export function AppLogViewer() {
             <AlertTriangle className="w-4 h-4 text-amber-400" />
           </div>
           <div>
-            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">{t("log.warn")}</p>
-            <p className="text-lg font-bold text-amber-400 leading-none mt-0.5">
-              {warnCount}
+            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">
+              {t("log.warn")}
             </p>
+            <p className="text-lg font-bold text-amber-400 leading-none mt-0.5">{warnCount}</p>
           </div>
         </div>
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 flex items-center gap-3">
@@ -161,17 +166,15 @@ export function AppLogViewer() {
             <AlertCircle className="w-4 h-4 text-rose-400" />
           </div>
           <div>
-            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">{t("log.error")}</p>
-            <p className="text-lg font-bold text-rose-400 leading-none mt-0.5">
-              {errorCount}
+            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">
+              {t("log.error")}
             </p>
+            <p className="text-lg font-bold text-rose-400 leading-none mt-0.5">{errorCount}</p>
           </div>
         </div>
       </div>
 
-      {/* 로그 뷰어 */}
       <div className="flex-1 bg-neutral-900/90 border border-neutral-800 rounded-2xl flex flex-col overflow-hidden shadow-xl min-h-0">
-        {/* 툴바 */}
         <div className="bg-neutral-950 px-4 py-2.5 border-b border-neutral-800/90 flex items-center justify-between gap-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-neutral-300 font-mono">
@@ -183,16 +186,13 @@ export function AppLogViewer() {
             {lastRefreshed && (
               <span className="text-[10px] text-neutral-600 font-mono hidden sm:block">
                 {t("log.refreshed", {
-                  time: lastRefreshed.toLocaleTimeString(
-                    locale === "en" ? "en-US" : "ko-KR"
-                  ),
+                  time: lastRefreshed.toLocaleTimeString(locale === "en" ? "en-US" : "ko-KR"),
                 })}
               </span>
             )}
           </div>
 
           <div className="flex items-center gap-1.5">
-            {/* 필터 드롭다운 */}
             <div className="relative">
               <button
                 onClick={() => setShowFilterMenu(!showFilterMenu)}
@@ -225,7 +225,7 @@ export function AppLogViewer() {
             </div>
 
             <button
-              onClick={fetchLogs}
+              onClick={() => void refreshLogs()}
               disabled={isLoading}
               title={t("log.refresh")}
               className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-50"
@@ -252,7 +252,6 @@ export function AppLogViewer() {
           </div>
         </div>
 
-        {/* 로그 목록 */}
         <div
           ref={autoScrollRef}
           className="flex-1 overflow-y-auto custom-scrollbar p-3 font-mono text-xs flex flex-col gap-0.5 bg-neutral-950/80"
@@ -261,9 +260,7 @@ export function AppLogViewer() {
             <div className="h-full flex flex-col items-center justify-center text-neutral-600 gap-3">
               <Info className="w-8 h-8 opacity-30" />
               <p className="text-xs text-center">
-                {logs.length === 0
-                  ? t("log.empty")
-                  : t("log.emptyFilter")}
+                {logs.length === 0 ? t("log.empty") : t("log.emptyFilter")}
               </p>
             </div>
           ) : (
@@ -293,12 +290,9 @@ export function AppLogViewer() {
           )}
         </div>
 
-        {/* 푸터: 파일 경로 */}
         {logPath && (
           <div className="px-4 py-2 border-t border-neutral-800/50 bg-neutral-950/50 flex-shrink-0">
-            <p className="text-[10px] text-neutral-600 font-mono truncate">
-              📁 {logPath}
-            </p>
+            <p className="text-[10px] text-neutral-600 font-mono truncate">📁 {logPath}</p>
           </div>
         )}
       </div>

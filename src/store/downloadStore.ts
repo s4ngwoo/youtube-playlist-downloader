@@ -1,10 +1,6 @@
 import { create } from "zustand";
 import { DownloadStatus, TrackItem, LogItem } from "../types/download";
-import {
-  AudioFormat,
-  DEFAULT_SETTINGS,
-  clampConcurrency,
-} from "../types/settings";
+import { AudioFormat, DEFAULT_SETTINGS, clampConcurrency } from "../types/settings";
 
 interface DownloadState {
   url: string;
@@ -27,9 +23,7 @@ interface DownloadState {
   setTotalItems: (count: number) => void;
   tracks: Map<number, TrackItem>;
   setTracks: (
-    updater:
-      | ((prev: Map<number, TrackItem>) => Map<number, TrackItem>)
-      | Map<number, TrackItem>
+    updater: ((prev: Map<number, TrackItem>) => Map<number, TrackItem>) | Map<number, TrackItem>,
   ) => void;
 
   currentSpeed: string;
@@ -55,11 +49,10 @@ interface DownloadState {
   setIsSelectionModalOpen: (v: boolean) => void;
 
   fetchedPlaylist: import("../types/download").PlaylistMetadata | null;
-  setFetchedPlaylist: (
-    v: import("../types/download").PlaylistMetadata | null
-  ) => void;
+  setFetchedPlaylist: (v: import("../types/download").PlaylistMetadata | null) => void;
 
-  resetState: () => void;
+  /** Start a new download run (clears tracks/progress; status → downloading). */
+  beginDownloadSession: () => void;
 }
 
 export const useDownloadStore = create<DownloadState>((set) => ({
@@ -84,8 +77,7 @@ export const useDownloadStore = create<DownloadState>((set) => ({
   tracks: new Map(),
   setTracks: (updater) =>
     set((state) => {
-      const nextTracks =
-        typeof updater === "function" ? updater(state.tracks) : updater;
+      const nextTracks = typeof updater === "function" ? updater(state.tracks) : updater;
       return { tracks: nextTracks };
     }),
 
@@ -117,7 +109,7 @@ export const useDownloadStore = create<DownloadState>((set) => ({
   fetchedPlaylist: null,
   setFetchedPlaylist: (v) => set({ fetchedPlaylist: v }),
 
-  resetState: () =>
+  beginDownloadSession: () =>
     set({
       status: "downloading",
       tracks: new Map(),

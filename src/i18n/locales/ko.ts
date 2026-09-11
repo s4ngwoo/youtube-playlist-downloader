@@ -26,8 +26,7 @@ export const ko: MessageCatalog = {
   "form.changeFolder": "폴더 변경",
   "form.concurrency": "동시 다운로드",
   "form.audioFormat": "오디오 포맷",
-  "form.urlPlaceholder":
-    "유튜브 단일 영상 또는 재생목록(Playlist) URL을 입력하세요",
+  "form.urlPlaceholder": "유튜브 단일 영상 또는 재생목록(Playlist) URL을 입력하세요",
   "form.cancel": "취소 (Cancel)",
   "form.fetching": "정보 불러오는 중...",
   "form.start": "다운로드 시작",
@@ -85,8 +84,7 @@ export const ko: MessageCatalog = {
   "env.warn.denoMissing":
     "Deno가 설치되어 있지 않습니다. YouTube JS 챌린지/속도 제한에 취약할 수 있습니다.",
   "env.hint.ffmpegMacos": "macOS: brew install ffmpeg",
-  "env.hint.ffmpegWindows":
-    "Windows: choco install ffmpeg 또는 scoop install ffmpeg",
+  "env.hint.ffmpegWindows": "Windows: choco install ffmpeg 또는 scoop install ffmpeg",
   "env.hint.denoMacos": "macOS: brew install deno",
   "env.hint.denoWindows": "Windows: choco install deno",
 
@@ -106,8 +104,7 @@ export const ko: MessageCatalog = {
   "status.downloadingTrack": "트랙 {index}/{total} 다운로드 중...",
 
   "alert.needUrl": "다운로드할 YouTube 링크 또는 플레이리스트 URL을 입력해 주세요.",
-  "alert.alreadyDownloaded":
-    "이미 다운로드한 기록이 있습니다. 다시 다운로드 하시겠습니까?",
+  "alert.alreadyDownloaded": "이미 다운로드한 기록이 있습니다. 다시 다운로드 하시겠습니까?",
   "alert.needFolder": "다운로드 폴더가 설정되지 않았습니다.",
   "dialog.selectFolder": "오디오 저장 폴더 선택",
 
@@ -204,4 +201,3 @@ export const ko: MessageCatalog = {
   "footer.diag.source.bundled": "번들",
   "footer.diag.source.override": "오버라이드",
 };
-

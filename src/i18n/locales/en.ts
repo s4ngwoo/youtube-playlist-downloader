@@ -84,8 +84,7 @@ export const en: MessageCatalog = {
   "env.warn.denoMissing":
     "Deno is not installed. You may be more vulnerable to YouTube JS challenges / rate limits.",
   "env.hint.ffmpegMacos": "macOS: brew install ffmpeg",
-  "env.hint.ffmpegWindows":
-    "Windows: choco install ffmpeg or scoop install ffmpeg",
+  "env.hint.ffmpegWindows": "Windows: choco install ffmpeg or scoop install ffmpeg",
   "env.hint.denoMacos": "macOS: brew install deno",
   "env.hint.denoWindows": "Windows: choco install deno",
 
@@ -105,8 +104,7 @@ export const en: MessageCatalog = {
   "status.downloadingTrack": "Downloading track {index}/{total}...",
 
   "alert.needUrl": "Enter a YouTube video or playlist URL.",
-  "alert.alreadyDownloaded":
-    "This URL is already in history. Download again?",
+  "alert.alreadyDownloaded": "This URL is already in history. Download again?",
   "alert.needFolder": "Download folder is not set.",
   "dialog.selectFolder": "Choose audio download folder",
 
@@ -203,4 +201,3 @@ export const en: MessageCatalog = {
   "footer.diag.source.bundled": "bundled",
   "footer.diag.source.override": "override",
 };
-

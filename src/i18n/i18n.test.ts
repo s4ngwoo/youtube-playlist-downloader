@@ -6,7 +6,7 @@ import { mapEnvCode } from "./mapEnvCode";
 describe("translate", () => {
   it("fills placeholders", () => {
     expect(translate("en", "form.progressDone", { done: 1, total: 2, percent: "50.0" })).toContain(
-      "1/2"
+      "1/2",
     );
   });
 });
@@ -17,24 +17,24 @@ describe("mapBackendMessage", () => {
 
   it("maps ffmpeg and sidecar codes", () => {
     expect(mapBackendMessage("download_error: error.ffmpeg_missing", t)).toBe(
-      "errors.ffmpegMissing"
+      "errors.ffmpegMissing",
     );
-    expect(
-      mapBackendMessage("download_error: error.sidecar_unavailable:yt-dlp-x", t)
-    ).toBe('errors.sidecarUnavailable:{"name":"yt-dlp-x"}');
+    expect(mapBackendMessage("download_error: error.sidecar_unavailable:yt-dlp-x", t)).toBe(
+      'errors.sidecarUnavailable:{"name":"yt-dlp-x"}',
+    );
   });
 
   it("maps ok codes", () => {
     expect(mapBackendMessage("ok.download_complete", t)).toBe("ok.downloadComplete");
     expect(mapBackendMessage("ok.download_partial:2:1", t)).toBe(
-      'ok.downloadPartial:{"success":"2","fail":"1"}'
+      'ok.downloadPartial:{"success":"2","fail":"1"}',
     );
   });
 
   it("maps ytdlp update failure", () => {
-    expect(
-      mapBackendMessage("download_error: error.ytdlp_update_failed:HTTP 404", t)
-    ).toBe('errors.ytdlpUpdateFailed:{"detail":"HTTP 404"}');
+    expect(mapBackendMessage("download_error: error.ytdlp_update_failed:HTTP 404", t)).toBe(
+      'errors.ytdlpUpdateFailed:{"detail":"HTTP 404"}',
+    );
   });
 });
 

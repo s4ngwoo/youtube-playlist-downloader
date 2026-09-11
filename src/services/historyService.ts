@@ -7,9 +7,7 @@ let storePromise: Promise<import("@tauri-apps/plugin-store").Store> | null = nul
 
 async function getStore() {
   if (!storePromise) {
-    storePromise = import("@tauri-apps/plugin-store").then(({ load }) =>
-      load(HISTORY_STORE_FILE)
-    );
+    storePromise = import("@tauri-apps/plugin-store").then(({ load }) => load(HISTORY_STORE_FILE));
   }
   return storePromise;
 }

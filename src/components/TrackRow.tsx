@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  CheckCircle2,
-  Sparkles,
-  Music2,
-  Download,
-  AlertCircle,
-} from "lucide-react";
+import { CheckCircle2, Sparkles, Music2, Download, AlertCircle } from "lucide-react";
 import { TrackItem as TrackItemType } from "../types/download";
 import { useI18n } from "../i18n";
 import { mapBackendMessage } from "../i18n/mapBackendMessage";
@@ -15,10 +9,7 @@ interface TrackRowProps {
   viewMode: "basic" | "advanced";
 }
 
-export const TrackRow = React.memo(function TrackRow({
-  track,
-  viewMode,
-}: TrackRowProps) {
+export const TrackRow = React.memo(function TrackRow({ track, viewMode }: TrackRowProps) {
   const { t } = useI18n();
 
   return (
@@ -27,12 +18,12 @@ export const TrackRow = React.memo(function TrackRow({
         track.status === "downloading"
           ? "bg-neutral-900 border-rose-500/40 shadow-sm"
           : track.status === "completed"
-          ? "bg-neutral-950/60 border-neutral-800/80 opacity-90"
-          : track.status === "extracting" ||
-            track.status === "converting_art" ||
-            track.status === "tagging"
-          ? "bg-purple-950/20 border-purple-500/30"
-          : "bg-neutral-950/40 border-neutral-800/50"
+            ? "bg-neutral-950/60 border-neutral-800/80 opacity-90"
+            : track.status === "extracting" ||
+                track.status === "converting_art" ||
+                track.status === "tagging"
+              ? "bg-purple-950/20 border-purple-500/30"
+              : "bg-neutral-950/40 border-neutral-800/50"
       }`}
     >
       <div className="flex items-center justify-between gap-3">
@@ -40,9 +31,7 @@ export const TrackRow = React.memo(function TrackRow({
           <span className="w-6 h-6 rounded-lg bg-neutral-800 text-neutral-300 text-xs font-mono font-bold flex items-center justify-center shrink-0">
             {track.index.toString().padStart(2, "0")}
           </span>
-          <span className="text-sm font-medium text-neutral-200 truncate">
-            {track.title}
-          </span>
+          <span className="text-sm font-medium text-neutral-200 truncate">{track.title}</span>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -152,9 +141,7 @@ export const TrackRow = React.memo(function TrackRow({
       {track.status === "failed" && track.error_message && (
         <div className="mt-1 flex items-start gap-1.5 text-xs text-rose-400 bg-rose-950/20 px-2 py-1.5 rounded-md border border-rose-900/30 font-mono">
           <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-          <span className="break-all">
-            {mapBackendMessage(track.error_message)}
-          </span>
+          <span className="break-all">{mapBackendMessage(track.error_message)}</span>
         </div>
       )}
     </div>

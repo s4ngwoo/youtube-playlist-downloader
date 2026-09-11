@@ -9,14 +9,11 @@ import {
 const SETTINGS_STORE_FILE = "settings.json";
 const LEGACY_DOWNLOAD_DIR_KEY = "yt_download_dir";
 
-let storePromise: Promise<import("@tauri-apps/plugin-store").Store> | null =
-  null;
+let storePromise: Promise<import("@tauri-apps/plugin-store").Store> | null = null;
 
 async function getStore() {
   if (!storePromise) {
-    storePromise = import("@tauri-apps/plugin-store").then(({ load }) =>
-      load(SETTINGS_STORE_FILE)
-    );
+    storePromise = import("@tauri-apps/plugin-store").then(({ load }) => load(SETTINGS_STORE_FILE));
   }
   return storePromise;
 }
@@ -24,15 +21,9 @@ async function getStore() {
 function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSettings {
   return {
     downloadDir:
-      typeof partial?.downloadDir === "string"
-        ? partial.downloadDir
-        : DEFAULT_SETTINGS.downloadDir,
-    concurrency: clampConcurrency(
-      partial?.concurrency ?? DEFAULT_SETTINGS.concurrency
-    ),
-    audioFormat: normalizeAudioFormat(
-      partial?.audioFormat ?? DEFAULT_SETTINGS.audioFormat
-    ),
+      typeof partial?.downloadDir === "string" ? partial.downloadDir : DEFAULT_SETTINGS.downloadDir,
+    concurrency: clampConcurrency(partial?.concurrency ?? DEFAULT_SETTINGS.concurrency),
+    audioFormat: normalizeAudioFormat(partial?.audioFormat ?? DEFAULT_SETTINGS.audioFormat),
     locale: normalizeLocale(partial?.locale ?? DEFAULT_SETTINGS.locale),
   };
 }

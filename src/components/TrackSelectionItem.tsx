@@ -31,9 +31,7 @@ export const TrackSelectionItem = React.memo(function TrackSelectionItem({
         {track.index.toString().padStart(2, "0")}
       </span>
       <span
-        className={`text-sm truncate flex-1 ${
-          isSelected ? "text-rose-100" : "text-neutral-300"
-        }`}
+        className={`text-sm truncate flex-1 ${isSelected ? "text-rose-100" : "text-neutral-300"}`}
       >
         {track.title}
       </span>

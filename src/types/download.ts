@@ -50,15 +50,6 @@ export interface LogItem {
 // 전체 다운로드 상태
 export type DownloadStatus = "idle" | "downloading" | "completed" | "error" | "cancelled";
 
-// 창 크기 동적 조절 옵션
-export interface WindowResizeOptions {
-  minHeight?: number;
-  maxHeight?: number;
-  padding?: number;
-  threshold?: number;
-  debounceMs?: number;
-}
-
 // 오디오 메타데이터 (Lofty 연동용)
 export interface AudioMetadata {
   title?: string;

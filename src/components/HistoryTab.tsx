@@ -14,15 +14,17 @@ export function HistoryTab({ onLoadUrl }: HistoryTabProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadHistory();
+    let cancelled = false;
+    (async () => {
+      const items = await historyService.getHistory();
+      if (cancelled) return;
+      setHistoryItems(items);
+      setIsLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
-  const loadHistory = async () => {
-    setIsLoading(true);
-    const items = await historyService.getHistory();
-    setHistoryItems(items);
-    setIsLoading(false);
-  };
 
   const handleDelete = async (url: string) => {
     const success = await historyService.deleteHistory(url);
@@ -53,9 +55,7 @@ export function HistoryTab({ onLoadUrl }: HistoryTabProps) {
   return (
     <div className="w-full bg-neutral-900 rounded-xl border border-neutral-800 p-4 md:p-6 shadow-xl flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-neutral-200">
-          {t("history.title")}
-        </h2>
+        <h2 className="text-lg font-semibold text-neutral-200">{t("history.title")}</h2>
         <span className="text-sm text-neutral-500">
           {t("history.total", { count: historyItems.length })}
         </span>
@@ -74,16 +74,11 @@ export function HistoryTab({ onLoadUrl }: HistoryTabProps) {
               >
                 {item.title || t("history.untitled")}
               </h3>
-              <p
-                className="text-neutral-500 text-sm truncate mt-1"
-                title={item.url}
-              >
+              <p className="text-neutral-500 text-sm truncate mt-1" title={item.url}>
                 {item.url}
               </p>
               <p className="text-neutral-600 text-xs mt-2">
-                {new Date(item.date).toLocaleString(
-                  locale === "en" ? "en-US" : "ko-KR"
-                )}
+                {new Date(item.date).toLocaleString(locale === "en" ? "en-US" : "ko-KR")}
               </p>
             </div>
 

@@ -2,16 +2,16 @@ import { CheckCircle2, AlertCircle, ListMusic, Edit3 } from "lucide-react";
 import { useDownloadStore } from "../store/downloadStore";
 import { useI18n } from "../i18n";
 import { AppLocale } from "../types/settings";
-import { useDownloadActions } from "../hooks/useDownloadActions";
+import { useSettingsActions } from "../hooks/useSettingsActions";
 
 interface HeaderProps {
   onOpenMetadataEditor?: () => void;
 }
 
 export function Header({ onOpenMetadataEditor }: HeaderProps) {
-  const { status } = useDownloadStore();
+  const status = useDownloadStore((s) => s.status);
   const { t, locale } = useI18n();
-  const { handleLocaleChange } = useDownloadActions();
+  const { handleLocaleChange } = useSettingsActions();
 
   return (
     <header
@@ -35,17 +35,12 @@ export function Header({ onOpenMetadataEditor }: HeaderProps) {
           >
             <span>{t("header.taglineStack")}</span>
             <span className="inline-block w-1 h-1 rounded-full bg-neutral-600" />
-            <span className="text-rose-400 font-medium">
-              {t("header.taglineQuality")}
-            </span>
+            <span className="text-rose-400 font-medium">{t("header.taglineQuality")}</span>
           </p>
         </div>
       </div>
 
-      <div
-        data-tauri-drag-region="false"
-        className="flex items-center gap-2.5 shrink-0"
-      >
+      <div data-tauri-drag-region="false" className="flex items-center gap-2.5 shrink-0">
         <label className="flex items-center gap-1.5 text-xs text-neutral-400">
           <span className="sr-only">{t("lang.switch")}</span>
           <select

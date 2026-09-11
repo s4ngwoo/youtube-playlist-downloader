@@ -1,41 +1,19 @@
-import { useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Mail, FileText, Stethoscope, RefreshCw } from "lucide-react";
-import { GithubIcon } from "./icons/GithubIcon";
-import { invoke } from "@tauri-apps/api/core";
+import { useState } from "react";
+import { diagnoseEnvironment, openLogWindow, updateYtdlp } from "../api/environment";
 import { useI18n } from "../i18n";
-import { mapEnvCode } from "../i18n/mapEnvCode";
 import { mapBackendMessage } from "../i18n/mapBackendMessage";
-
-type EnvironmentReport = {
-  ffmpeg_found: boolean;
-  ffmpeg_location: string | null;
-  deno_found: boolean;
-  deno_path: string | null;
-  sidecar_expected_name: string;
-  os: string;
-  arch: string;
-  warnings: string[];
-  install_hints: string[];
-  ytdlp_source: string;
-  ytdlp_version: string | null;
-  ytdlp_path: string | null;
-};
-
-type YtdlpStatus = {
-  source: string;
-  version: string | null;
-  path: string | null;
-  overridePath: string;
-};
+import { mapEnvCode } from "../i18n/mapEnvCode";
+import { GithubIcon } from "./icons/GithubIcon";
 
 export function Footer() {
   const { t } = useI18n();
   const [ytdlpBusy, setYtdlpBusy] = useState(false);
 
-  const openLogWindow = async () => {
+  const handleOpenLogWindow = async () => {
     try {
-      await invoke("open_log_window");
+      await openLogWindow();
     } catch (err) {
       console.error("Failed to open log window:", err);
     }
@@ -49,17 +27,11 @@ export function Footer() {
 
   const runEnvironmentDiagnose = async () => {
     try {
-      const report = await invoke<EnvironmentReport>("diagnose_environment");
+      const report = await diagnoseEnvironment();
       const lines = [
         `OS: ${report.os} / ${report.arch}`,
-        `FFmpeg: ${
-          report.ffmpeg_found
-            ? report.ffmpeg_location
-            : t("footer.diag.none")
-        }`,
-        `Deno: ${
-          report.deno_found ? report.deno_path : t("footer.diag.denoNone")
-        }`,
+        `FFmpeg: ${report.ffmpeg_found ? report.ffmpeg_location : t("footer.diag.none")}`,
+        `Deno: ${report.deno_found ? report.deno_path : t("footer.diag.denoNone")}`,
         t("footer.diag.sidecar", { name: report.sidecar_expected_name }),
         t("footer.diag.ytdlpSource", {
           source: sourceLabel(report.ytdlp_source),
@@ -67,15 +39,9 @@ export function Footer() {
         t("footer.diag.ytdlpVersion", {
           version: report.ytdlp_version ?? t("footer.diag.none"),
         }),
-        ...(report.ytdlp_path
-          ? [`yt-dlp path: ${report.ytdlp_path}`]
-          : []),
+        ...(report.ytdlp_path ? [`yt-dlp path: ${report.ytdlp_path}`] : []),
         ...(report.warnings.length
-          ? [
-              "",
-              t("footer.diag.warnings"),
-              ...report.warnings.map((w) => `- ${mapEnvCode(w, t)}`),
-            ]
+          ? ["", t("footer.diag.warnings"), ...report.warnings.map((w) => `- ${mapEnvCode(w, t)}`)]
           : ["", t("footer.diag.noWarnings")]),
         ...(report.install_hints.length
           ? [
@@ -93,28 +59,28 @@ export function Footer() {
       window.alert(
         t("footer.diag.failed", {
           error: mapBackendMessage(String(err), t),
-        })
+        }),
       );
     }
   };
 
-  const updateYtdlp = async () => {
+  const handleUpdateYtdlp = async () => {
     if (ytdlpBusy) return;
     setYtdlpBusy(true);
     try {
-      const status = await invoke<YtdlpStatus>("update_ytdlp");
+      const status = await updateYtdlp();
       window.alert(
         t("footer.ytdlpUpdateOk", {
           version: status.version ?? t("footer.diag.none"),
           path: status.path ?? status.overridePath,
-        })
+        }),
       );
     } catch (err) {
       console.error("yt-dlp update failed:", err);
       window.alert(
         t("footer.ytdlpUpdateFailed", {
           error: mapBackendMessage(String(err), t),
-        })
+        }),
       );
     } finally {
       setYtdlpBusy(false);
@@ -128,8 +94,7 @@ export function Footer() {
           <span>YouTube Playlist Downloader</span>
           <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-neutral-700" />
           <span>
-            Developed by{" "}
-            <span className="text-neutral-300 font-medium">Lee SangWoo</span>
+            Developed by <span className="text-neutral-300 font-medium">Lee SangWoo</span>
           </span>
         </div>
 
@@ -158,14 +123,12 @@ export function Footer() {
       <div className="flex items-center gap-2 flex-wrap justify-center">
         <button
           type="button"
-          onClick={updateYtdlp}
+          onClick={handleUpdateYtdlp}
           disabled={ytdlpBusy}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
           title={t("footer.ytdlpUpdateTitle")}
         >
-          <RefreshCw
-            className={`w-3.5 h-3.5 ${ytdlpBusy ? "animate-spin" : ""}`}
-          />
+          <RefreshCw className={`w-3.5 h-3.5 ${ytdlpBusy ? "animate-spin" : ""}`} />
           {ytdlpBusy ? t("footer.ytdlpUpdating") : t("footer.ytdlpUpdate")}
         </button>
         <button
@@ -179,7 +142,7 @@ export function Footer() {
         </button>
         <button
           type="button"
-          onClick={openLogWindow}
+          onClick={handleOpenLogWindow}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 cursor-pointer"
         >
           <FileText className="w-3.5 h-3.5" />

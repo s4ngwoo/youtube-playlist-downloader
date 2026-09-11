@@ -6,7 +6,7 @@ import { AudioMetadata } from "../../types/download";
 interface MetadataSingleViewProps {
   filePath: string;
   metadata: AudioMetadata;
-  onChange: (field: keyof AudioMetadata, value: any) => void;
+  onChange: (field: keyof AudioMetadata, value: AudioMetadata[keyof AudioMetadata]) => void;
   onSelectCover: () => void;
   onAddCustomTag: (key: string) => void;
   onRemoveCustomTag: (key: string) => void;
@@ -36,19 +36,21 @@ export function MetadataSingleView({
     <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
       {/* Cover Art Section */}
       <div className="flex flex-col gap-4">
-        <div 
+        <div
           className="aspect-square bg-neutral-900 border-2 border-dashed border-neutral-800 rounded-2xl flex flex-col items-center justify-center overflow-hidden group relative hover:border-rose-500/50 transition-colors cursor-pointer"
           onClick={onSelectCover}
         >
           {metadata.cover_art_base64 ? (
             <>
-              <img 
-                src={metadata.cover_art_base64} 
-                alt="Cover" 
+              <img
+                src={metadata.cover_art_base64}
+                alt="Cover"
                 className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="bg-black/80 text-white px-4 py-2 rounded-lg text-sm font-medium">{t("meta.coverChange")}</span>
+                <span className="bg-black/80 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                  {t("meta.coverChange")}
+                </span>
               </div>
             </>
           ) : (
@@ -58,16 +60,16 @@ export function MetadataSingleView({
             </div>
           )}
         </div>
-        <p className="text-xs text-neutral-500 text-center break-all px-2">
-          {filePath}
-        </p>
+        <p className="text-xs text-neutral-500 text-center break-all px-2">{filePath}</p>
       </div>
 
       {/* Fields Section */}
       <div className="flex flex-col gap-5 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-neutral-400 ml-1">{t("meta.field.title")}</label>
+            <label className="text-sm font-medium text-neutral-400 ml-1">
+              {t("meta.field.title")}
+            </label>
             <input
               type="text"
               value={metadata.title || ""}
@@ -77,7 +79,9 @@ export function MetadataSingleView({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-neutral-400 ml-1">{t("meta.field.artist")}</label>
+            <label className="text-sm font-medium text-neutral-400 ml-1">
+              {t("meta.field.artist")}
+            </label>
             <input
               type="text"
               value={metadata.artist || ""}
@@ -89,7 +93,9 @@ export function MetadataSingleView({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-neutral-400 ml-1">{t("meta.field.album")}</label>
+          <label className="text-sm font-medium text-neutral-400 ml-1">
+            {t("meta.field.album")}
+          </label>
           <input
             type="text"
             value={metadata.album || ""}
@@ -100,7 +106,9 @@ export function MetadataSingleView({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-neutral-400 ml-1">{t("meta.field.lyrics")}</label>
+          <label className="text-sm font-medium text-neutral-400 ml-1">
+            {t("meta.field.lyrics")}
+          </label>
           <textarea
             value={metadata.lyrics || ""}
             onChange={(e) => onChange("lyrics", e.target.value)}
@@ -110,7 +118,9 @@ export function MetadataSingleView({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-neutral-400 ml-1">{t("meta.field.comment")}</label>
+          <label className="text-sm font-medium text-neutral-400 ml-1">
+            {t("meta.field.comment")}
+          </label>
           <textarea
             value={metadata.comment || ""}
             onChange={(e) => onChange("comment", e.target.value)}
@@ -122,7 +132,9 @@ export function MetadataSingleView({
         {/* Custom Tags */}
         <div className="flex flex-col gap-3 mt-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-neutral-400 ml-1">{t("meta.field.customTags")}</label>
+            <label className="text-sm font-medium text-neutral-400 ml-1">
+              {t("meta.field.customTags")}
+            </label>
             {!isAddingTag ? (
               <button
                 type="button"
@@ -172,31 +184,32 @@ export function MetadataSingleView({
               </button>
             </div>
           )}
-          
+
           <div className="flex flex-col gap-2">
-            {metadata.custom_tags && Object.entries(metadata.custom_tags).map(([key, value]) => (
-              <div key={key} className="flex items-center gap-2">
-                <div className="w-1/3 min-w-[100px] bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-300 truncate">
-                  {key}
+            {metadata.custom_tags &&
+              Object.entries(metadata.custom_tags).map(([key, value]) => (
+                <div key={key} className="flex items-center gap-2">
+                  <div className="w-1/3 min-w-[100px] bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-300 truncate">
+                    {key}
+                  </div>
+                  <input
+                    type="text"
+                    value={value as string}
+                    onChange={(e) => {
+                      const newTags = { ...metadata.custom_tags, [key]: e.target.value };
+                      onChange("custom_tags", newTags);
+                    }}
+                    className="flex-1 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-rose-500/50 transition-all"
+                    placeholder={t("meta.ph.tagValue", { key })}
+                  />
+                  <button
+                    onClick={() => onRemoveCustomTag(key)}
+                    className="p-2 text-neutral-500 hover:text-red-400 hover:bg-neutral-800 rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
-                <input
-                  type="text"
-                  value={value as string}
-                  onChange={(e) => {
-                    const newTags = { ...metadata.custom_tags, [key]: e.target.value };
-                    onChange("custom_tags", newTags);
-                  }}
-                  className="flex-1 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-rose-500/50 transition-all"
-                  placeholder={t("meta.ph.tagValue", { key })}
-                />
-                <button
-                  onClick={() => onRemoveCustomTag(key)}
-                  className="p-2 text-neutral-500 hover:text-red-400 hover:bg-neutral-800 rounded-lg transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+              ))}
             {(!metadata.custom_tags || Object.keys(metadata.custom_tags).length === 0) && (
               <div className="text-sm text-neutral-600 bg-neutral-900/50 rounded-xl p-4 text-center border border-dashed border-neutral-800">
                 {t("meta.customTagsEmpty")}
