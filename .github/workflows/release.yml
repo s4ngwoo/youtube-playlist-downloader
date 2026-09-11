@@ -5,10 +5,11 @@ on:
     tags:
       - 'v*'
 
-# Sidecar policy: default to yt-dlp "latest". To pin a release, set
-# YTDLP_TAG below to a tag like "2026.08.19" (see docs/RELEASING.md).
+# Sidecar policy: yt-dlp "latest" by default; FFmpeg is LGPL (see docs/RELEASING.md).
+# Pin with YTDLP_TAG / FFMPEG_TAG when needed.
 env:
   YTDLP_TAG: latest
+  FFMPEG_TAG: n7.1.1
 
 jobs:
   release:
@@ -23,16 +24,20 @@ jobs:
             args: '--target aarch64-apple-darwin'
             sidecar_name: 'yt-dlp-aarch64-apple-darwin'
             sidecar_asset: 'yt-dlp_macos'
-          - platform: 'macos-latest'
+            ffmpeg_triple: 'aarch64-apple-darwin'
+          # Intel Mac: native x86_64 runner so LGPL FFmpeg builds without cross-compile.
+          - platform: 'macos-13'
             rust_target: 'x86_64-apple-darwin'
             args: '--target x86_64-apple-darwin'
             sidecar_name: 'yt-dlp-x86_64-apple-darwin'
             sidecar_asset: 'yt-dlp_macos'
+            ffmpeg_triple: 'x86_64-apple-darwin'
           - platform: 'windows-latest'
             rust_target: ''
             args: ''
             sidecar_name: 'yt-dlp-x86_64-pc-windows-msvc.exe'
             sidecar_asset: 'yt-dlp.exe'
+            ffmpeg_triple: 'x86_64-pc-windows-msvc'
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -48,7 +53,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           # Empty targets on Windows = host toolchain only.
-          targets: ${{ matrix.platform == 'macos-latest' && matrix.rust_target || '' }}
+          targets: ${{ matrix.rust_target }}
 
       - name: Install dependencies
         run: npm install
@@ -70,6 +75,15 @@ jobs:
           fi
           echo "Bundled sidecar: ${{ matrix.sidecar_name }} (yt-dlp tag=${TAG}, asset=${{ matrix.sidecar_asset }})"
 
+      - name: Prepare LGPL FFmpeg sidecars
+        shell: bash
+        env:
+          TARGET_TRIPLE: ${{ matrix.ffmpeg_triple }}
+          FFMPEG_TAG: ${{ env.FFMPEG_TAG }}
+        run: |
+          bash scripts/prepare-ffmpeg-sidecar.sh
+          ls -lh src-tauri/bin/ffmpeg-* src-tauri/bin/ffprobe-* || true
+
       - name: Build and Release with Tauri Action
         uses: tauri-apps/tauri-action@v0
         env:
@@ -85,6 +99,11 @@ jobs:
             - **macOS (Intel x86_64)**: download `*_x64.dmg` / `*_x86_64.dmg`
             - **Windows (x64)**: download `*-setup.exe` / `*.msi`
 
+            #### Bundled tools
+            - **yt-dlp** sidecar (in-app update writes an app-data override)
+            - **FFmpeg / ffprobe** (LGPL) — no separate system install required
+            - **Deno** remains optional (system install recommended for JS challenges)
+
             #### First launch on macOS (unidentified developer)
             1. Open the `.dmg` and drag the app into Applications.
             2. In Applications, right-click (or Control-click) the app → Open → confirm Open.
@@ -94,7 +113,7 @@ jobs:
             If SmartScreen appears: More info → Run anyway.
 
             Linux official binaries are not planned (build from source / use yt-dlp CLI).
-            Release process / yt-dlp sidecar: see docs/RELEASING.md
+            Release process / sidecars: see docs/RELEASING.md · Third-party: docs/THIRD_PARTY.md
             Docs: https://github.com/s4ngwoo/youtube-playlist-downloader#readme
           releaseDraft: false
           prerelease: false

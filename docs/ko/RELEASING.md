@@ -1,91 +1,46 @@
-# 릴리즈 가이드
+# 릴리즈
 
-**YouTube Playlist & Audio Downloader**의 GitHub Release와 번들 **yt-dlp** 사이드카 절차입니다.
+**YouTube Playlist & Audio Downloader** GitHub Releases 절차와 번들 **yt-dlp** / **LGPL FFmpeg** 사이드카 정책입니다.
 
-영문 원문: [../RELEASING.md](../RELEASING.md)
+영문: [../RELEASING.md](../RELEASING.md)
 
-## 릴리즈 워크플로가 하는 일
+## 워크플로가 하는 일
 
 `v*` 태그를 푸시하면 [`.github/workflows/release.yml`](../../.github/workflows/release.yml)이 실행됩니다.
 
-| 러너 | Rust 타깃 | 사이드카 파일명 | 업스트림 자산 |
-| :--- | :--- | :--- | :--- |
-| `macos-latest` | `aarch64-apple-darwin` | `yt-dlp-aarch64-apple-darwin` | `yt-dlp_macos` (universal2) |
-| `macos-latest` | `x86_64-apple-darwin` | `yt-dlp-x86_64-apple-darwin` | `yt-dlp_macos` (universal2) |
-| `windows-latest` | 호스트 (x64) | `yt-dlp-x86_64-pc-windows-msvc.exe` | `yt-dlp.exe` |
+| Runner | Rust target | yt-dlp 사이드카 | FFmpeg triple | FFmpeg 출처 |
+| :--- | :--- | :--- | :--- | :--- |
+| `macos-latest` | `aarch64-apple-darwin` | `yt-dlp_macos` → `yt-dlp-aarch64-apple-darwin` | `aarch64-apple-darwin` | LGPL 소스 빌드 (`FFMPEG_TAG`) |
+| `macos-13` | `x86_64-apple-darwin` | `yt-dlp_macos` → `yt-dlp-x86_64-apple-darwin` | `x86_64-apple-darwin` | LGPL 소스 빌드 (Intel 네이티브) |
+| `windows-latest` | host (x64) | `yt-dlp.exe` → `…-windows-msvc.exe` | `x86_64-pc-windows-msvc` | BtbN `win64-lgpl` zip |
 
-Linux 공식 설치 파일은 **계획하지 않습니다** (소스 빌드만 · README 플랫폼 표 참고).
+Linux 공식 설치 파일은 **계획 없음**. 서드파티 고지: [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## 태그 전 체크리스트
 
-1. **버전** — **함께** 올린다: `package.json`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json` (필요 시 `package-lock.json` / `Cargo.lock` 갱신).
-2. **CHANGELOG** — `[Unreleased]` 항목을 `docs/CHANGELOG.md` · `docs/ko/CHANGELOG.md`의 새 섹션으로 옮긴다.
-3. **README 플랫폼 표** — Official / 소스 빌드 행이 매트릭스와 일치하는지 확인.
-4. **yt-dlp 정책** — `latest` vs 고정 태그 결정 (아래).
-5. **로컬 스모크** (권장) — `npm run typecheck`, `npm test`, `npm run test:rust`.
-6. **태그 푸시**
+1. **버전** — `package.json` · `src-tauri/Cargo.toml` · `src-tauri/tauri.conf.json` 함께 올리기  
+2. **CHANGELOG** — `[Unreleased]` → 새 섹션 (`docs/CHANGELOG.md` + `docs/ko/CHANGELOG.md`)  
+3. **README 플랫폼 표** — 매트릭스와 일치하는지 확인  
+4. **yt-dlp / FFmpeg 핀** — `YTDLP_TAG` / `FFMPEG_TAG`  
+5. **로컬 스모크** (권장) — `npm run typecheck` · `npm test` · `npm run test:rust`  
+6. 태그 푸시 후 릴리즈 자산·워크플로 로그(yt-dlp **및** FFmpeg 준비 단계) 확인  
 
-```bash
-git tag v0.2.1
-git push origin v0.2.1
-```
-
-7. **확인** — GitHub Release에 DMG(aarch64 + x64)·Windows 설치 파일이 올라갔는지, 워크플로 로그의 사이드카 다운로드 단계를 훑는다.
-
-## yt-dlp 버전: latest vs 고정
-
-`release.yml` 상단:
+## 핀 정책
 
 ```yaml
 env:
   YTDLP_TAG: latest
+  FFMPEG_TAG: n7.1.1
 ```
 
-| 값 | 동작 |
-| :--- | :--- |
-| `latest` | `…/releases/latest/download/<asset>` (기본값). |
-| 예: `2026.08.19` | `…/releases/download/2026.08.19/<asset>`. |
+로컬 준비: `./scripts/prepare-ffmpeg-sidecar.sh`  
+자세한 표·갱신 절차는 영문 [RELEASING.md](../RELEASING.md)와 동일합니다.
 
-### 고정을 쓰는 경우
+## 인앱 yt-dlp 업데이트 vs 릴리즈 사이드카
 
-- YouTube/추출기 깨짐: **검증된** yt-dlp 릴리즈에 고정한 뒤 새 버전을 확인한다.
-- 재현 가능한 빌드: 해당 앱 버전에 명시 태그를 쓴다.
+헤더 **yt-dlp 업데이트**는 앱 데이터 `sidecars/` 오버라이드만 쓰며 릴리즈 번들을 덮어쓰지 않습니다.  
+FFmpeg는 릴리즈 번들만 제공(인앱 FFmpeg 업데이트 없음).
 
-### 갱신 절차
+## 관련
 
-1. [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases)에서 태그 확인.
-2. `YTDLP_TAG`를 그 태그로 두거나 `latest` 유지.
-3. 로컬에서 `src-tauri/bin/yt-dlp-<triple>`를 교체한 뒤 메타 fetch·다운로드 1회 스모크.
-4. 바이너리는 커밋하지 말고 워크플로 변경만 커밋한 뒤, 사용자 배포가 필요하면 앱 태그를 새로 딴다.
-
-자산 ↔ 사이드카 이름 매핑은 위 표와 같다. Unix에서는 다운로드 후 `chmod +x`.
-
-## 로컬 사이드카 (개발)
-
-CI와 같은 파일명. README의 사이드카 안내 참고. Apple Silicon 예:
-
-```bash
-mkdir -p src-tauri/bin
-curl -fsSL -o src-tauri/bin/yt-dlp-aarch64-apple-darwin \
-  https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
-chmod +x src-tauri/bin/yt-dlp-aarch64-apple-darwin
-```
-
-명시적으로 벤더하지 않는 한 대용량 사이드카는 커밋하지 않는다.
-
-**트리플 주의:** 개발과 `npm run package:local-dmg`는 **이 호스트** Rust 트리플(`rustc -vV` → `host:`)용 사이드카가 필요하다. 릴리즈/CI는 다른 트리플을 따로 받고, `src-tauri/bin/`에 이름을 섞어 두면 로컬에서 “사이드카 없음”이 자주 난다.
-
-## 이 체크리스트 범위 밖
-
-- **Apple Notarization** — **영구 제외** (비용 · 유료 Apple Developer 계정 없음). Gatekeeper 첫 실행 안내는 README·릴리즈 노트에 유지. “연기”가 아님.
-- **`local-packages/` DMG** — 로컬 검증용만 (gitignore). [CONTRIBUTING.md](CONTRIBUTING.md) 참고. 태그 릴리즈가 아니면 GitHub Release 자산으로 올리지 않는다.
-
-## 앱 내 yt-dlp 갱신 vs 릴리즈 사이드카
-
-사용자는 헤더 **yt-dlp 업데이트**로 최신 바이너리를 받을 수 있다. 이는 앱 로컬 데이터 `sidecars/` **오버라이드**이며, 릴리즈에 포함된 `externalBin` 사이드카를 덮어쓰지 않는다. 다음 GitHub Release의 번들 사이드카는 사용자 오버라이드와 별개로 고정/최신 정책에 따라 다시 패키징된다.
-
-## 관련 문서
-
-- [CONTRIBUTING.md](CONTRIBUTING.md) — PR 검사
-- [FAQ.md](FAQ.md) — 다운로드 실패 / yt-dlp 갱신
-- [CHANGELOG.md](CHANGELOG.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md) · [FAQ.md](FAQ.md) · [THIRD_PARTY.md](THIRD_PARTY.md) · [CHANGELOG.md](CHANGELOG.md)

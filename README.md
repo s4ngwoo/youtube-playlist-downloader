@@ -76,9 +76,10 @@ If SmartScreen appears: **More info → Run anyway**.
 - **Download history** — Revisit previous playlist URLs and reload them from a local history store.
 - **Mobile-friendly ZIP (NFC)** — Export a ZIP with NFC-normalized filenames so Korean names stay intact on Android/Windows.
 - **In-app yt-dlp update** — Downloads the latest binary into app-data `sidecars/` (override; does not rewrite the release-bundled sidecar). Button lives in the **header**.
-- **Environment diagnose** — Footer action checks FFmpeg, Deno, and yt-dlp source/version.
+- **Environment diagnose** — Footer action checks FFmpeg (bundled/system), Deno, and yt-dlp source/version.
 - **Process tree cleanup** — Cancel, close, or quit cleanly; `yt-dlp` / `ffmpeg` child processes are terminated.
-- **Deno-aware yt-dlp** — Uses a local Deno runtime when available for YouTube JS challenge solving.
+- **Bundled LGPL FFmpeg** — Official builds ship `ffmpeg` / `ffprobe` sidecars (no separate install). System FFmpeg is a fallback.
+- **Deno-aware yt-dlp** — Uses a local Deno runtime when available for YouTube JS challenge solving (optional; not bundled).
 - **App log viewer** — Persistent local logs with a dedicated viewer window for troubleshooting.
 - **macOS polish** — Traffic-light safe area and a draggable title region.
 
@@ -132,7 +133,7 @@ flowchart TB
 
     subgraph External["External"]
         YTDLP["yt-dlp (bundled sidecar or app-data override)"]
-        FFMPEG["ffmpeg"]
+        FFMPEG["ffmpeg / ffprobe (bundled LGPL, system fallback)"]
         DENO["deno (optional)"]
         GH["GitHub yt-dlp releases (optional update)"]
     end
@@ -169,17 +170,21 @@ YoutubePlaylistDownloader/
 
 1. **Node.js** 18+ (LTS recommended)
 2. **Rust** 1.77+ and Cargo — [rustup.rs](https://rustup.rs)
-3. **FFmpeg** (required for audio/thumbnail processing)
+3. **FFmpeg / ffprobe sidecars** (for `tauri dev` / local packaging)
+
+Official GitHub Releases **bundle LGPL FFmpeg** — end users do not need a separate install.
+For local development, prepare sidecars (or use a system FFmpeg on `PATH` as fallback):
 
 ```bash
-# macOS
-brew install ffmpeg
+# Recommended for matching the release layout
+./scripts/prepare-ffmpeg-sidecar.sh
 
-# Windows (Chocolatey)
-choco install ffmpeg
+# Temporary fallback if you only need system FFmpeg:
+# macOS: brew install ffmpeg
+# Windows: choco install ffmpeg
 ```
 
-4. **Deno** (recommended for YouTube JS challenges)
+4. **Deno** (optional; recommended for YouTube JS challenges — not bundled)
 
 ```bash
 # macOS
@@ -201,22 +206,29 @@ cd youtube-playlist-downloader
 npm install
 ```
 
-### 2. Place the yt-dlp sidecar
+### 2. Place the yt-dlp (and FFmpeg) sidecars
 
-Put a platform-matched binary in `src-tauri/bin/`:
+Put platform-matched binaries in `src-tauri/bin/`:
 
 ```text
 # macOS Apple Silicon
 src-tauri/bin/yt-dlp-aarch64-apple-darwin
+src-tauri/bin/ffmpeg-aarch64-apple-darwin
+src-tauri/bin/ffprobe-aarch64-apple-darwin
 
 # macOS Intel
 src-tauri/bin/yt-dlp-x86_64-apple-darwin
+src-tauri/bin/ffmpeg-x86_64-apple-darwin
+src-tauri/bin/ffprobe-x86_64-apple-darwin
 
 # Windows x64
 src-tauri/bin/yt-dlp-x86_64-pc-windows-msvc.exe
+src-tauri/bin/ffmpeg-x86_64-pc-windows-msvc.exe
+src-tauri/bin/ffprobe-x86_64-pc-windows-msvc.exe
 ```
 
-Download from [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases), rename to the Tauri sidecar triple, and `chmod +x` on Unix.
+FFmpeg (LGPL): `./scripts/prepare-ffmpeg-sidecar.sh`  
+yt-dlp: download from [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases), rename to the Tauri sidecar triple, and `chmod +x` on Unix.
 
 **Triple must match the machine you run/package on.** Apple Silicon needs `aarch64-apple-darwin`; Intel Mac needs `x86_64-apple-darwin`. Putting the wrong file (or only a CI stub) under `bin/` causes “sidecar missing” / failed fetch during `tauri dev` and local DMG builds. Do not mix triples when switching machines; keep one binary named for *this* host’s target.
 
@@ -252,7 +264,7 @@ npm run tauri build
 ## Limitations
 
 - YouTube player / signature changes can temporarily break or throttle downloads; keep `yt-dlp` (and Deno) updated (header **Update yt-dlp** or the next app release).
-- FFmpeg must be on `PATH` (or in common install locations).
+- Official builds bundle LGPL FFmpeg; if diagnose shows it missing, reinstall the app (or use a system FFmpeg fallback / prepare sidecars when developing).
 - **Copyright & ToS**: Intended for personal / educational offline use. You are responsible for complying with copyright law and YouTube’s Terms of Service. See [Terms of Use](docs/TERMS.md).
 - DRM-protected media cannot be downloaded.
 
@@ -283,3 +295,5 @@ npm run tauri build
 - **GitHub**: [@s4ngwoo](https://github.com/s4ngwoo)
 
 Licensed under the **[GNU General Public License v3.0](LICENSE)**. You may study, modify, and redistribute the software under GPL-3.0 terms; derivative works must remain open source under the same license.
+
+Bundled **FFmpeg** is provided under **LGPL** terms — see [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).

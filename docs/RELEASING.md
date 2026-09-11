@@ -1,6 +1,6 @@
 # Releasing
 
-How we cut GitHub Releases for **YouTube Playlist & Audio Downloader**, including the bundled **yt-dlp** sidecar.
+How we cut GitHub Releases for **YouTube Playlist & Audio Downloader**, including the bundled **yt-dlp** and **LGPL FFmpeg** sidecars.
 
 Korean: [ko/RELEASING.md](ko/RELEASING.md)
 
@@ -8,20 +8,22 @@ Korean: [ko/RELEASING.md](ko/RELEASING.md)
 
 Pushing a tag that matches `v*` runs [`.github/workflows/release.yml`](../.github/workflows/release.yml):
 
-| Runner | Rust target | Sidecar file name | Upstream asset |
-| :--- | :--- | :--- | :--- |
-| `macos-latest` | `aarch64-apple-darwin` | `yt-dlp-aarch64-apple-darwin` | `yt-dlp_macos` (universal2) |
-| `macos-latest` | `x86_64-apple-darwin` | `yt-dlp-x86_64-apple-darwin` | `yt-dlp_macos` (universal2) |
-| `windows-latest` | host (x64) | `yt-dlp-x86_64-pc-windows-msvc.exe` | `yt-dlp.exe` |
+| Runner | Rust target | yt-dlp sidecar | FFmpeg triple | FFmpeg source |
+| :--- | :--- | :--- | :--- | :--- |
+| `macos-latest` | `aarch64-apple-darwin` | `yt-dlp-aarch64-apple-darwin` ← `yt-dlp_macos` | `aarch64-apple-darwin` | LGPL source build (`FFMPEG_TAG`) |
+| `macos-13` | `x86_64-apple-darwin` | `yt-dlp-x86_64-apple-darwin` ← `yt-dlp_macos` | `x86_64-apple-darwin` | LGPL source build (native Intel) |
+| `windows-latest` | host (x64) | `yt-dlp-x86_64-pc-windows-msvc.exe` ← `yt-dlp.exe` | `x86_64-pc-windows-msvc` | BtbN `win64-lgpl` zip |
 
 Linux official installers are **not planned** (build from source only; see README platform table).
+
+Third-party notices: [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## Checklist before tagging
 
 1. **Version** — Bump **together**: `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` (then refresh `package-lock.json` / `Cargo.lock` as needed).
 2. **CHANGELOG** — Move finished items from `[Unreleased]` into a new section in `docs/CHANGELOG.md` and `docs/ko/CHANGELOG.md`.
 3. **README platform table** — Confirm Official vs build-from-source rows match the matrix.
-4. **yt-dlp policy** — Decide `latest` vs a pinned tag (see below).
+4. **yt-dlp / FFmpeg policy** — Decide `YTDLP_TAG` / `FFMPEG_TAG` (see below).
 5. **Local smoke** (optional but recommended) — `npm run typecheck`, `npm test`, and `npm run test:rust`.
 6. **Tag and push**
 
@@ -30,41 +32,46 @@ git tag v0.2.1
 git push origin v0.2.1
 ```
 
-7. **Verify** — On the GitHub Release page, confirm DMG (aarch64 + x64) and Windows installers uploaded; skim the workflow logs for the sidecar download step.
+7. **Verify** — On the GitHub Release page, confirm DMG (aarch64 + x64) and Windows installers uploaded; skim the workflow logs for the yt-dlp **and** FFmpeg prepare steps.
 
-## yt-dlp version: latest vs pin
+## yt-dlp / FFmpeg pins
 
 Workflow env (top of `release.yml`):
 
 ```yaml
 env:
   YTDLP_TAG: latest
+  FFMPEG_TAG: n7.1.1
 ```
 
-| Value | Behavior |
+| Variable | Behavior |
 | :--- | :--- |
-| `latest` | Download from `…/releases/latest/download/<asset>` (default). |
-| A release tag, e.g. `2026.08.19` | Download from `…/releases/download/2026.08.19/<asset>`. |
+| `YTDLP_TAG=latest` | Download from `…/releases/latest/download/<asset>` (default). |
+| `YTDLP_TAG=<tag>` | Download from `…/releases/download/<tag>/<asset>`. |
+| `FFMPEG_TAG` | macOS source checkout branch/tag for the LGPL build. |
+| Windows FFmpeg URL | Default BtbN `ffmpeg-master-latest-win64-lgpl.zip` (override via `FFMPEG_WIN_URL` in the prepare script). |
 
 ### When to pin
 
-- YouTube / extractor breakage: pin to a **known-good** yt-dlp release until you validate a newer one.
-- Reproducible builds: prefer an explicit tag for that app version.
+- YouTube / extractor breakage: pin yt-dlp to a **known-good** release until you validate a newer one.
+- Reproducible builds: prefer explicit tags for that app version.
 
 ### When / how to renew
 
-1. Check [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases).
-2. Set `YTDLP_TAG` to that tag (or keep `latest`).
-3. Locally, replace `src-tauri/bin/yt-dlp-<triple>` and smoke-test fetch + one download.
-4. Commit the workflow change (not the binary), tag a new app release if users need the fix.
+1. Check [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases) and [FFmpeg tags](https://github.com/FFmpeg/FFmpeg/tags) / [BtbN builds](https://github.com/BtbN/FFmpeg-Builds/releases).
+2. Set `YTDLP_TAG` / `FFMPEG_TAG` (or keep defaults).
+3. Locally, run `./scripts/prepare-ffmpeg-sidecar.sh`, replace `src-tauri/bin/yt-dlp-<triple>`, and smoke-test fetch + one download.
+4. Commit the workflow change (not the binaries), tag a new app release if users need the fix.
 
 Asset ↔ sidecar rename mapping matches the table above. On Unix: `chmod +x` after download.
 
-## Local sidecar (development)
-
-Same names as CI; see README “Place the yt-dlp sidecar”. Example for Apple Silicon:
+## Local sidecars (development)
 
 ```bash
+# FFmpeg + ffprobe (LGPL)
+./scripts/prepare-ffmpeg-sidecar.sh
+
+# yt-dlp (Apple Silicon example)
 mkdir -p src-tauri/bin
 curl -fsSL -o src-tauri/bin/yt-dlp-aarch64-apple-darwin \
   https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
@@ -73,7 +80,7 @@ chmod +x src-tauri/bin/yt-dlp-aarch64-apple-darwin
 
 Do **not** commit large sidecars unless the project explicitly decides to vendor them.
 
-**Triple caution:** Development and `npm run package:local-dmg` need the sidecar for **this host’s** Rust triple (`rustc -vV` → `host:`). Shipping/CI download other triples separately; mixing names under `src-tauri/bin/` is a common cause of local “sidecar not found” failures.
+**Triple caution:** Development and `npm run package:local-dmg` need sidecars for **this host’s** Rust triple (`rustc -vV` → `host:`). Shipping/CI download other triples separately; mixing names under `src-tauri/bin/` is a common cause of local “sidecar not found” failures.
 
 ## Not covered by this checklist
 
@@ -84,8 +91,11 @@ Do **not** commit large sidecars unless the project explicitly decides to vendor
 
 Users can install a newer yt-dlp via the header **Update yt-dlp** action. That writes an **override** under the app local data `sidecars/` directory and prefers it at runtime. It does **not** rewrite the release-bundled `externalBin` sidecar. The next GitHub Release still ships its own pinned/latest sidecar independently of any user’s override.
 
+FFmpeg is release-bundled only (no in-app FFmpeg updater).
+
 ## Related
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) — PR checks
 - [FAQ.md](FAQ.md) — download failures / updating yt-dlp
+- [THIRD_PARTY.md](THIRD_PARTY.md) — LGPL FFmpeg notices
 - [CHANGELOG.md](CHANGELOG.md)

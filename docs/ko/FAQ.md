@@ -8,7 +8,7 @@
 
 ## 무료인가요?
 
-네. 소스와(게시된 경우) 바이너리는 **GPL-3.0**으로 제공됩니다. [LICENSE](../../LICENSE)를 참고하세요. 프로젝트는 오픈소스로 계속 유지됩니다.
+네. 소스와(게시된 경우) 바이너리는 **GPL-3.0**으로 제공됩니다. [LICENSE](../../LICENSE)를 참고하세요. 번들 FFmpeg는 **LGPL** — [THIRD_PARTY.md](THIRD_PARTY.md). 프로젝트는 오픈소스로 계속 유지됩니다.
 
 ## 앱이 내 데이터를 수집하나요?
 
@@ -22,9 +22,9 @@
 
 1. 상단 **yt-dlp 업데이트** 버튼 사용 (앱 데이터에 최신 바이너리 오버라이드; 릴리즈 번들 사이드카는 덮어쓰지 않음)  
 2. 또는 다음 앱 릴리즈를 기다림 (번들 사이드카 갱신 — 메인테이너: [RELEASING.md](RELEASING.md))  
-3. **Deno**를 설치하고 `PATH`에 두기  
-4. **FFmpeg** 설치 확인 (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin` 또는 PATH)  
-5. 하단 **환경 진단**으로 yt-dlp 소스/버전·FFmpeg/Deno 확인  
+3. **Deno**를 설치하고 `PATH`에 두기 (선택, 권장)  
+4. **FFmpeg** 확인 — 공식 빌드는 LGPL FFmpeg를 번들합니다. 진단에서 없으면 앱 재설치 (개발: `scripts/prepare-ffmpeg-sidecar.sh`, 임시로 시스템 FFmpeg도 가능)  
+5. 하단 **환경 진단**으로 yt-dlp 소스/버전·FFmpeg 소스/Deno 확인  
 6. 앱 **로그 뷰어**에서 오류 확인  
 7. 나중에 다시 시도 — YouTube 측 변경으로 일시적으로 깨질 수 있음  
 8. **동시 다운로드**만 올려도 체감이 크게 안 나아질 수 있음 — [CONCURRENCY.md](CONCURRENCY.md)

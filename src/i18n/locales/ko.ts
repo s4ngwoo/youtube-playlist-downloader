@@ -102,17 +102,21 @@ export const ko: MessageCatalog = {
   "footer.diag.ytdlpPath": "yt-dlp 경로: {path}",
   "footer.diag.denoNone": "없음 (권장)",
   "footer.diag.sidecar": "yt-dlp 사이드카 기대 파일: {name}",
+  "footer.diag.ffmpegSidecar": "FFmpeg 사이드카 기대 파일: {name}",
   "footer.diag.warnings": "경고:",
   "footer.diag.noWarnings": "경고 없음",
   "footer.diag.hints": "설치 힌트:",
   "footer.diag.logNote": "자세한 내용은 앱 로그에도 기록됩니다.",
   "footer.diag.failed": "환경 진단 실패: {error}",
 
-  "env.warn.ffmpegMissing": "FFmpeg 미발견 — 다운로드가 실패합니다.",
+  "env.warn.ffmpegMissing":
+    "FFmpeg 미발견 — 공식 빌드는 LGPL FFmpeg를 번들합니다. 재설치하거나 개발 시 사이드카를 준비하세요.",
   "env.warn.denoMissing":
     "Deno가 설치되어 있지 않습니다. YouTube JS 챌린지/속도 제한에 취약할 수 있습니다.",
-  "env.hint.ffmpegMacos": "macOS: brew install ffmpeg",
-  "env.hint.ffmpegWindows": "Windows: choco install ffmpeg 또는 scoop install ffmpeg",
+  "env.hint.ffmpegBundled":
+    "개발: scripts/prepare-ffmpeg-sidecar.sh · 사용자: 앱 재설치 (LGPL FFmpeg 번들)",
+  "env.hint.ffmpegMacos": "임시 대안 (macOS): brew install ffmpeg",
+  "env.hint.ffmpegWindows": "임시 대안 (Windows): choco/scoop install ffmpeg",
   "env.hint.denoMacos": "macOS: brew install deno",
   "env.hint.denoWindows": "Windows: choco install deno",
 
@@ -137,7 +141,7 @@ export const ko: MessageCatalog = {
   "dialog.selectFolder": "오디오 저장 폴더 선택",
 
   "errors.ffmpegMissing":
-    "FFmpeg를 찾을 수 없습니다. 오디오 추출·썸네일 임베딩에 필요합니다.\n\n설치: macOS `brew install ffmpeg` / Windows Chocolatey·Scoop 또는 PATH·C:\\ffmpeg\\bin\n설치 후 앱을 다시 실행하고 환경 진단으로 확인하세요.",
+    "FFmpeg를 찾을 수 없습니다. 오디오 추출·썸네일 임베딩에 필요합니다.\n\n공식 설치본은 LGPL FFmpeg를 앱과 함께 제공합니다. 앱을 다시 설치하거나, 개발 중이라면 `scripts/prepare-ffmpeg-sidecar.sh`로 사이드카를 준비한 뒤 앱을 다시 실행하세요.\n환경 진단으로 경로를 확인할 수 있습니다.",
   "errors.sidecarUnavailable":
     "yt-dlp 사이드카를 준비할 수 없습니다.\n필요한 파일: `{name}`\n개발 시 `src-tauri/bin/{name}` 에 배치하거나 릴리즈 번들을 사용하세요.\nhttps://github.com/yt-dlp/yt-dlp/releases",
   "errors.noItems": "다운로드할 항목이 없습니다.",
@@ -236,4 +240,5 @@ export const ko: MessageCatalog = {
   "footer.diag.ytdlpVersion": "yt-dlp 버전: {version}",
   "footer.diag.source.bundled": "번들",
   "footer.diag.source.override": "오버라이드",
+  "footer.diag.source.system": "시스템",
 };

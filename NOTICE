@@ -1,0 +1,18 @@
+# Notices
+
+## Application
+
+YouTube Playlist & Audio Downloader source code is licensed under the
+**GNU General Public License v3.0 or later**. See [LICENSE](LICENSE).
+
+GitHub’s repository license label reflects this GPL-3.0 SPDX identifier.
+
+## Bundled FFmpeg (LGPL)
+
+Official application binaries redistribute **FFmpeg** and **ffprobe** built
+under the **GNU Lesser General Public License (LGPL)** (not GPL-enabled /
+nonfree variants). See [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) for upstream
+sources, how we obtain builds, and how to replace the sidecars.
+
+The application binary does not statically link FFmpeg; FFmpeg runs as a
+separate sidecar invoked by yt-dlp.

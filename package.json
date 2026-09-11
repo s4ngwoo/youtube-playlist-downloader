@@ -22,6 +22,7 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "prepare:ffmpeg": "bash scripts/prepare-ffmpeg-sidecar.sh",
     "package:local-dmg": "npm run tauri -- build && node scripts/copy-local-dmg.mjs"
   },
   "dependencies": {

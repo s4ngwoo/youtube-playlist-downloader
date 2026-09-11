@@ -18,7 +18,8 @@ Project docs for **YouTube Playlist & Audio Downloader** (open source, GPL-3.0).
 | [FILENAMES.md](FILENAMES.md) | Output names — title only, no-overwrites |
 | [SUPPORT.md](SUPPORT.md) | Getting help |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
-| [RELEASING.md](RELEASING.md) | Tag releases and yt-dlp sidecar policy |
+| [RELEASING.md](RELEASING.md) | Tag releases and yt-dlp / FFmpeg sidecar policy |
+| [THIRD_PARTY.md](THIRD_PARTY.md) | Bundled yt-dlp + LGPL FFmpeg notices |
 
 ## Korean (`docs/ko/`)
 
@@ -43,4 +44,4 @@ Project docs for **YouTube Playlist & Audio Downloader** (open source, GPL-3.0).
 
 ## License
 
-See [../LICENSE](../LICENSE) (GPL-3.0). This project remains open source.
+See [../LICENSE](../LICENSE) (GPL-3.0). Bundled FFmpeg is LGPL — [THIRD_PARTY.md](THIRD_PARTY.md). This project remains open source.

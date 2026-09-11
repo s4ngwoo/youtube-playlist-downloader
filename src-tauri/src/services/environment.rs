@@ -6,16 +6,27 @@ use std::sync::OnceLock;
 use crate::services::logger;
 
 static DENO_PATH: OnceLock<Option<PathBuf>> = OnceLock::new();
-static FFMPEG_LOCATION: OnceLock<Option<String>> = OnceLock::new();
+static FFMPEG_LOCATION: OnceLock<Option<FfmpegResolve>> = OnceLock::new();
+
+#[derive(Debug, Clone)]
+struct FfmpegResolve {
+    /// Directory passed to yt-dlp `--ffmpeg-location`.
+    location: String,
+    /// `bundled` (sidecar) or `system` (PATH / known install dirs).
+    source: &'static str,
+}
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EnvironmentReport {
     pub ffmpeg_found: bool,
     pub ffmpeg_location: Option<String>,
+    /// `bundled` | `system` when found.
+    pub ffmpeg_source: Option<String>,
     pub deno_found: bool,
     pub deno_path: Option<String>,
     pub sidecar_expected_name: String,
+    pub ffmpeg_expected_name: String,
     pub os: String,
     pub arch: String,
     pub warnings: Vec<String>,
@@ -136,6 +147,101 @@ pub fn expected_sidecar_name() -> String {
     }
 }
 
+/// 현재 빌드 타깃에 대응하는 번들 ffmpeg 사이드카 파일명 힌트
+pub fn expected_ffmpeg_sidecar_name() -> String {
+    let os = std::env::consts::OS;
+    let arch = std::env::consts::ARCH;
+    match (os, arch) {
+        ("macos", "aarch64") => "ffmpeg-aarch64-apple-darwin".into(),
+        ("macos", "x86_64") => "ffmpeg-x86_64-apple-darwin".into(),
+        ("windows", "x86_64") => "ffmpeg-x86_64-pc-windows-msvc.exe".into(),
+        ("windows", "aarch64") => "ffmpeg-aarch64-pc-windows-msvc.exe".into(),
+        ("linux", "x86_64") => "ffmpeg-x86_64-unknown-linux-gnu".into(),
+        ("linux", "aarch64") => "ffmpeg-aarch64-unknown-linux-gnu".into(),
+        _ => format!("ffmpeg-{arch}-{os}"),
+    }
+}
+
+/// Bundled sidecar candidates: next to the app binary (release) and `src-tauri/bin` (dev).
+fn bundled_ffmpeg_dirs() -> Vec<PathBuf> {
+    let mut dirs = Vec::new();
+    let exe_name = executable_name("ffmpeg");
+    let triple_name = expected_ffmpeg_sidecar_name();
+
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(parent) = exe.parent() {
+            // Production: Tauri strips the triple → `ffmpeg` / `ffmpeg.exe` beside the app.
+            if parent.join(&exe_name).is_file() {
+                dirs.push(parent.to_path_buf());
+            }
+            // Dev / some layouts keep the triple-suffixed name beside the binary.
+            if parent.join(&triple_name).is_file() {
+                dirs.push(parent.to_path_buf());
+            }
+        }
+    }
+
+    let manifest_bin = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("bin");
+    if manifest_bin.join(&triple_name).is_file() || manifest_bin.join(&exe_name).is_file() {
+        dirs.push(manifest_bin);
+    }
+
+    dirs
+}
+
+fn resolve_ffmpeg() -> Option<FfmpegResolve> {
+    let exe_name = executable_name("ffmpeg");
+    let triple_name = expected_ffmpeg_sidecar_name();
+
+    for dir in bundled_ffmpeg_dirs() {
+        // Prefer plain `ffmpeg` / `ffmpeg.exe` (release layout after Tauri strips the triple).
+        if dir.join(&exe_name).is_file() {
+            return Some(FfmpegResolve {
+                location: dir.to_string_lossy().to_string(),
+                source: "bundled",
+            });
+        }
+        // Dev: `ffmpeg-<triple>` — pass the binary path (yt-dlp accepts file or directory).
+        let triple_path = dir.join(&triple_name);
+        if triple_path.is_file() {
+            return Some(FfmpegResolve {
+                location: triple_path.to_string_lossy().to_string(),
+                source: "bundled",
+            });
+        }
+    }
+
+    if let Some(from_path) = find_in_path("ffmpeg") {
+        if let Some(parent) = from_path.parent() {
+            return Some(FfmpegResolve {
+                location: parent.to_string_lossy().to_string(),
+                source: "system",
+            });
+        }
+    }
+
+    for dir in ffmpeg_candidate_dirs() {
+        if dir.join(&exe_name).is_file() {
+            return Some(FfmpegResolve {
+                location: dir.to_string_lossy().to_string(),
+                source: "system",
+            });
+        }
+    }
+
+    // Last resort: ffmpeg on PATH without resolved absolute path
+    let mut cmd = Command::new("ffmpeg");
+    cmd.arg("-version");
+    if cmd.output().map(|o| o.status.success()).unwrap_or(false) {
+        return Some(FfmpegResolve {
+            location: "ffmpeg".to_string(),
+            source: "system",
+        });
+    }
+
+    None
+}
+
 /// 시스템에 설치된 Deno 바이너리 경로를 탐색하고 1회 캐싱합니다.
 pub fn get_deno_path() -> Option<&'static Path> {
     DENO_PATH
@@ -150,35 +256,20 @@ pub fn get_deno_path() -> Option<&'static Path> {
         .as_deref()
 }
 
-/// 시스템에 설치된 ffmpeg가 있는 디렉터리(또는 PATH상 위치의 부모)를 탐색하고 1회 캐싱합니다.
+/// 번들 사이드카 우선, 없으면 시스템 ffmpeg 디렉터리(또는 PATH)를 탐색하고 1회 캐싱합니다.
 /// yt-dlp `--ffmpeg-location`에 넘길 값을 반환합니다.
 pub fn get_ffmpeg_location() -> Option<&'static str> {
     FFMPEG_LOCATION
-        .get_or_init(|| {
-            let exe_name = executable_name("ffmpeg");
+        .get_or_init(resolve_ffmpeg)
+        .as_ref()
+        .map(|r| r.location.as_str())
+}
 
-            if let Some(from_path) = find_in_path("ffmpeg") {
-                if let Some(parent) = from_path.parent() {
-                    return Some(parent.to_string_lossy().to_string());
-                }
-            }
-
-            for dir in ffmpeg_candidate_dirs() {
-                if dir.join(&exe_name).is_file() {
-                    return Some(dir.to_string_lossy().to_string());
-                }
-            }
-
-            // Last resort: ffmpeg on PATH without resolved absolute path
-            let mut cmd = Command::new("ffmpeg");
-            cmd.arg("-version");
-            if cmd.output().map(|o| o.status.success()).unwrap_or(false) {
-                return Some("ffmpeg".to_string());
-            }
-
-            None
-        })
-        .as_deref()
+pub fn get_ffmpeg_source() -> Option<&'static str> {
+    FFMPEG_LOCATION
+        .get_or_init(resolve_ffmpeg)
+        .as_ref()
+        .map(|r| r.source)
 }
 
 pub fn ffmpeg_missing_message() -> String {
@@ -186,16 +277,17 @@ pub fn ffmpeg_missing_message() -> String {
 }
 
 pub fn ffmpeg_missing_detail() -> String {
-    "FFmpeg를 찾을 수 없습니다. 오디오 추출·썸네일 임베딩에 필요합니다.\n\
-     \n\
-     설치 안내:\n\
-     • macOS: brew install ffmpeg\n\
-     • Windows (Chocolatey): choco install ffmpeg\n\
-     • Windows (Scoop): scoop install ffmpeg\n\
-     • Windows (수동): https://ffmpeg.org/download.html 에서 받아 PATH 또는 C:\\ffmpeg\\bin 에 배치\n\
-     \n\
-     설치 후 앱을 다시 실행해 주세요. (환경 진단으로 경로를 확인할 수 있습니다)"
-        .to_string()
+    let expected = expected_ffmpeg_sidecar_name();
+    format!(
+        "FFmpeg를 찾을 수 없습니다. 오디오 추출·썸네일 임베딩에 필요합니다.\n\
+         \n\
+         공식 빌드는 LGPL FFmpeg를 앱과 함께 번들합니다. 이 메시지가 보이면 설치가 손상되었거나 \
+         개발 환경에서 사이드카가 없을 수 있습니다.\n\
+         \n\
+         개발: `scripts/prepare-ffmpeg-sidecar.sh` 로 `{expected}` 를 준비하세요.\n\
+         사용자: 앱을 다시 설치하거나, 임시로 시스템 FFmpeg를 PATH에 두세요.\n\
+         라이선스: docs/THIRD_PARTY.md (FFmpeg LGPL)"
+    )
 }
 
 pub fn deno_missing_warning() -> String {
@@ -217,7 +309,8 @@ pub fn warn_if_deno_missing() {
 pub fn ensure_ffmpeg_available() -> Result<(), crate::AppError> {
     match get_ffmpeg_location() {
         Some(loc) => {
-            logger::info("environment", &format!("FFmpeg 위치: {loc}"));
+            let source = get_ffmpeg_source().unwrap_or("unknown");
+            logger::info("environment", &format!("FFmpeg 위치({source}): {loc}"));
             Ok(())
         }
         None => {
@@ -248,12 +341,14 @@ pub fn collect_environment_report(
     ytdlp_path: Option<String>,
 ) -> EnvironmentReport {
     let ffmpeg_location = get_ffmpeg_location().map(|s| s.to_string());
+    let ffmpeg_source = get_ffmpeg_source().map(|s| s.to_string());
     let deno_path = get_deno_path().map(|p| p.to_string_lossy().to_string());
     let mut warnings = Vec::new();
     let mut install_hints = Vec::new();
 
     if ffmpeg_location.is_none() {
         warnings.push("warn.ffmpeg_missing".into());
+        install_hints.push("hint.ffmpeg.bundled".into());
         install_hints.push("hint.ffmpeg.macos".into());
         install_hints.push("hint.ffmpeg.windows".into());
     }
@@ -266,9 +361,11 @@ pub fn collect_environment_report(
     EnvironmentReport {
         ffmpeg_found: ffmpeg_location.is_some(),
         ffmpeg_location,
+        ffmpeg_source,
         deno_found: deno_path.is_some(),
         deno_path,
         sidecar_expected_name: expected_sidecar_name(),
+        ffmpeg_expected_name: expected_ffmpeg_sidecar_name(),
         os: std::env::consts::OS.to_string(),
         arch: std::env::consts::ARCH.to_string(),
         warnings,
@@ -291,6 +388,13 @@ mod tests {
     }
 
     #[test]
+    fn expected_ffmpeg_sidecar_name_is_non_empty() {
+        let name = expected_ffmpeg_sidecar_name();
+        assert!(!name.is_empty());
+        assert!(name.contains("ffmpeg"));
+    }
+
+    #[test]
     fn sidecar_error_message_includes_expected_name() {
         let expected = expected_sidecar_name();
         let msg = sidecar_error_message("boom");
@@ -304,7 +408,7 @@ mod tests {
         assert_eq!(msg, "error.ffmpeg_missing");
         let detail = ffmpeg_missing_detail();
         assert!(detail.contains("FFmpeg"));
-        assert!(detail.contains("brew install ffmpeg") || detail.contains("choco install ffmpeg"));
+        assert!(detail.contains("prepare-ffmpeg-sidecar") || detail.contains("LGPL"));
     }
 
     #[test]
@@ -336,10 +440,11 @@ mod tests {
             assert!(report
                 .install_hints
                 .iter()
-                .any(|h| h == "hint.ffmpeg.macos"));
+                .any(|h| h == "hint.ffmpeg.bundled"));
         }
         if !report.deno_found {
             assert!(report.warnings.iter().any(|w| w == "warn.deno_missing"));
         }
+        assert!(!report.ffmpeg_expected_name.is_empty());
     }
 }

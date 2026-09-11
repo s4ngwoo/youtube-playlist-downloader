@@ -102,17 +102,21 @@ export const en: MessageCatalog = {
   "footer.diag.ytdlpPath": "yt-dlp path: {path}",
   "footer.diag.denoNone": "not found (recommended)",
   "footer.diag.sidecar": "Expected yt-dlp sidecar: {name}",
+  "footer.diag.ffmpegSidecar": "Expected FFmpeg sidecar: {name}",
   "footer.diag.warnings": "Warnings:",
   "footer.diag.noWarnings": "No warnings",
   "footer.diag.hints": "Install hints:",
   "footer.diag.logNote": "Details are also written to the app log.",
   "footer.diag.failed": "Environment diagnose failed: {error}",
 
-  "env.warn.ffmpegMissing": "FFmpeg not found — downloads will fail.",
+  "env.warn.ffmpegMissing":
+    "FFmpeg not found — official builds bundle LGPL FFmpeg. Reinstall the app or prepare the sidecar for development.",
   "env.warn.denoMissing":
     "Deno is not installed. You may be more vulnerable to YouTube JS challenges / rate limits.",
-  "env.hint.ffmpegMacos": "macOS: brew install ffmpeg",
-  "env.hint.ffmpegWindows": "Windows: choco install ffmpeg or scoop install ffmpeg",
+  "env.hint.ffmpegBundled":
+    "Dev: scripts/prepare-ffmpeg-sidecar.sh · Users: reinstall the app (bundled LGPL FFmpeg)",
+  "env.hint.ffmpegMacos": "Temporary fallback (macOS): brew install ffmpeg",
+  "env.hint.ffmpegWindows": "Temporary fallback (Windows): choco/scoop install ffmpeg",
   "env.hint.denoMacos": "macOS: brew install deno",
   "env.hint.denoWindows": "Windows: choco install deno",
 
@@ -137,7 +141,7 @@ export const en: MessageCatalog = {
   "dialog.selectFolder": "Choose audio download folder",
 
   "errors.ffmpegMissing":
-    "FFmpeg was not found. It is required for audio extraction and artwork embedding.\n\nInstall: macOS `brew install ffmpeg` / Windows Chocolatey, Scoop, or PATH / C:\\ffmpeg\\bin\nRestart the app and use Environment diagnose to verify.",
+    "FFmpeg was not found. It is required for audio extraction and artwork embedding.\n\nOfficial builds ship LGPL FFmpeg with the app. Reinstall the app, or for development run `scripts/prepare-ffmpeg-sidecar.sh`, then restart.\nUse Environment diagnose to verify.",
   "errors.sidecarUnavailable":
     "Could not prepare the yt-dlp sidecar.\nExpected file: `{name}`\nFor development place it at `src-tauri/bin/{name}`, or use a release build.\nhttps://github.com/yt-dlp/yt-dlp/releases",
   "errors.noItems": "Nothing to download.",
@@ -236,4 +240,5 @@ export const en: MessageCatalog = {
   "footer.diag.ytdlpVersion": "yt-dlp version: {version}",
   "footer.diag.source.bundled": "bundled",
   "footer.diag.source.override": "override",
+  "footer.diag.source.system": "system",
 };

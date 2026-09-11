@@ -68,6 +68,7 @@ describe("mapEnvCode", () => {
 
   it("maps warn and hint codes", () => {
     expect(mapEnvCode("warn.ffmpeg_missing", t)).toBe("env.warn.ffmpegMissing");
+    expect(mapEnvCode("hint.ffmpeg.bundled", t)).toBe("env.hint.ffmpegBundled");
     expect(mapEnvCode("hint.deno.macos", t)).toBe("env.hint.denoMacos");
   });
 

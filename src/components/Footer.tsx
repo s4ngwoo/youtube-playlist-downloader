@@ -20,21 +20,26 @@ export function Footer() {
   const sourceLabel = (source: string) => {
     if (source === "override") return t("footer.diag.source.override");
     if (source === "bundled") return t("footer.diag.source.bundled");
+    if (source === "system") return t("footer.diag.source.system");
     return source;
   };
 
   const runEnvironmentDiagnose = async () => {
     try {
       const report = await diagnoseEnvironment();
+      const ffmpegValue = report.ffmpegFound
+        ? `${report.ffmpegLocation ?? ""}${
+            report.ffmpegSource ? ` (${sourceLabel(report.ffmpegSource)})` : ""
+          }`
+        : t("footer.diag.none");
       const lines = [
         t("footer.diag.os", { os: report.os, arch: report.arch }),
-        t("footer.diag.ffmpeg", {
-          value: report.ffmpegFound ? String(report.ffmpegLocation ?? "") : t("footer.diag.none"),
-        }),
+        t("footer.diag.ffmpeg", { value: ffmpegValue }),
         t("footer.diag.deno", {
           value: report.denoFound ? String(report.denoPath ?? "") : t("footer.diag.denoNone"),
         }),
         t("footer.diag.sidecar", { name: report.sidecarExpectedName }),
+        t("footer.diag.ffmpegSidecar", { name: report.ffmpegExpectedName }),
         t("footer.diag.ytdlpSource", {
           source: sourceLabel(report.ytdlpSource),
         }),

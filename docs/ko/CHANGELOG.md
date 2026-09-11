@@ -8,9 +8,21 @@
 
 ## [Unreleased]
 
+### Added
+
+- **LGPL FFmpeg / ffprobe** 사이드카 번들 (공식 빌드는 별도 시스템 설치 불필요); 런타임은 번들 우선 → 시스템 PATH
+- `scripts/prepare-ffmpeg-sidecar.sh` — Windows: BtbN `*-lgpl` · macOS: LGPL 소스 빌드
+- 서드파티 고지: [THIRD_PARTY.md](THIRD_PARTY.md) / [ko](ko/THIRD_PARTY.md)
+
+### Changed
+
+- 환경 진단에 FFmpeg 소스(`bundled` / `system`)·기대 사이드카 이름 표시
+- 릴리즈 워크플로에서 FFmpeg 사이드카 준비; Intel Mac은 `macos-13`에서 네이티브 x86_64 FFmpeg 빌드
+
 ### Notes
 
 - 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
+- **Deno**는 계속 선택(미번들). 앱 라이선스는 **GPL-3.0-or-later** 유지; 번들 FFmpeg는 **LGPL**.
 
 ## [0.3.1] - 2026-09-11
 

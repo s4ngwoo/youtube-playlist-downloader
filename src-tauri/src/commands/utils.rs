@@ -78,10 +78,11 @@ pub fn diagnose_environment(
     logger::info(
         "environment",
         &format!(
-            "환경 진단 — os={}/{} ffmpeg={} deno={} sidecar={} ytdlp_source={} ytdlp_version={}",
+            "환경 진단 — os={}/{} ffmpeg={} ({}) deno={} sidecar={} ytdlp_source={} ytdlp_version={}",
             report.os,
             report.arch,
             report.ffmpeg_location.as_deref().unwrap_or("(없음)"),
+            report.ffmpeg_source.as_deref().unwrap_or("-"),
             report.deno_path.as_deref().unwrap_or("(없음)"),
             report.sidecar_expected_name,
             report.ytdlp_source,

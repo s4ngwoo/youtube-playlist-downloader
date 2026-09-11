@@ -6,7 +6,7 @@ No. This is an independent open-source project. See [TERMS.md](TERMS.md).
 
 ## Is it free?
 
-Yes. Source and binaries (when published) are available under **GPL-3.0**. See [LICENSE](../LICENSE).
+Yes. Source and binaries (when published) are available under **GPL-3.0**. See [LICENSE](../LICENSE). Bundled FFmpeg is **LGPL** — [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## Does the app collect my data?
 
@@ -16,9 +16,9 @@ The App keeps preferences, history, and logs **on your device**. It does not pro
 
 1. Use the header **Update yt-dlp** button (installs a newer binary under app data; does not rewrite the release-bundled sidecar)  
 2. Or wait for the next app release, which re-bundles yt-dlp (maintainers: [RELEASING.md](RELEASING.md))  
-3. Install **Deno** and ensure it is on your `PATH`  
-4. Confirm **FFmpeg** is installed (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin`, or PATH)  
-5. Use **Environment diagnose** in the footer (shows yt-dlp source/version plus FFmpeg/Deno)  
+3. Install **Deno** and ensure it is on your `PATH` (optional but recommended)  
+4. Confirm **FFmpeg** — official builds bundle LGPL FFmpeg; if diagnose shows missing, reinstall the app (dev: `scripts/prepare-ffmpeg-sidecar.sh`, or temporary system FFmpeg)  
+5. Use **Environment diagnose** in the footer (shows yt-dlp source/version plus FFmpeg source/Deno)  
 6. Check the in-app **log viewer** for errors  
 7. Retry later — YouTube-side changes can cause temporary breakage  
 8. Raising **Concurrency** alone often does not speed things up — see [CONCURRENCY.md](CONCURRENCY.md)

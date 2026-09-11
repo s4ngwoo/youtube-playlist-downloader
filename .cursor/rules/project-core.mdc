@@ -6,10 +6,11 @@ alwaysApply: true
 # YouTube Playlist Downloader — core
 
 - Tauri v2 desktop app: React 19 + TS + Vite + Tailwind 4 + Zustand / Rust backend
-- GPL-3.0, no telemetry/accounts; personal offline use framing
+- GPL-3.0 app license; official builds also ship **LGPL FFmpeg/ffprobe** sidecars (see `docs/THIRD_PARTY.md`). No telemetry/accounts; personal offline use framing
 - Settings in `settings.json` (plugin-store): folder, concurrency 1–8 (default 3), `m4a`|`mp3`, `locale` `ko`|`en`
 - Official releases: Apple Silicon + Intel Mac + Windows x64. **Linux official binaries: not planned.** **Apple Notarization: not planned** (Gatekeeper docs only).
 - yt-dlp is bundled as sidecar; in-app update writes **app-data override** under `sidecars/` (does not rewrite the release bundle)
+- FFmpeg/ffprobe are bundled LGPL sidecars (`scripts/prepare-ffmpeg-sidecar.sh`); runtime prefers bundled, then system PATH. Deno stays optional/system-only
 - Prefer Korean communication with the maintainer; keep changes focused (no drive-by refactors)
 
 ## Entry points
@@ -20,6 +21,7 @@ alwaysApply: true
 | yt-dlp / progress / skip probe | `src-tauri/src/services/ytdlp.rs`, `ytdlp_update.rs` |
 | yt-dlp update UI | `src/components/Header.tsx` (override via `ytdlp_update.rs`) |
 | Env diagnose | `src-tauri/src/services/environment.rs`, `src/components/Footer.tsx` |
+| FFmpeg sidecar prep | `scripts/prepare-ffmpeg-sidecar.sh`, `docs/RELEASING.md` |
 | i18n | `src/i18n/` (`ko.ts` + `en.ts` always both) |
 | Release | `.github/workflows/release.yml`, `docs/RELEASING.md` |
 

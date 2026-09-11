@@ -18,7 +18,8 @@
 
 ```bash
 npm install
-# src-tauri/bin/ 에 yt-dlp 사이드카 배치
+# src-tauri/bin/ 에 yt-dlp + FFmpeg 사이드카 배치
+./scripts/prepare-ffmpeg-sidecar.sh
 npm run tauri dev
 ```
 
@@ -64,7 +65,7 @@ Clippy는 모든 경고를 에러로 취급합니다 (`-D warnings`). 프론트 
 **기능처럼 수동 설치 확인이 필요한 변경**이면, 단위 테스트만으로 끝내지 말고 gitignore된 **`local-packages/`** 에 DMG를 둡니다(커밋·GitHub Release 자산 아님).
 
 ```bash
-# 이 머신용 yt-dlp 사이드카가 src-tauri/bin/ 에 있어야 함
+# 이 머신용 yt-dlp·FFmpeg 사이드카가 src-tauri/bin/ 에 있어야 함 (`./scripts/prepare-ffmpeg-sidecar.sh`)
 npm run package:local-dmg
 # → local-packages/<날짜>-YoutubePlaylistDownloader-<arch>.dmg
 # (Tauri DMG가 있으면 복사, 없으면 .app에서 hdiutil UDZO 생성)

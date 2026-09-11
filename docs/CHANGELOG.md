@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+### Added
+
+- **Bundled LGPL FFmpeg / ffprobe** sidecars (no separate system install required for official builds); runtime prefers bundled, then system PATH
+- `scripts/prepare-ffmpeg-sidecar.sh` — Windows: BtbN `*-lgpl`; macOS: LGPL source build
+- Third-party notices: [THIRD_PARTY.md](THIRD_PARTY.md) / [ko](ko/THIRD_PARTY.md)
+
+### Changed
+
+- Environment diagnose reports FFmpeg source (`bundled` / `system`) and expected FFmpeg sidecar name
+- Release workflow prepares FFmpeg sidecars; Intel Mac builds use `macos-13` for native x86_64 FFmpeg
+
 ### Notes
 
 - Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
+- **Deno** remains optional (not bundled). App license stays **GPL-3.0-or-later**; bundled FFmpeg is **LGPL**.
 
 ## [0.3.1] - 2026-09-11
 

@@ -35,7 +35,7 @@ This App runs local commands and talks to the network for YouTube downloads (and
 
 …are especially appreciated.
 
-Out of scope examples: vulnerabilities solely in upstream `yt-dlp` / `ffmpeg` / `Deno` (report those upstream), or issues that require already-compromised local machines without an App-specific vector.
+Out of scope examples: vulnerabilities solely in upstream `yt-dlp` / bundled or system `ffmpeg` / `Deno` (report those upstream), or issues that require already-compromised local machines without an App-specific vector.
 
 ## Prefer private disclosure
 

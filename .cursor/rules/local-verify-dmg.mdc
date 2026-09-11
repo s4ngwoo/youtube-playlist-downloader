@@ -7,7 +7,7 @@ alwaysApply: true
 
 When a change is **feature-like** and needs a manual install/run check (not unit tests alone):
 
-1. Ensure a yt-dlp sidecar exists for this machine under `src-tauri/bin/`
+1. Ensure yt-dlp **and** FFmpeg/ffprobe sidecars exist for this machine under `src-tauri/bin/` (`./scripts/prepare-ffmpeg-sidecar.sh` for LGPL FFmpeg)
 2. Run `npm run package:local-dmg`
 3. Output lands in **`local-packages/`** (gitignored) — e.g. `YYYY-MM-DD-YoutubePlaylistDownloader-arm64.dmg`
 4. Do **not** commit the DMG or treat it as a GitHub Release asset

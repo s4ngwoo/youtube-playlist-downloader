@@ -16,7 +16,8 @@ Typical loop:
 
 ```bash
 npm install
-# place yt-dlp sidecar under src-tauri/bin/
+# prepare FFmpeg + place yt-dlp under src-tauri/bin/
+./scripts/prepare-ffmpeg-sidecar.sh
 npm run tauri dev
 ```
 

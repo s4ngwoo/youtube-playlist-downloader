@@ -65,14 +65,20 @@ jobs:
         with:
           workspaces: src-tauri -> target
 
-      # tauri.conf.json externalBin requires this path at build-script time;
-      # unit tests do not invoke the binary, so a stub is enough for CI.
-      - name: Prepare yt-dlp sidecar stub
+      # tauri.conf.json externalBin requires these paths at build-script time;
+      # unit tests do not invoke the binaries, so stubs are enough for CI.
+      - name: Prepare yt-dlp / FFmpeg sidecar stubs
         run: |
           mkdir -p bin
           printf '%s\n' '#!/bin/sh' 'echo "yt-dlp CI stub"' 'exit 0' \
             > bin/yt-dlp-x86_64-unknown-linux-gnu
-          chmod +x bin/yt-dlp-x86_64-unknown-linux-gnu
+          printf '%s\n' '#!/bin/sh' 'echo "ffmpeg CI stub"' 'exit 0' \
+            > bin/ffmpeg-x86_64-unknown-linux-gnu
+          printf '%s\n' '#!/bin/sh' 'echo "ffprobe CI stub"' 'exit 0' \
+            > bin/ffprobe-x86_64-unknown-linux-gnu
+          chmod +x bin/yt-dlp-x86_64-unknown-linux-gnu \
+            bin/ffmpeg-x86_64-unknown-linux-gnu \
+            bin/ffprobe-x86_64-unknown-linux-gnu
 
       - name: cargo fmt
         run: cargo fmt --check

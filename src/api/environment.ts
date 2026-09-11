@@ -3,9 +3,11 @@ import { invoke } from "@tauri-apps/api/core";
 export type EnvironmentReport = {
   ffmpegFound: boolean;
   ffmpegLocation: string | null;
+  ffmpegSource: string | null;
   denoFound: boolean;
   denoPath: string | null;
   sidecarExpectedName: string;
+  ffmpegExpectedName: string;
   os: string;
   arch: string;
   warnings: string[];

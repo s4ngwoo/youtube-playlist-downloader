@@ -30,7 +30,7 @@ You can clear history/logs through the App where those features exist, and you c
 
 ## Network activity
 
-To fetch metadata and download media, the App (and bundled helpers such as `yt-dlp`, plus system tools like `ffmpeg` / optional `Deno`) communicate with **third-party services you request** — primarily YouTube (and related CDNs). Those services have their own privacy policies and terms.
+To fetch metadata and download media, the App (and bundled helpers such as `yt-dlp` and LGPL `ffmpeg` / `ffprobe`, plus optional system `Deno`) communicate with **third-party services you request** — primarily YouTube (and related CDNs). Those services have their own privacy policies and terms.
 
 If you use the in-app **Update yt-dlp** action, the App also downloads a binary from **GitHub** (`github.com/yt-dlp/yt-dlp/releases/...`) into local app data.
 
@@ -42,7 +42,7 @@ As a desktop app, the App may request or use access to:
 
 - **File system** — read/write the download directory you choose; read/write local settings, history, logs, and optional yt-dlp override under app data
 - **Network** — contact YouTube (and related endpoints) for metadata and media; optionally contact GitHub to update the yt-dlp override
-- **Process execution** — run the `yt-dlp` sidecar or override binary and detect/use tools like `ffmpeg` and `Deno` on your system
+- **Process execution** — run the `yt-dlp` sidecar or override binary; run bundled (or system) `ffmpeg` / `ffprobe` via yt-dlp; optionally detect/use `Deno` on your system
 
 ## Children
 
@@ -50,7 +50,7 @@ The App is not directed at children under 13 (or the minimum age required in you
 
 ## Third-party software
 
-The App bundles or relies on third-party components (for example `yt-dlp`). Their behavior and data practices are governed by their own licenses and policies.
+The App bundles or relies on third-party components (for example `yt-dlp`, LGPL `ffmpeg`). Their behavior and data practices are governed by their own licenses and policies. See [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## Changes
 

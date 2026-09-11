@@ -62,8 +62,9 @@ pub fn run() {
             services::logger::info(
                 "environment",
                 &format!(
-                    "시작 환경 — ffmpeg={} deno={} sidecar={} ytdlp_source={}",
+                    "시작 환경 — ffmpeg={} ({}) deno={} sidecar={} ytdlp_source={}",
                     report.ffmpeg_location.as_deref().unwrap_or("(없음)"),
+                    report.ffmpeg_source.as_deref().unwrap_or("-"),
                     report.deno_path.as_deref().unwrap_or("(없음)"),
                     report.sidecar_expected_name,
                     report.ytdlp_source

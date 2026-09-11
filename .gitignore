@@ -19,6 +19,18 @@ dist-ssr
 notes/
 notes/**
 
+# Large sidecars prepared locally / in CI (placeholders stay tracked)
+src-tauri/bin/yt-dlp-*
+src-tauri/bin/ffmpeg-*
+src-tauri/bin/ffprobe-*
+src-tauri/bin/ffmpeg
+src-tauri/bin/ffprobe
+src-tauri/bin/ffmpeg.exe
+src-tauri/bin/ffprobe.exe
+!src-tauri/bin/*-placeholder.txt
+!src-tauri/bin/ffmpeg-LGPL-LICENSE.txt
+!src-tauri/bin/ffmpeg-placeholder.txt
+
 # Local macOS verify packages (DMG). Not for GitHub Releases.
 local-packages/
 local-packages/**

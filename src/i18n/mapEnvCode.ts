@@ -5,6 +5,7 @@ type TFn = (key: string, vars?: Record<string, string | number>) => string;
 const ENV_CODE_TO_KEY: Record<string, string> = {
   "warn.ffmpeg_missing": "env.warn.ffmpegMissing",
   "warn.deno_missing": "env.warn.denoMissing",
+  "hint.ffmpeg.bundled": "env.hint.ffmpegBundled",
   "hint.ffmpeg.macos": "env.hint.ffmpegMacos",
   "hint.ffmpeg.windows": "env.hint.ffmpegWindows",
   "hint.deno.macos": "env.hint.denoMacos",
