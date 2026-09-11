@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Playlist fetch surfaces skipped private/deleted/unavailable entries with reasons (still not downloadable)
 - Failed-only track list filter; history entries store download folder and can open it
 
+### Fixed
+
+- Skipped playlist entries: classify private/deleted via title (EN/KO), `availability`, and null slots — fewer false “unknown” labels
+
 ### Changed
 
 - Track title fallback and environment-diagnose labels follow EN/KO i18n (no hard-coded Korean/English fragments)
@@ -24,8 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Notes
 
-- Work queue (maintainer): Sprint 1–3 (A–C) done; Wave D extras on demand.
-- Deferred: split yt-dlp into download-only then post-process passes (A2-pipe).
+- Work queue (maintainer): **Sprint 4** remaining after local DMG smoke — history folder open failure, Advanced mode terminal-like progress, default **off** for subtitle download on audio extracts.
+- Deferred: split yt-dlp into download-only then post-process passes (A2-pipe); Wave D extras on demand.
 
 ## [0.2.0] - 2026-09-11
 

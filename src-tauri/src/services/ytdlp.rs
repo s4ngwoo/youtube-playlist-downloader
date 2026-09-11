@@ -27,21 +27,59 @@ fn open_ytdlp(
     })
 }
 
-/// yt-dlp 덤프 엔트리 분류 (다운로드 가능 여부).
-pub fn classify_entry(entry: &crate::models::YtDlpEntry) -> &'static str {
-    match entry.title.as_deref().map(str::trim) {
-        None | Some("") => "unknown",
-        Some(t) => {
-            let lower = t.to_lowercase();
-            if t == "[Private video]" || lower.contains("private video") {
-                "private"
-            } else if t == "[Deleted video]" || lower.contains("deleted video") {
-                "deleted"
-            } else {
-                "available"
-            }
-        }
+fn title_looks_private(title: &str, lower: &str) -> bool {
+    lower.contains("private video")
+        || lower.contains("[private]")
+        || title.contains("비공개 동영상")
+        || title.contains("[비공개")
+}
+
+fn title_looks_deleted(title: &str, lower: &str) -> bool {
+    lower.contains("deleted video")
+        || lower.contains("[deleted]")
+        || title.contains("삭제된 동영상")
+        || title.contains("[삭제")
+}
+
+fn classify_availability(availability: Option<&str>) -> Option<&'static str> {
+    let a = availability.map(str::trim).filter(|s| !s.is_empty())?;
+    let lower = a.to_lowercase();
+    match lower.as_str() {
+        "private" | "needs_auth" | "subscriber_only" => Some("private"),
+        // Rare; treat as unavailable-other rather than downloadable.
+        "premium_only" => Some("unknown"),
+        _ => None,
     }
+}
+
+/// yt-dlp 덤프 엔트리 분류 (다운로드 가능 여부).
+///
+/// Title placeholders (EN/KO) first, then `availability`, then empty → unknown.
+pub fn classify_entry(entry: &crate::models::YtDlpEntry) -> &'static str {
+    if let Some(t) = entry.title.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        let lower = t.to_lowercase();
+        if title_looks_private(t, &lower) {
+            return "private";
+        }
+        if title_looks_deleted(t, &lower) {
+            return "deleted";
+        }
+        // yt-dlp placeholder when metadata is missing
+        if lower == "na" || lower == "n/a" {
+            if let Some(reason) = classify_availability(entry.availability.as_deref()) {
+                return reason;
+            }
+            return "unknown";
+        }
+        if let Some(reason) = classify_availability(entry.availability.as_deref()) {
+            return reason;
+        }
+        return "available";
+    }
+    if let Some(reason) = classify_availability(entry.availability.as_deref()) {
+        return reason;
+    }
+    "unknown"
 }
 
 /// 비공개/삭제/비활성화된 영상(제목이 없거나 [Private video] 등)은 제외합니다.
@@ -62,12 +100,21 @@ pub fn playlist_metadata_from_dump(
 
     if dump._type.as_deref() == Some("playlist") {
         if let Some(entries) = dump.entries {
-            for (idx, entry) in entries.into_iter().enumerate() {
+            for (idx, slot) in entries.into_iter().enumerate() {
                 let index = idx + 1;
+                let Some(entry) = slot else {
+                    skipped.push(SkippedTrack {
+                        index,
+                        title: format!("Track {index}"),
+                        reason: "unknown".into(),
+                    });
+                    continue;
+                };
                 let reason = classify_entry(&entry);
                 let title = entry
                     .title
                     .clone()
+                    .filter(|t| !t.trim().is_empty())
                     .unwrap_or_else(|| format!("Track {index}"));
                 if reason == "available" {
                     let id = entry.id.unwrap_or_else(|| "".into());
@@ -429,10 +476,15 @@ mod tests {
     use crate::models::YtDlpEntry;
 
     fn entry(title: Option<&str>) -> YtDlpEntry {
+        entry_with(title, None)
+    }
+
+    fn entry_with(title: Option<&str>, availability: Option<&str>) -> YtDlpEntry {
         YtDlpEntry {
             url: Some("https://www.youtube.com/watch?v=dQw4w9WgXcQ".into()),
             id: Some("dQw4w9WgXcQ".into()),
             title: title.map(|t| t.to_string()),
+            availability: availability.map(|a| a.to_string()),
         }
     }
 
@@ -486,15 +538,55 @@ mod tests {
     }
 
     #[test]
+    fn classify_uses_availability_when_title_empty() {
+        assert_eq!(
+            classify_entry(&entry_with(None, Some("private"))),
+            "private"
+        );
+        assert_eq!(
+            classify_entry(&entry_with(Some(""), Some("needs_auth"))),
+            "private"
+        );
+        assert_eq!(
+            classify_entry(&entry_with(None, Some("subscriber_only"))),
+            "private"
+        );
+    }
+
+    #[test]
+    fn classify_korean_and_unbracketed_titles() {
+        assert_eq!(
+            classify_entry(&entry(Some("비공개 동영상"))),
+            "private"
+        );
+        assert_eq!(
+            classify_entry(&entry(Some("[비공개 동영상]"))),
+            "private"
+        );
+        assert_eq!(
+            classify_entry(&entry(Some("삭제된 동영상"))),
+            "deleted"
+        );
+        assert_eq!(
+            classify_entry(&entry(Some("Private video"))),
+            "private"
+        );
+        assert_eq!(
+            classify_entry(&entry(Some("Deleted video"))),
+            "deleted"
+        );
+    }
+
+    #[test]
     fn playlist_dump_keeps_skipped_with_original_index() {
         let dump = YtDlpDump {
             _type: Some("playlist".into()),
             title: Some("PL".into()),
             entries: Some(vec![
-                entry(Some("A")),
-                entry(Some("[Private video]")),
-                entry(Some("B")),
-                entry(Some("[Deleted video]")),
+                Some(entry(Some("A"))),
+                Some(entry(Some("[Private video]"))),
+                Some(entry(Some("B"))),
+                Some(entry(Some("[Deleted video]"))),
             ]),
         };
         let meta = playlist_metadata_from_dump(dump, "https://example.com");
@@ -506,5 +598,30 @@ mod tests {
         assert_eq!(meta.skipped[0].reason, "private");
         assert_eq!(meta.skipped[1].index, 4);
         assert_eq!(meta.skipped[1].reason, "deleted");
+    }
+
+    #[test]
+    fn playlist_dump_null_slot_and_availability() {
+        let dump = YtDlpDump {
+            _type: Some("playlist".into()),
+            title: Some("PL".into()),
+            entries: Some(vec![
+                Some(entry(Some("Ok"))),
+                None,
+                Some(entry_with(None, Some("private"))),
+            ]),
+        };
+        let meta = playlist_metadata_from_dump(dump, "https://example.com");
+        assert_eq!(meta.tracks.len(), 1);
+        assert_eq!(meta.skipped.len(), 2);
+        assert_eq!(meta.skipped[0].reason, "unknown");
+        assert_eq!(meta.skipped[1].reason, "private");
+    }
+
+    #[test]
+    fn deserializes_flat_entry_with_availability() {
+        let raw = r#"{"id":"abc","title":null,"availability":"private"}"#;
+        let entry: YtDlpEntry = serde_json::from_str(raw).expect("entry");
+        assert_eq!(classify_entry(&entry), "private");
     }
 }

@@ -76,7 +76,9 @@ pub struct YtDlpDump {
     #[serde(rename = "_type")]
     pub _type: Option<String>,
     pub title: Option<String>,
-    pub entries: Option<Vec<YtDlpEntry>>,
+    /// Playlist slots may be JSON `null` for removed/unavailable rows.
+    #[serde(default)]
+    pub entries: Option<Vec<Option<YtDlpEntry>>>,
 }
 
 #[derive(serde::Deserialize, Debug, Clone)]
@@ -84,6 +86,9 @@ pub struct YtDlpEntry {
     pub url: Option<String>,
     pub id: Option<String>,
     pub title: Option<String>,
+    /// yt-dlp may set this on unavailable entries (`private`, `needs_auth`, …).
+    #[serde(default)]
+    pub availability: Option<String>,
 }
 
 #[derive(Clone, Debug)]
