@@ -227,6 +227,10 @@ pub fn build_ytdlp_args(
         "--convert-thumbnails".into(),
         "jpg".into(),
         "--embed-metadata".into(),
+        // Clean names: title only (no `[id]`). Skip if that file already exists.
+        "-o".into(),
+        "%(title)s.%(ext)s".into(),
+        "--no-overwrites".into(),
         "--newline".into(),
     ];
 
@@ -513,6 +517,29 @@ mod tests {
                 || a == "--sub-langs"
                 || a == "all,-live_chat"),
             "audio downloads should not pull subtitles by default: {args:?}"
+        );
+    }
+
+    #[test]
+    fn build_args_uses_title_only_output_without_overwrites() {
+        let task = DownloadTask {
+            url: "https://example.com/v".into(),
+            item_index: 1,
+            total_items: 1,
+            title: Some("Song".into()),
+        };
+        let args = build_ytdlp_args(&task, "/tmp", "m4a");
+        assert!(
+            args.windows(2).any(|w| w[0] == "-o" && w[1] == "%(title)s.%(ext)s"),
+            "expected title-only outtmpl: {args:?}"
+        );
+        assert!(
+            args.iter().any(|a| a == "--no-overwrites"),
+            "expected --no-overwrites to avoid clobbering same titles: {args:?}"
+        );
+        assert!(
+            !args.iter().any(|a| a.contains("%(id)s")),
+            "should not embed video id in filename template: {args:?}"
         );
     }
 
