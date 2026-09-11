@@ -8,6 +8,12 @@
 
 ## [Unreleased]
 
+### Notes
+
+- 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
+
+## [0.3.0] - 2026-09-11
+
 ### Added
 
 - 다운로드 구간만 세션 ETA 추정(`~M:SS`); 추출/태그 남으면 후처리 개수 표시 (가짜 `00:00` sticky ETA 제거)
@@ -35,11 +41,6 @@
 - 트랙 제목 폴백·환경 진단 라벨이 EN/KO i18n을 따르도록 정리 (하드코딩 조각 제거)
 - 전체 진행률이 스토어에 있는 선택 트랙 평균으로 계산 (밀집 `1..N` 루프 제거)
 - yt-dlp stderr 전 라인을 failed로 처리하던 문제 수정 (ERROR·비정상 종료만)
-
-### Notes
-
-- Unreleased에는 건너뜀 사유 정확도 · 히스토리 폴더 · 고급 콘솔 · 자막 기본 OFF · flat skip probe가 포함됨.
-- 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
 
 ## [0.2.0] - 2026-09-11
 
@@ -113,6 +114,7 @@ Tauri v2 기반 공개 데스크톱 앱 초기 라인.
 
 - 정확한 태그 날짜와 에셋 이름: [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases)
 
-[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.0
 [0.2.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.2.0
 [0.1.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.1.0

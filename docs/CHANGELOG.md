@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+### Notes
+
+- Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
+
+## [0.3.0] - 2026-09-11
+
 ### Added
 
 - Session download ETA estimate (`~M:SS`) from download-phase work only; post-process count when extract/tag remains (no fake `00:00` sticky ETA)
@@ -34,11 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Track title fallback and environment-diagnose labels follow EN/KO i18n (no hard-coded Korean/English fragments)
 - Overall progress averages selected tracks in the store map (not a dense `1..N` index loop)
 - yt-dlp stderr no longer marks every line as failed (ERROR / non-zero exit only)
-
-### Notes
-
-- Recent Unreleased work includes skip-reason accuracy, history folder open, Advanced console, subtitle default off, and flat-playlist skip probing.
-- Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
 
 ## [0.2.0] - 2026-09-11
 
@@ -112,6 +113,7 @@ Initial public desktop app release line (Tauri v2).
 
 - Exact tag dates and asset names: see [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases).
 
-[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.0
 [0.2.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.2.0
 [0.1.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.1.0

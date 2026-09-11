@@ -1,6 +1,6 @@
 [package]
 name = "tauri-app"
-version = "0.2.0"
+version = "0.3.0"
 description = "YouTube Playlist & Audio Downloader"
 authors = ["Lee SangWoo <s4ngwoo.lee@gmail.com>"]
 homepage = "https://github.com/s4ngwoo/youtube-playlist-downloader"
