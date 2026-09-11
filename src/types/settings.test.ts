@@ -8,8 +8,14 @@ describe("clampConcurrency", () => {
     expect(clampConcurrency(3)).toBe(3);
   });
 
+  it("rounds fractional values before clamping", () => {
+    expect(clampConcurrency(3.6)).toBe(4);
+    expect(clampConcurrency(1.2)).toBe(1);
+  });
+
   it("falls back for non-finite", () => {
     expect(clampConcurrency(Number.NaN)).toBe(3);
+    expect(clampConcurrency(Number.POSITIVE_INFINITY)).toBe(3);
   });
 });
 

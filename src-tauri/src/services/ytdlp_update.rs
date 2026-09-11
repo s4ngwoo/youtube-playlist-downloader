@@ -154,3 +154,36 @@ pub fn status(app: &AppHandle) -> Result<YtdlpStatus, crate::AppError> {
         override_path: override_path.to_string_lossy().to_string(),
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn override_file_name_is_platform_binary() {
+        let name = override_file_name();
+        if cfg!(windows) {
+            assert_eq!(name, "yt-dlp.exe");
+        } else {
+            assert_eq!(name, "yt-dlp");
+        }
+    }
+
+    #[test]
+    fn release_asset_name_matches_supported_hosts() {
+        let asset = release_asset_name();
+        if cfg!(target_os = "windows") {
+            assert_eq!(asset, "yt-dlp.exe");
+        } else if cfg!(target_os = "macos") {
+            assert_eq!(asset, "yt-dlp_macos");
+        } else {
+            assert_eq!(asset, "yt-dlp_linux");
+        }
+    }
+
+    #[test]
+    fn read_version_returns_none_for_missing_binary() {
+        let missing = PathBuf::from("/tmp/definitely-missing-yt-dlp-binary");
+        assert_eq!(read_version(&missing), None);
+    }
+}

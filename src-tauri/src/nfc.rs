@@ -89,4 +89,27 @@ mod tests {
     fn name_to_nfc_ascii_unchanged() {
         assert_eq!(name_to_nfc("track-01.m4a"), "track-01.m4a");
     }
+
+    #[test]
+    fn normalize_file_nfc_errors_when_missing() {
+        let path = std::env::temp_dir().join("missing-nfc-test-file.m4a");
+        let err = normalize_file_nfc(&path).expect_err("missing file should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("존재하지 않습니다") || msg.contains("filesystem_error"),
+            "unexpected error: {msg}"
+        );
+    }
+
+    #[test]
+    fn normalize_directory_nfc_errors_for_invalid_dir() {
+        let path = std::env::temp_dir().join("missing-nfc-test-dir");
+        let err = normalize_directory_nfc(&path).expect_err("missing dir should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("유효하지 않은 다운로드 디렉토리")
+                || msg.contains("error.invalid_download_dir"),
+            "unexpected error: {msg}"
+        );
+    }
 }
