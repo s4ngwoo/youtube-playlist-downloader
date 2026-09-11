@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 ### Fixed
 
 - Skipped playlist entries: classify private/deleted via title (EN/KO), `availability`, and null slots — fewer false “unknown” labels
-- Flat-playlist skip slots with empty title/`availability`: per-id yt-dlp probe maps stderr to private vs deleted (B1c)
+- Flat-playlist skip slots with empty title/`availability`: per-id yt-dlp probe maps stderr to private vs deleted
 - History “Folder” uses reveal-in-dir (allowed by `opener:default`); `openPath` was denied and always failed
 - App log viewer: reveal log file via reveal-in-dir; detect log window by Tauri label; clearer refresh/open errors
 
@@ -37,8 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Notes
 
-- Sprint 4 smoke follow-ups (classify · history folder · Advanced console · subtitle default off) landed in Unreleased.
-- Deferred: split yt-dlp into download-only then post-process passes (A2-pipe); Wave D extras on demand.
+- Recent Unreleased work includes skip-reason accuracy, history folder open, Advanced console, subtitle default off, and flat-playlist skip probing.
+- Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
 
 ## [0.2.0] - 2026-09-11
 

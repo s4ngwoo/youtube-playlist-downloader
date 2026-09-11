@@ -55,6 +55,14 @@ Use the App’s **mobile-friendly ZIP** export (NFC normalization).
 
 Files are saved as `Title.ext` (yt-dlp `-o %(title)s.%(ext)s`). If that path already exists, the download is **skipped** (`--no-overwrites`) instead of overwriting. Details: [FILENAMES.md](FILENAMES.md).
 
+## Why are some playlist tracks marked skipped (private / deleted)?
+
+Unavailable slots are listed as skipped with a reason. When the flat playlist dump has no title/`availability`, the app probes those video ids once and maps yt-dlp stderr (`Private video` → private, `Video unavailable` → deleted).
+
+## Are subtitles downloaded with audio?
+
+No by default. Audio extract does not request or embed subs. An optional ON toggle is later / on demand.
+
 ## How do I build from source?
 
 See [README — Installation & Build](../README.md#installation--build).

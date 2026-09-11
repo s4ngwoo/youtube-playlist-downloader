@@ -30,6 +30,8 @@ Project docs for **YouTube Playlist & Audio Downloader** (open source, GPL-3.0).
 | [CONTRIBUTING.md](ko/CONTRIBUTING.md) | 기여 가이드 |
 | [CODE_OF_CONDUCT.md](ko/CODE_OF_CONDUCT.md) | 행동 강령 |
 | [FAQ.md](ko/FAQ.md) | 자주 묻는 질문 |
+| [CONCURRENCY.md](ko/CONCURRENCY.md) | 동시 다운로드 — 의미·권장값 |
+| [FILENAMES.md](ko/FILENAMES.md) | 출력 파일명 — 제목만, no-overwrites |
 | [SUPPORT.md](ko/SUPPORT.md) | 지원 안내 |
 | [CHANGELOG.md](ko/CHANGELOG.md) | 변경 이력 |
 | [RELEASING.md](ko/RELEASING.md) | 태그 릴리즈·yt-dlp 사이드카 정책 |

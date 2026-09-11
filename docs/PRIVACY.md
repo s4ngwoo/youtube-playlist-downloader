@@ -22,7 +22,7 @@ Depending on features you use, the App may keep locally:
 - **App settings** in Tauri plugin-store file `settings.json` — download folder path, concurrency (1–8), audio format (`m4a` / `mp3`), and UI locale (`ko` / `en`). A one-time migration may copy a legacy download path from `localStorage` (`yt_download_dir`) into settings.
 - **Download history** (playlist/video URLs and titles you previously used), via a separate local store file
 - **Application logs** under the app’s local data directory (for troubleshooting; viewable in the in-app log viewer)
-- **Optional yt-dlp override binary** under the app local data `sidecars/` directory when you use **Update yt-dlp**
+- **Optional yt-dlp override binary** under the app local data `sidecars/` directory when you use header **Update yt-dlp**
 - **Downloaded audio files and optional ZIP archives** in folders **you** select
 - Transient UI state (URL input, selected tracks, progress) in memory while the App is running
 

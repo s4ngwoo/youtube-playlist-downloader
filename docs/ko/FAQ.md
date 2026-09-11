@@ -57,6 +57,14 @@
 
 `제목.확장자`로 저장합니다 (`-o %(title)s.%(ext)s`). 같은 경로 파일이 이미 있으면 **덮어쓰지 않고 건너뜁니다** (`--no-overwrites`). 자세한 내용: [FILENAMES.md](FILENAMES.md).
 
+## 플레이리스트에 비공개·삭제로 건너뛴 트랙이 보여요
+
+받을 수 없는 슬롯은 사유와 함께 건너뜀으로 표시됩니다. flat dump에 제목/`availability`가 없으면 해당 id를 한 번 probe해 stderr(`Private video` → 비공개, `Video unavailable` → 삭제)로 분류합니다.
+
+## 오디오에 자막도 같이 받나요?
+
+기본은 아니요. 오디오 추출 시 자막 요청/임베드를 하지 않습니다. ON 토글은 후순위(수요 시)입니다.
+
 ## 소스에서 빌드하려면?
 
 [README_KO.md — 설치 및 빌드](../../README_KO.md#설치-및-빌드)를 참고하세요.

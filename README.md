@@ -67,7 +67,8 @@ If SmartScreen appears: **More info → Run anyway**.
 
 - **Playlist & single-video support** — Paste a video or playlist URL; the app detects tracks and downloads them in batch.
 - **Selective download** — Fetch playlist metadata first, then choose which tracks to download.
-- **Audio formats** — Export as **`.m4a` or `.mp3`** with embedded cover art and tags.
+- **Skipped private / deleted** — Unavailable playlist slots show as skipped with reasons (flat dump + per-id probe when needed).
+- **Audio formats** — Export as **`.m4a` or `.mp3`** with embedded cover art and tags (subtitles off by default).
 - **Concurrency controls** — Run **1–8** parallel downloads (default 3); saved in app settings. See [CONCURRENCY.md](docs/CONCURRENCY.md).
 - **Clean filenames** — Saves as `Title.ext` (no `[video id]`); skips if that file already exists. See [FILENAMES.md](docs/FILENAMES.md).
 - **EN / KO UI** — Switch language in the header; preference stored in `settings.json`.
@@ -257,26 +258,19 @@ npm run tauri build
 
 ---
 
-## 로드맵
+## Roadmap
 
-권장 순서: **실패·진행 UX → 불가 항목 → 히스토리 → 부가**
+**Shipped:** batch progress & failure UX · skipped private/deleted tracks (with reasons) · failed-only filter · history folder · Advanced console · title-only filenames · concurrency guide · header yt-dlp update / footer diagnose & logs · log viewer · subtitles off by default · m4a/mp3 · concurrency 1–8 · Apple Silicon + Intel Mac + Windows x64
 
-1. [x] Batch progress & failure UX — real titles on failure, pin failed tracks, session ETA + post-process counts, live activity, smoother progress bar  
-2. [x] Private / deleted playlist entries — skipped items + reasons in selection UI  
-3. [x] Failed-only track filter · history folder shortcuts  
-4. [ ] Built-in mini audio preview (extra formats / theme later, on demand)
-5. [x] Smoke follow-ups: private/deleted labels · history folder · Advanced console · subtitle default off
-6. [x] Accurate private/deleted skip labels (availability + EN/KO titles)
-7. [x] History folder open via reveal-in-dir
-8. [x] Advanced mode terminal-like yt-dlp console per track
-9. [x] Subtitle download/embed default off for audio extracts
+**Maybe later (not open bugs):**
 
-Already shipped earlier:
+- [ ] Split download and post-process into separate passes (better concurrency feel)
+- [ ] Mini player · theme · extra formats (on demand)
+- [ ] Optional subtitle download (default stays off)
+- [ ] Clearer handling when YouTube/yt-dlp breaks (update button + FAQ; root fix is upstream)
 
-- [x] More output formats — **m4a / mp3** (FLAC, WAV, OPUS later)
-- [x] Broader concurrent download controls — **1–8 workers**
-- [x] In-app yt-dlp update — app-data override (header); separate from release-bundled sidecar
-- [x] Official Intel macOS release binaries
+**Out of scope:**
+
 - [x] Linux official binaries — **not planned**
 - [x] Apple Notarization — **not planned** (Gatekeeper steps in README)
 

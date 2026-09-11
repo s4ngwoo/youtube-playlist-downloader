@@ -69,7 +69,7 @@ npm run package:local-dmg
 # (copies Tauri DMG when available; otherwise builds a UDZO DMG from the .app via hdiutil)
 ```
 
-**Sidecar triple caution (H3):** `tauri build` / `package:local-dmg` resolve `yt-dlp-<rustc-host-triple>`. On Apple Silicon that is `yt-dlp-aarch64-apple-darwin`. An Intel-named binary, a Windows `.exe`, or the CI placeholder will not satisfy a local arm64 package. Match the name to `rustc -vV` → `host:`; do not copy another machine’s `bin/` folder blindly.
+**Sidecar triple caution:** `tauri build` / `package:local-dmg` resolve `yt-dlp-<rustc-host-triple>`. On Apple Silicon that is `yt-dlp-aarch64-apple-darwin`. An Intel-named binary, a Windows `.exe`, or the CI placeholder will not satisfy a local arm64 package. Match the name to `rustc -vV` → `host:`; do not copy another machine’s `bin/` folder blindly.
 
 Or manually:
 
