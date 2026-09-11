@@ -12,6 +12,20 @@
 
 - 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
 
+## [0.3.1] - 2026-09-11
+
+### Added
+
+- 설정 저장/마이그레이션 · 다운로드 히스토리 · yt-dlp stdout 파싱 · NFC 누락 경로 · 사이드카 이름 관련 단위 테스트 보강
+
+### Fixed
+
+- v0.3.0 직후 `main` CI 게이트 실패: ESLint · Prettier · `cargo fmt`
+
+### Notes
+
+- 사용자 기능은 0.3.0과 동일. CI 초록 tip + 테스트 보강이 반영된 릴리즈 자산으로 재배포.
+
 ## [0.3.0] - 2026-09-11
 
 ### Added
@@ -114,7 +128,8 @@ Tauri v2 기반 공개 데스크톱 앱 초기 라인.
 
 - 정확한 태그 날짜와 에셋 이름: [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases)
 
-[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.1
 [0.3.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.0
 [0.2.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.2.0
 [0.1.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.1.0

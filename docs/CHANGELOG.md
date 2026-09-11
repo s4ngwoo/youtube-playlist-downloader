@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 - Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
 
+## [0.3.1] - 2026-09-11
+
+### Added
+
+- Broader unit tests for settings persistence/migration, download history, yt-dlp stdout parsing, NFC missing-path errors, and sidecar naming helpers
+
+### Fixed
+
+- CI gate failures on `main` after v0.3.0: ESLint (`set-state-in-effect`, useless assignment), Prettier drift, and `cargo fmt`
+
+### Notes
+
+- Same user-facing features as 0.3.0; rebuild so release assets match the green CI tip (including merged test coverage).
+
 ## [0.3.0] - 2026-09-11
 
 ### Added
@@ -113,7 +127,8 @@ Initial public desktop app release line (Tauri v2).
 
 - Exact tag dates and asset names: see [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases).
 
-[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.1
 [0.3.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.0
 [0.2.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.2.0
 [0.1.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.1.0
