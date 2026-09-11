@@ -8,6 +8,12 @@
 
 ## [Unreleased]
 
+### Notes
+
+- 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
+
+## [0.4.0] - 2026-09-11
+
 ### Added
 
 - **LGPL FFmpeg / ffprobe** 사이드카 번들 (공식 빌드는 별도 시스템 설치 불필요); 런타임은 번들 우선 → 시스템 PATH
@@ -22,7 +28,6 @@
 
 ### Notes
 
-- 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
 - **Deno**는 계속 선택(미번들). 앱 라이선스는 **GPL-3.0-or-later** 유지; 번들 FFmpeg는 **LGPL**.
 
 ## [0.3.1] - 2026-09-11
@@ -141,7 +146,8 @@ Tauri v2 기반 공개 데스크톱 앱 초기 라인.
 
 - 정확한 태그 날짜와 에셋 이름: [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases)
 
-[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.4.0
 [0.3.1]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.1
 [0.3.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.0
 [0.2.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.2.0
