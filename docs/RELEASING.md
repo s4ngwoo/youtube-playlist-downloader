@@ -11,10 +11,9 @@ Pushing a tag that matches `v*` runs [`.github/workflows/release.yml`](../.githu
 | Runner | Rust target | yt-dlp sidecar | FFmpeg triple | FFmpeg source |
 | :--- | :--- | :--- | :--- | :--- |
 | `macos-latest` | `aarch64-apple-darwin` | `yt-dlp-aarch64-apple-darwin` ← `yt-dlp_macos` | `aarch64-apple-darwin` | LGPL source build (`FFMPEG_TAG`) |
-| `macos-13` | `x86_64-apple-darwin` | `yt-dlp-x86_64-apple-darwin` ← `yt-dlp_macos` | `x86_64-apple-darwin` | LGPL source build (native Intel) |
 | `windows-latest` | host (x64) | `yt-dlp-x86_64-pc-windows-msvc.exe` ← `yt-dlp.exe` | `x86_64-pc-windows-msvc` | BtbN `win64-lgpl` zip |
 
-Linux official installers are **not planned** (build from source only; see README platform table).
+**Intel Mac** and **Linux** official installers are **not planned** (build from source only; see README platform table).
 
 Third-party notices: [THIRD_PARTY.md](THIRD_PARTY.md).
 
@@ -36,7 +35,7 @@ git tag v0.4.2
 git push origin v0.4.2
 ```
 
-8. **Verify** — On the GitHub Release page, confirm DMG (aarch64 + x64) and Windows installers uploaded; skim the workflow logs for the yt-dlp **and** FFmpeg prepare steps. Wait for **all** matrix jobs (do not treat one green OS as done). If create-a-release 403 appears, re-check step 0.
+8. **Verify** — On the GitHub Release page, confirm the Apple Silicon DMG and Windows installers uploaded; skim the workflow logs for the yt-dlp **and** FFmpeg prepare steps. Wait for **all** matrix jobs (do not treat one green OS as done). If create-a-release 403 appears, re-check step 0.
 
 If a release or CI run fails in a new way, update the **Failure patterns** section below and a private note under `notes/errors/` when useful.
 
@@ -185,7 +184,7 @@ Whenever you **add or rename** an `externalBin` or `resources` entry, update **a
 
 **Rule:** GitHub Release uploads depend on tauri-action inputs, a correct OS matrix, **and** a `GITHUB_TOKEN` that can create releases.
 
-**Already solved for known cases:** `releaseName` set; Intel Mac on `macos-13`; workflow top-level `permissions: contents: write`; repo Actions default token set to **write** (read-only default → `Resource not accessible by integration` on create-a-release).
+**Already solved for known cases:** `releaseName` set; workflow top-level `permissions: contents: write`; repo Actions default token set to **write** (read-only default → `Resource not accessible by integration` on create-a-release). Official matrix is Apple Silicon + Windows only (no Intel Mac runner).
 
 **Process:** After any `release.yml` edit, dry-run: matrix rows, sidecar names, prepare env, smoke `test -f`, and Settings → Actions → Workflow permissions.
 
@@ -236,7 +235,7 @@ Copy into the PR description when touching bundling:
 
 1. **Conf is a contract with every builder.** Adding a resource for macOS users still breaks Linux CI the same day unless stubs follow.
 2. **CI green ≠ release green.** Stubs prove compile; prepare + linkage prove ship.
-3. **One OS green ≠ matrix green.** Cancelled Windows / Intel jobs hide the next day’s emergency patch.
+3. **One OS green ≠ matrix green.** Cancelled Windows jobs hide the next day’s emergency patch.
 4. **Portability is a feature requirement**, not a polish step — especially with Homebrew-assisted builds.
 5. **Fix the class, not only the path.** The second `doesn't exist` for `libmp3lame` was predictable after yt-dlp stubs; the stub script is the generalization.
 6. **Tag is a promotion, not a test plan.** Use CI + local prepare smoke before `v*`.

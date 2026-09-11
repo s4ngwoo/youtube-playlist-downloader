@@ -32,7 +32,7 @@ On each `v*` tag, [`.github/workflows/release.yml`](../.github/workflows/release
 | Platform | How FFmpeg is obtained | “Latest?” |
 | :--- | :--- | :--- |
 | **Windows x64** | Download BtbN **LGPL** zip (`ffmpeg-master-latest-win64-lgpl.zip` by default) | Tracks BtbN’s floating **latest** LGPL build unless you override `FFMPEG_WIN_URL` |
-| **macOS** (Apple Silicon + Intel) | Build from FFmpeg git tag `FFMPEG_TAG` (default `n7.1.1`) without `--enable-gpl` | **Pinned** in the workflow — not necessarily the newest master |
+| **macOS** (Apple Silicon official) | Build from FFmpeg git tag `FFMPEG_TAG` (default `n7.1.1`) without `--enable-gpl` | **Pinned** in the workflow — not necessarily the newest master |
 | **Linux** | Not part of the official release matrix | — |
 
 yt-dlp is separate (`YTDLP_TAG`, default `latest`). There is **no** in-app FFmpeg updater (unlike yt-dlp’s header **Update yt-dlp**). Fixing a bad FFmpeg pin means a **new app release**.

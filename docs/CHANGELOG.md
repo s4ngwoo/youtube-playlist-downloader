@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+### Changed
+
+- Drop **Intel Mac** from the official release matrix (Apple Silicon + Windows x64 only; Intel = build from source, same as Linux)
+
 ### Notes
 
 - Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.

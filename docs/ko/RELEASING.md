@@ -11,10 +11,9 @@
 | Runner | Rust target | yt-dlp 사이드카 | FFmpeg triple | FFmpeg 출처 |
 | :--- | :--- | :--- | :--- | :--- |
 | `macos-latest` | `aarch64-apple-darwin` | `yt-dlp_macos` → `yt-dlp-aarch64-apple-darwin` | `aarch64-apple-darwin` | LGPL 소스 빌드 (`FFMPEG_TAG`) |
-| `macos-13` | `x86_64-apple-darwin` | `yt-dlp_macos` → `yt-dlp-x86_64-apple-darwin` | `x86_64-apple-darwin` | LGPL 소스 빌드 (Intel 네이티브) |
 | `windows-latest` | host (x64) | `yt-dlp.exe` → `…-windows-msvc.exe` | `x86_64-pc-windows-msvc` | BtbN `win64-lgpl` zip |
 
-Linux 공식 설치 파일은 **계획 없음**. 서드파티 고지: [THIRD_PARTY.md](THIRD_PARTY.md).
+**Intel Mac** · **Linux** 공식 설치 파일은 **계획 없음**. 서드파티 고지: [THIRD_PARTY.md](THIRD_PARTY.md).
 
 **일반 사용자 vs 소스 빌드**(공식 설치본은 Chocolatey 불필요, git clone은 `prepare-ffmpeg-sidecar.sh` 필요): **[FFMPEG.md](FFMPEG.md)** 참고.
 

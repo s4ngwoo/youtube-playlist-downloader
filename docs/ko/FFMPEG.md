@@ -32,7 +32,7 @@ Windows에 FFmpeg를 “시스템 전역 설치”해 주는 방식이 **아닙�
 | 플랫폼 | FFmpeg 확보 방법 | “최신”인가? |
 | :--- | :--- | :--- |
 | **Windows x64** | BtbN **LGPL** zip (기본 `ffmpeg-master-latest-win64-lgpl.zip`) | BtbN의 floating **latest** LGPL (원하면 `FFMPEG_WIN_URL`로 핀) |
-| **macOS** (Apple Silicon·Intel) | FFmpeg git 태그 `FFMPEG_TAG`(기본 `n7.1.1`)를 LGPL 옵션으로 빌드 | 워크플로에 **핀** — master 최신과 다를 수 있음 |
+| **macOS** (공식: Apple Silicon) | FFmpeg git 태그 `FFMPEG_TAG`(기본 `n7.1.1`)를 LGPL 옵션으로 빌드 | 워크플로에 **핀** — master 최신과 다를 수 있음 |
 | **Linux** | 공식 릴리즈 매트릭스에 없음 | — |
 
 yt-dlp는 별도(`YTDLP_TAG`, 기본 `latest`). **인앱 FFmpeg 업데이트는 없습니다**(yt-dlp 헤더 업데이트와 다름). FFmpeg 핀을 고치려면 **앱을 새로 릴리즈**해야 합니다.

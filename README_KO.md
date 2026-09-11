@@ -44,8 +44,8 @@
 | 플랫폼 | 지원 | 다운로드 파일 | 비고 |
 | :--- | :---: | :--- | :--- |
 | **macOS (Apple Silicon)** | **공식** | `*.dmg` (`aarch64`) | M1 / M2 / M3 / M4 |
-| **macOS (Intel x86_64)** | **공식** | `*.dmg` (`x64` / `x86_64`) | Intel Mac |
 | **Windows (x64)** | **공식** | `*-setup.exe`, `*.msi` | Windows 10/11 (64-bit) |
+| **macOS (Intel x86_64)** | **계획 없음** | — | 필요 시 소스 빌드 |
 | **Linux** | **계획 없음** | — | 소스 빌드 가능 · CLI yt-dlp 권장 |
 
 ### macOS 첫 실행 ("확인되지 않은 개발자")
@@ -207,26 +207,23 @@ npm install
 플랫폼에 맞는 바이너리를 `src-tauri/bin/`에 둡니다.
 
 ```text
-# macOS Apple Silicon
+# macOS Apple Silicon (공식 릴리즈 대상)
 src-tauri/bin/yt-dlp-aarch64-apple-darwin
 src-tauri/bin/ffmpeg-aarch64-apple-darwin
 src-tauri/bin/ffprobe-aarch64-apple-darwin
 
-# macOS Intel
-src-tauri/bin/yt-dlp-x86_64-apple-darwin
-src-tauri/bin/ffmpeg-x86_64-apple-darwin
-src-tauri/bin/ffprobe-x86_64-apple-darwin
-
-# Windows x64
+# Windows x64 (공식 릴리즈 대상)
 src-tauri/bin/yt-dlp-x86_64-pc-windows-msvc.exe
 src-tauri/bin/ffmpeg-x86_64-pc-windows-msvc.exe
 src-tauri/bin/ffprobe-x86_64-pc-windows-msvc.exe
 ```
 
+공식 GitHub Releases는 **Apple Silicon** + **Windows x64**만 게시합니다. Intel Mac·Linux에서는 소스 빌드 시 **그 호스트** Rust 트리플용 사이드카를 준비하세요.
+
 FFmpeg (LGPL): `./scripts/prepare-ffmpeg-sidecar.sh`  
 yt-dlp: [yt-dlp 릴리즈](https://github.com/yt-dlp/yt-dlp/releases)에서 받아 이름을 맞추고, Unix에서는 `chmod +x`를 부여하세요.
 
-**트리플은 지금 개발·패키징하는 머신과 일치해야 합니다.** Apple Silicon은 `aarch64-apple-darwin`, Intel Mac은 `x86_64-apple-darwin`. 잘못된 파일(또는 CI용 stub만)을 `bin/`에 두면 `tauri dev`·로컬 DMG에서 사이드카 없음/메타 fetch 실패가 납니다. 머신 전환 시 트리플을 섞지 말고, **이 호스트용** 이름 하나만 두세요.
+**트리플은 지금 개발·패키징하는 머신과 일치해야 합니다** (`rustc -vV` → `host:`). 잘못된 파일(또는 CI용 stub만)을 `bin/`에 두면 `tauri dev`·로컬 DMG에서 사이드카 없음/메타 fetch 실패가 납니다.
 
 ### 3. 개발 실행
 
@@ -268,7 +265,7 @@ npm run tauri build
 
 ## 로드맵
 
-**반영됨:** 일괄 진행·실패 UX · 비공개/삭제 건너뜀(사유) · 실패만 필터 · 히스토리 폴더 · 고급 콘솔 · 제목만 파일명 · 동시성 가이드 · 헤더 yt-dlp 업데이트 / 푸터 진단·로그 · 로그 뷰어 · 자막 기본 OFF · m4a/mp3 · 동시성 1–8 · Apple Silicon + Intel Mac + Windows x64
+**반영됨:** 일괄 진행·실패 UX · 비공개/삭제 건너뜀(사유) · 실패만 필터 · 히스토리 폴더 · 고급 콘솔 · 제목만 파일명 · 동시성 가이드 · 헤더 yt-dlp 업데이트 / 푸터 진단·로그 · 로그 뷰어 · 자막 기본 OFF · m4a/mp3 · 동시성 1–8 · Apple Silicon Mac + Windows x64
 
 **나중에 (열린 버그 아님):**
 
@@ -280,6 +277,7 @@ npm run tauri build
 **하지 않음:**
 
 - [x] Linux 공식 바이너리 — **계획 없음**
+- [x] Intel Mac 공식 바이너리 — **계획 없음** (소스 빌드만)
 - [x] Apple Notarization — **하지 않음** (Gatekeeper 안내는 README 유지)
 
 ---

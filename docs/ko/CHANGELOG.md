@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- 공식 릴리즈 매트릭스에서 **Intel Mac** 제외 (Apple Silicon + Windows x64만; Intel은 Linux와 같이 소스 빌드)
+
 ### Notes
 
 - 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.

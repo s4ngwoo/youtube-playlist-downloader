@@ -31,13 +31,7 @@ jobs:
             sidecar_name: 'yt-dlp-aarch64-apple-darwin'
             sidecar_asset: 'yt-dlp_macos'
             ffmpeg_triple: 'aarch64-apple-darwin'
-          # Intel Mac: native x86_64 runner so LGPL FFmpeg builds without cross-compile.
-          - platform: 'macos-13'
-            rust_target: 'x86_64-apple-darwin'
-            args: '--target x86_64-apple-darwin'
-            sidecar_name: 'yt-dlp-x86_64-apple-darwin'
-            sidecar_asset: 'yt-dlp_macos'
-            ffmpeg_triple: 'x86_64-apple-darwin'
+          # Official macOS: Apple Silicon only. Intel Mac = build from source (no release matrix).
           - platform: 'windows-latest'
             rust_target: ''
             args: ''
@@ -118,7 +112,6 @@ jobs:
 
             #### Supported platforms
             - **macOS (Apple Silicon: M1 / M2 / M3 / M4)**: download `*_aarch64.dmg`
-            - **macOS (Intel x86_64)**: download `*_x64.dmg` / `*_x86_64.dmg`
             - **Windows (x64)**: download `*-setup.exe` / `*.msi`
 
             #### Bundled tools
@@ -134,7 +127,7 @@ jobs:
             #### First launch on Windows (SmartScreen)
             If SmartScreen appears: More info → Run anyway.
 
-            Linux official binaries are not planned (build from source / use yt-dlp CLI).
+            Linux and **Intel Mac** official binaries are not planned (build from source / use yt-dlp CLI).
             Release process / sidecars: see docs/RELEASING.md · Third-party: docs/THIRD_PARTY.md
             Docs: https://github.com/s4ngwoo/youtube-playlist-downloader#readme
           releaseDraft: false

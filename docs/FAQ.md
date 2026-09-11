@@ -52,7 +52,7 @@ This project **does not** use Apple Notarization (no paid Apple Developer accoun
 
 ## Which platforms have official installers?
 
-**macOS** (Apple Silicon and Intel) and **Windows x64** via [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest). Those builds include bundled FFmpeg. **Linux official installers are not planned** (build from source if you want the GUI; otherwise `yt-dlp` on the CLI is usually enough).
+**macOS** (Apple Silicon) and **Windows x64** via [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases/latest). Those builds include bundled FFmpeg. **Intel Mac and Linux official installers are not planned** (build from source if you want the GUI; otherwise `yt-dlp` on the CLI is usually enough).
 
 ## Can I download DRM / Movies / paid rentals?
 

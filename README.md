@@ -44,8 +44,8 @@ Pre-built binaries are available on **[GitHub Releases](https://github.com/s4ngw
 | Platform | Status | Installer / Binary | Notes |
 | :--- | :---: | :--- | :--- |
 | **macOS (Apple Silicon)** | **Official** | `*.dmg` (`aarch64`) | M1 / M2 / M3 / M4 |
-| **macOS (Intel x86_64)** | **Official** | `*.dmg` (`x64` / `x86_64`) | Intel Mac |
 | **Windows (x64)** | **Official** | `*-setup.exe`, `*.msi` | Windows 10/11 (64-bit) |
+| **macOS (Intel x86_64)** | **Not planned** | — | Build from source if needed |
 | **Linux** | **Not planned** | — | Build from source; use yt-dlp CLI if preferred |
 
 ### First launch on macOS
@@ -207,26 +207,23 @@ npm install
 Put platform-matched binaries in `src-tauri/bin/`:
 
 ```text
-# macOS Apple Silicon
+# macOS Apple Silicon (official release target)
 src-tauri/bin/yt-dlp-aarch64-apple-darwin
 src-tauri/bin/ffmpeg-aarch64-apple-darwin
 src-tauri/bin/ffprobe-aarch64-apple-darwin
 
-# macOS Intel
-src-tauri/bin/yt-dlp-x86_64-apple-darwin
-src-tauri/bin/ffmpeg-x86_64-apple-darwin
-src-tauri/bin/ffprobe-x86_64-apple-darwin
-
-# Windows x64
+# Windows x64 (official release target)
 src-tauri/bin/yt-dlp-x86_64-pc-windows-msvc.exe
 src-tauri/bin/ffmpeg-x86_64-pc-windows-msvc.exe
 src-tauri/bin/ffprobe-x86_64-pc-windows-msvc.exe
 ```
 
+Official GitHub Releases ship **Apple Silicon** + **Windows x64** only. On Intel Mac or Linux, prepare sidecars for **that host’s** Rust triple when building from source.
+
 FFmpeg (LGPL): `./scripts/prepare-ffmpeg-sidecar.sh`  
 yt-dlp: download from [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases), rename to the Tauri sidecar triple, and `chmod +x` on Unix.
 
-**Triple must match the machine you run/package on.** Apple Silicon needs `aarch64-apple-darwin`; Intel Mac needs `x86_64-apple-darwin`. Putting the wrong file (or only a CI stub) under `bin/` causes “sidecar missing” / failed fetch during `tauri dev` and local DMG builds. Do not mix triples when switching machines; keep one binary named for *this* host’s target.
+**Triple must match the machine you run/package on** (`rustc -vV` → `host:`). Putting the wrong file (or only a CI stub) under `bin/` causes “sidecar missing” / failed fetch during `tauri dev` and local DMG builds.
 
 ### 3. Develop
 
@@ -268,7 +265,7 @@ npm run tauri build
 
 ## Roadmap
 
-**Shipped:** batch progress & failure UX · skipped private/deleted tracks (with reasons) · failed-only filter · history folder · Advanced console · title-only filenames · concurrency guide · header yt-dlp update / footer diagnose & logs · log viewer · subtitles off by default · m4a/mp3 · concurrency 1–8 · Apple Silicon + Intel Mac + Windows x64
+**Shipped:** batch progress & failure UX · skipped private/deleted tracks (with reasons) · failed-only filter · history folder · Advanced console · title-only filenames · concurrency guide · header yt-dlp update / footer diagnose & logs · log viewer · subtitles off by default · m4a/mp3 · concurrency 1–8 · Apple Silicon Mac + Windows x64
 
 **Maybe later (not open bugs):**
 
@@ -280,6 +277,7 @@ npm run tauri build
 **Out of scope:**
 
 - [x] Linux official binaries — **not planned**
+- [x] Intel Mac official binaries — **not planned** (build from source only)
 - [x] Apple Notarization — **not planned** (Gatekeeper steps in README)
 
 ---
