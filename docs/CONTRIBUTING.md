@@ -20,6 +20,13 @@ npm install
 npm run tauri dev
 ```
 
+After cloning, point Git at the tracked hooks (once per clone) so Cursor’s `Co-authored-by` trailer is stripped from commit messages:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+
 ## Checks before opening a PR
 
 CI (`.github/workflows/ci.yml`) runs on every PR and push to `main`:

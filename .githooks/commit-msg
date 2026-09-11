@@ -1,0 +1,14 @@
+#!/bin/sh
+# Strip Cursor Agent commit attribution trailer if present.
+msg_file="$1"
+[ -n "$msg_file" ] && [ -f "$msg_file" ] || exit 0
+
+tmp="$(mktemp)" || exit 0
+# Portable: delete the exact Cursor Co-authored-by line (macOS/BSD and GNU sed).
+if sed '/^Co-authored-by: Cursor <cursoragent@cursor\.com>$/d' "$msg_file" > "$tmp"; then
+  mv "$tmp" "$msg_file"
+else
+  rm -f "$tmp"
+fi
+
+exit 0

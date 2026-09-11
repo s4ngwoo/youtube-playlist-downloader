@@ -22,6 +22,12 @@ npm install
 npm run tauri dev
 ```
 
+clone 후 한 번, 추적 중인 Git 훅을 켜 두세요. Cursor의 `Co-authored-by` trailer가 커밋 메시지에서 제거됩니다:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ## PR 전 검사
 
 CI (`.github/workflows/ci.yml`)가 PR 및 `main` 푸시마다 실행됩니다.
