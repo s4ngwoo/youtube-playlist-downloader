@@ -651,6 +651,25 @@ mod tests {
         assert!(args
             .windows(2)
             .any(|w| w[0] == "--audio-format" && w[1] == "mp3"));
+        assert!(args.contains(&"--ignore-errors".to_string()));
+        assert!(!args.contains(&"-P".to_string()));
+    }
+
+    #[test]
+    fn build_args_mp3_is_case_insensitive_and_sets_output_dir() {
+        let task = DownloadTask {
+            url: "https://example.com/v".into(),
+            item_index: 1,
+            total_items: 1,
+        };
+        let args = build_ytdlp_args(&task, "/Music/YouTube", "MP3");
+        assert!(args
+            .windows(2)
+            .any(|w| w[0] == "--audio-format" && w[1] == "mp3"));
+        assert!(args
+            .windows(2)
+            .any(|w| w[0] == "-P" && w[1] == "/Music/YouTube"));
+        assert_eq!(args.last().map(String::as_str), Some("https://example.com/v"));
     }
 
     #[test]

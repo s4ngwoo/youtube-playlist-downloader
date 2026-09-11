@@ -197,4 +197,71 @@ mod tests {
         assert_eq!(state.track_status.as_deref(), Some("extracting"));
         assert_eq!(state.item_title.as_deref(), Some("Song"));
     }
+
+    #[test]
+    fn playlist_regex_captures_title() {
+        let re = DownloadRegexes::new();
+        let caps = re
+            .re_playlist
+            .captures("[download] Downloading playlist: Best of 2024")
+            .expect("playlist match");
+        assert_eq!(&caps[1], "Best of 2024");
+    }
+
+    #[test]
+    fn dest_regex_matches_download_and_extract_audio() {
+        let re = DownloadRegexes::new();
+        let download = re
+            .re_dest
+            .captures("[download] Destination: /tmp/Song.webm")
+            .expect("download dest");
+        assert_eq!(&download[1], "/tmp/Song.webm");
+
+        let extract = re
+            .re_dest
+            .captures("[ExtractAudio] Destination: /tmp/Song.m4a")
+            .expect("extract dest");
+        assert_eq!(&extract[1], "/tmp/Song.m4a");
+    }
+
+    #[test]
+    fn already_downloaded_regex_captures_path() {
+        let re = DownloadRegexes::new();
+        let caps = re
+            .re_already
+            .captures("[download] /tmp/Song.m4a has already been downloaded")
+            .expect("already downloaded");
+        assert_eq!(&caps[1], "/tmp/Song.m4a");
+    }
+
+    #[test]
+    fn item_regex_also_matches_video_wording() {
+        let re = DownloadRegexes::new();
+        let caps = re
+            .re_item
+            .captures("[download] Downloading video 2 of 5")
+            .expect("video item match");
+        assert_eq!(&caps[1], "2");
+        assert_eq!(&caps[2], "5");
+    }
+
+    #[test]
+    fn speed_and_eta_regexes_capture_values() {
+        let re = DownloadRegexes::new();
+        let line = "[download]  12.0% of 10.00MiB at  1.20MiB/s ETA 00:08";
+        assert_eq!(&re.re_speed.captures(line).expect("speed")[1], "1.20MiB/s");
+        assert_eq!(&re.re_eta.captures(line).expect("eta")[1], "00:08");
+    }
+
+    #[test]
+    fn clean_title_strips_ytdl_and_temp_suffixes() {
+        assert_eq!(
+            clean_title_from_destination("/tmp/Live Set.m4a.ytdl"),
+            "Live Set"
+        );
+        assert_eq!(
+            clean_title_from_destination("Song.webm.temp"),
+            "Song"
+        );
+    }
 }
