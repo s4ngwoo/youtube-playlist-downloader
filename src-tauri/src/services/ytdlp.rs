@@ -239,13 +239,13 @@ pub async fn handle_command_events(
                         ProgressPayload {
                             line: line.clone(),
                             message: line,
-                            is_error: true,
+                            is_error: err_msg.is_some(),
                             playlist_title: playlist_title.clone(),
                             item_index: Some(task.item_index),
                             total_items: Some(task.total_items),
                             item_title: current_item_title.clone(),
                             track_progress: current_track_progress,
-                            track_status: Some("failed".to_string()),
+                            track_status: stderr_track_status(&err_msg, &current_track_status),
                             speed: current_speed.clone(),
                             eta: current_eta.clone(),
                             error_message: err_msg,
@@ -302,6 +302,14 @@ pub async fn process_item(
     regexes: Arc<DownloadRegexes>,
     audio_format: &str,
 ) -> Result<(), String> {
+    if app.state::<AppState>().is_cancelled() {
+        logger::info(
+            "download",
+            &format!("[트랙 #{}] 취소됨 — spawn 생략", task.item_index),
+        );
+        return Err("cancelled".into());
+    }
+
     logger::info("download", &format!("[{}/{}] 다운로드 시작: {}", task.item_index, task.total_items, task.url));
     let yt_dlp_args = build_ytdlp_args(&task, &actual_download_dir, audio_format);
 
@@ -329,6 +337,18 @@ pub async fn process_item(
     }
 
     result
+}
+
+/// Stderr WARNING/noise must not flip the row to failed; only yt-dlp ERROR: lines do.
+fn stderr_track_status(
+    err_msg: &Option<String>,
+    current_track_status: &Option<String>,
+) -> Option<String> {
+    if err_msg.is_some() {
+        Some("failed".to_string())
+    } else {
+        current_track_status.clone()
+    }
 }
 
 #[cfg(test)]
@@ -388,5 +408,37 @@ mod tests {
         assert!(!is_valid_entry(&entry(Some("[Deleted video]"))));
         assert!(!is_valid_entry(&entry(Some("this is a Private Video copy"))));
         assert!(!is_valid_entry(&entry(Some("Deleted video placeholder"))));
+    }
+
+    #[test]
+    fn warning_stderr_keeps_current_status() {
+        let current = Some("extracting".to_string());
+        assert_eq!(
+            stderr_track_status(&None, &current),
+            Some("extracting".to_string())
+        );
+    }
+
+    #[test]
+    fn error_stderr_marks_track_failed() {
+        let current = Some("downloading".to_string());
+        let err = Some("Video unavailable".to_string());
+        assert_eq!(
+            stderr_track_status(&err, &current),
+            Some("failed".to_string())
+        );
+    }
+
+    #[test]
+    fn error_regex_matches_error_not_warning() {
+        let regexes = DownloadRegexes::new();
+        assert!(regexes
+            .re_error
+            .captures("ERROR: [youtube] Sign in to confirm")
+            .is_some());
+        assert!(regexes
+            .re_error
+            .captures("WARNING: [youtube] nsig extraction failed")
+            .is_none());
     }
 }

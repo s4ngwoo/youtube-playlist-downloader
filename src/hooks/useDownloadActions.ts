@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { PlaylistMetadata } from "../types/download";
+import { PlaylistMetadata, isCancelledDownloadOutcome } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 import { historyService } from "../services/historyService";
 import { settingsService } from "../services/settingsService";
@@ -121,6 +121,11 @@ export function useDownloadActions() {
         concurrency: store.concurrency,
         audioFormat: store.audioFormat,
       });
+      if (isCancelledDownloadOutcome(useDownloadStore.getState().status, result)) {
+        store.setStatus("cancelled");
+        store.setStatusMessage(mapBackendMessage("ok.cancelled"));
+        return;
+      }
       store.setStatus("completed");
       store.setStatusMessage(
         mapBackendMessage(result || "ok.download_complete")
@@ -131,6 +136,9 @@ export function useDownloadActions() {
         store.fetchedPlaylist.title || "Unknown Title"
       );
     } catch (err: unknown) {
+      if (isCancelledDownloadOutcome(useDownloadStore.getState().status)) {
+        return;
+      }
       console.error("Download error:", err);
       store.setStatus("error");
       const errorMessage = mapBackendMessage(
