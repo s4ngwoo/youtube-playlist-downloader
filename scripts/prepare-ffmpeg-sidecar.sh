@@ -75,9 +75,19 @@ PY
 
   aarch64-apple-darwin|x86_64-apple-darwin)
     # Official FFmpeg without --enable-gpl is LGPL. Enable only LGPL-compatible extras (lame).
-    if ! command -v nasm >/dev/null 2>&1 || ! brew list lame >/dev/null 2>&1; then
-      echo "Installing build deps via Homebrew (nasm, pkg-config, lame)…"
-      brew install nasm pkg-config lame
+    echo "Ensuring Homebrew build deps (nasm, pkg-config, lame)…"
+    brew list nasm >/dev/null 2>&1 || brew install nasm
+    brew list pkg-config >/dev/null 2>&1 || brew list pkgconf >/dev/null 2>&1 || brew install pkg-config
+    brew list lame >/dev/null 2>&1 || brew install lame
+
+    # Homebrew lame may not be on the default pkg-config path.
+    if command -v brew >/dev/null 2>&1; then
+      lame_prefix="$(brew --prefix lame 2>/dev/null || true)"
+      if [[ -n "${lame_prefix}" ]]; then
+        export PKG_CONFIG_PATH="${lame_prefix}/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+        export CPPFLAGS="-I${lame_prefix}/include ${CPPFLAGS:-}"
+        export LDFLAGS="-L${lame_prefix}/lib ${LDFLAGS:-}"
+      fi
     fi
 
     host_triple="$(rustc -vV | awk '/^host:/{print $2}')"
@@ -94,13 +104,15 @@ PY
       --disable-network
       --enable-pic
       --enable-libmp3lame
+      --extra-cflags="${CPPFLAGS:-}"
+      --extra-ldflags="${LDFLAGS:-}"
     )
 
     # Cross-compile when the runner arch ≠ target (e.g. arm64 runner → x86_64 sidecar).
     if [[ "${TARGET_TRIPLE}" == x86_64-apple-darwin && "${host_triple}" == aarch64-apple-darwin ]]; then
-      configure_args+=(--arch=x86_64 --enable-cross-compile --target-os=darwin --cc="clang -arch x86_64" --extra-cflags="-arch x86_64" --extra-ldflags="-arch x86_64")
+      configure_args+=(--arch=x86_64 --enable-cross-compile --target-os=darwin --cc="clang -arch x86_64" --extra-cflags="-arch x86_64 ${CPPFLAGS:-}" --extra-ldflags="-arch x86_64 ${LDFLAGS:-}")
     elif [[ "${TARGET_TRIPLE}" == aarch64-apple-darwin && "${host_triple}" == x86_64-apple-darwin ]]; then
-      configure_args+=(--arch=arm64 --enable-cross-compile --target-os=darwin --cc="clang -arch arm64" --extra-cflags="-arch arm64" --extra-ldflags="-arch arm64")
+      configure_args+=(--arch=arm64 --enable-cross-compile --target-os=darwin --cc="clang -arch arm64" --extra-cflags="-arch arm64 ${CPPFLAGS:-}" --extra-ldflags="-arch arm64 ${LDFLAGS:-}")
     elif [[ "${TARGET_TRIPLE}" == aarch64-apple-darwin ]]; then
       configure_args+=(--arch=arm64)
     else
