@@ -19,9 +19,10 @@ This policy describes how the desktop application (“the App”) handles inform
 
 Depending on features you use, the App may keep locally:
 
-- **Download folder path** (e.g. via `localStorage` or equivalent)
-- **Download history** (playlist/video URLs and titles you previously used), via Tauri’s local store plugin
-- **Application logs** written under the app’s local data directory (for troubleshooting; viewable in the in-app log viewer)
+- **App settings** in Tauri plugin-store file `settings.json` — download folder path, concurrency (1–8), audio format (`m4a` / `mp3`), and UI locale (`ko` / `en`). A one-time migration may copy a legacy download path from `localStorage` (`yt_download_dir`) into settings.
+- **Download history** (playlist/video URLs and titles you previously used), via a separate local store file
+- **Application logs** under the app’s local data directory (for troubleshooting; viewable in the in-app log viewer)
+- **Optional yt-dlp override binary** under the app local data `sidecars/` directory when you use **Update yt-dlp**
 - **Downloaded audio files and optional ZIP archives** in folders **you** select
 - Transient UI state (URL input, selected tracks, progress) in memory while the App is running
 
@@ -31,15 +32,17 @@ You can clear history/logs through the App where those features exist, and you c
 
 To fetch metadata and download media, the App (and bundled helpers such as `yt-dlp`, plus system tools like `ffmpeg` / optional `Deno`) communicate with **third-party services you request** — primarily YouTube (and related CDNs). Those services have their own privacy policies and terms.
 
+If you use the in-app **Update yt-dlp** action, the App also downloads a binary from **GitHub** (`github.com/yt-dlp/yt-dlp/releases/...`) into local app data.
+
 The App does **not** intentionally upload your download history, logs, or files to the developer’s servers.
 
 ## Permissions
 
 As a desktop app, the App may request or use access to:
 
-- **File system** — read/write the download directory you choose; read/write local config, history, and logs
-- **Network** — contact YouTube (and related endpoints) for metadata and media
-- **Process execution** — run the `yt-dlp` sidecar and detect/use tools like `ffmpeg` and `Deno` on your system
+- **File system** — read/write the download directory you choose; read/write local settings, history, logs, and optional yt-dlp override under app data
+- **Network** — contact YouTube (and related endpoints) for metadata and media; optionally contact GitHub to update the yt-dlp override
+- **Process execution** — run the `yt-dlp` sidecar or override binary and detect/use tools like `ffmpeg` and `Deno` on your system
 
 ## Children
 

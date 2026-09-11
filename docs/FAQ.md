@@ -10,7 +10,7 @@ Yes. Source and binaries (when published) are available under **GPL-3.0**. See [
 
 ## Does the app collect my data?
 
-The App keeps preferences, history, and logs **on your device**. It does not provide developer analytics accounts. Downloads contact YouTube as part of normal operation. Details: [PRIVACY.md](PRIVACY.md).
+The App keeps preferences, history, and logs **on your device**. It does not provide developer analytics accounts. Downloads contact YouTube as part of normal operation; **Update yt-dlp** may also contact GitHub. Details: [PRIVACY.md](PRIVACY.md).
 
 ## Downloads are slow or failing
 
@@ -36,7 +36,7 @@ No. DRM-protected content is not supported.
 
 ## Where are files saved?
 
-Wherever you set with **Change Folder**. That path is remembered locally.
+Wherever you set with **Change Folder**. That path is remembered in app settings (`settings.json`).
 
 ## Can I choose only some tracks in a playlist?
 

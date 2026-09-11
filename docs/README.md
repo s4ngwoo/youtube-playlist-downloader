@@ -30,6 +30,7 @@ Project docs for **YouTube Playlist & Audio Downloader** (open source, GPL-3.0).
 | [FAQ.md](ko/FAQ.md) | 자주 묻는 질문 |
 | [SUPPORT.md](ko/SUPPORT.md) | 지원 안내 |
 | [CHANGELOG.md](ko/CHANGELOG.md) | 변경 이력 |
+| [RELEASING.md](ko/RELEASING.md) | 태그 릴리즈·yt-dlp 사이드카 정책 |
 
 ## READMEs
 

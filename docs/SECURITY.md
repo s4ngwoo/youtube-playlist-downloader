@@ -27,7 +27,7 @@ You should receive an acknowledgment when practical. Coordinated disclosure is p
 
 ## Scope notes
 
-This App runs local commands and talks to the network for YouTube downloads. Reports involving:
+This App runs local commands and talks to the network for YouTube downloads (and optionally GitHub when updating the yt-dlp override). Reports involving:
 
 - Path traversal or unexpected file writes outside chosen directories
 - Command injection via untrusted input

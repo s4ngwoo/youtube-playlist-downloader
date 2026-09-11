@@ -18,11 +18,11 @@ Linux official installers are **not planned** (build from source only; see READM
 
 ## Checklist before tagging
 
-1. **Version** — Bump `src-tauri/tauri.conf.json` `version` (and keep package metadata consistent if you change it).
+1. **Version** — Bump **together**: `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` (then refresh `package-lock.json` / `Cargo.lock` as needed).
 2. **CHANGELOG** — Move finished items from `[Unreleased]` into a new section in `docs/CHANGELOG.md` and `docs/ko/CHANGELOG.md`.
 3. **README platform table** — Confirm Official vs build-from-source rows match the matrix.
 4. **yt-dlp policy** — Decide `latest` vs a pinned tag (see below).
-5. **Local smoke** (optional but recommended) — `npm run typecheck` and `npm run test:rust`.
+5. **Local smoke** (optional but recommended) — `npm run typecheck`, `npm test`, and `npm run test:rust`.
 6. **Tag and push**
 
 ```bash

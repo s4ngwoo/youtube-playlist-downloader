@@ -10,11 +10,12 @@
 [![Rust](https://img.shields.io/badge/Rust-2021_Edition-orange?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 <p align="center">
-  A cross-platform desktop app that batch-extracts YouTube videos or full playlists into high-quality AAC (<code>.m4a</code>), with album artwork and metadata embedded automatically.
+  A cross-platform desktop app that batch-extracts YouTube videos or full playlists into
+  <code>.m4a</code> or <code>.mp3</code>, with album artwork and metadata embedded automatically.
 </p>
 
 </div>
@@ -66,10 +67,14 @@ If SmartScreen appears: **More info → Run anyway**.
 
 - **Playlist & single-video support** — Paste a video or playlist URL; the app detects tracks and downloads them in batch.
 - **Selective download** — Fetch playlist metadata first, then choose which tracks to download.
-- **High-quality AAC `.m4a`** — Prefer maximum-quality audio extraction with embedded cover art and tags.
+- **Audio formats** — Export as **`.m4a` or `.mp3`** with embedded cover art and tags.
+- **Concurrency controls** — Run **1–8** parallel downloads (default 3); saved in app settings.
+- **EN / KO UI** — Switch language in the header; preference stored in `settings.json`.
 - **Metadata editing** — Adjust title/artist (and related tags) before or alongside export flows.
 - **Download history** — Revisit previous playlist URLs and reload them from a local history store.
 - **Mobile-friendly ZIP (NFC)** — Export a ZIP with NFC-normalized filenames so Korean names stay intact on Android/Windows.
+- **Environment diagnose** — Footer action checks FFmpeg, Deno, and yt-dlp source/version.
+- **In-app yt-dlp update** — Downloads the latest binary into app-data `sidecars/` (override; does not rewrite the release-bundled sidecar).
 - **Process tree cleanup** — Cancel, close, or quit cleanly; `yt-dlp` / `ffmpeg` child processes are terminated.
 - **Deno-aware yt-dlp** — Uses a local Deno runtime when available for YouTube JS challenge solving.
 - **App log viewer** — Persistent local logs with a dedicated viewer window for troubleshooting.
@@ -90,6 +95,7 @@ This project remains **open source (GPL-3.0)**. Full docs index: [docs/README.md
 | Code of Conduct | [docs/CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) | [docs/ko/CODE_OF_CONDUCT.md](docs/ko/CODE_OF_CONDUCT.md) |
 | FAQ | [docs/FAQ.md](docs/FAQ.md) | [docs/ko/FAQ.md](docs/ko/FAQ.md) |
 | Support | [docs/SUPPORT.md](docs/SUPPORT.md) | [docs/ko/SUPPORT.md](docs/ko/SUPPORT.md) |
+| Releasing | [docs/RELEASING.md](docs/RELEASING.md) | [docs/ko/RELEASING.md](docs/ko/RELEASING.md) |
 | Changelog | [docs/CHANGELOG.md](docs/CHANGELOG.md) | [docs/ko/CHANGELOG.md](docs/ko/CHANGELOG.md) |
 
 Korean overview: **[README_KO.md](README_KO.md)**
@@ -109,21 +115,22 @@ flowchart TB
     end
 
     subgraph IPC["Tauri IPC"]
-        Invoke["invoke: fetch_metadata, download_audio, cancel, zip, logs…"]
+        Invoke["invoke: fetch_metadata, download_audio, cancel_download,\ncreate_mobile_zip, diagnose_environment,\nupdate_ytdlp / ytdlp_status, logs, metadata…"]
         Listen["event: download-progress"]
     end
 
     subgraph Backend["Rust (src-tauri)"]
         Commands["commands/"]
-        Services["services/ (yt-dlp, logger, environment)"]
+        Services["services/ (ytdlp, ytdlp_update, logger, environment)"]
         Process["process.rs"]
         Parser["parser.rs"]
     end
 
     subgraph External["External"]
-        YTDLP["yt-dlp sidecar"]
+        YTDLP["yt-dlp (bundled sidecar or app-data override)"]
         FFMPEG["ffmpeg"]
         DENO["deno (optional)"]
+        GH["GitHub yt-dlp releases (optional update)"]
     end
 
     UI --> Store
@@ -135,6 +142,7 @@ flowchart TB
     Commands --> Process
     Commands --> Parser
     Services --> YTDLP
+    Services -.-> GH
     YTDLP -.-> FFMPEG
     YTDLP -.-> DENO
 ```
@@ -143,10 +151,10 @@ flowchart TB
 
 ```
 YoutubePlaylistDownloader/
-├── src/                 # React frontend (components, hooks, store, services)
+├── src/                 # React frontend (components, hooks, store, i18n)
 ├── src-tauri/           # Rust backend (commands, services, yt-dlp sidecar)
 ├── docs/                # Project documentation
-├── .github/workflows/   # Release CI
+├── .github/workflows/   # PR CI (ci.yml) + Release (release.yml)
 ├── LICENSE              # GPL-3.0
 └── package.json
 ```
@@ -230,14 +238,14 @@ npm run tauri build
 3. Paste a YouTube video or playlist URL.
 4. Fetch metadata, select tracks if prompted, then start the download.
 5. Watch per-track progress and status; failed items can be retried.
-6. Optionally export a mobile-friendly ZIP, run **Environment diagnose**, or open the app log viewer.
+6. Optionally export a mobile-friendly ZIP, run **Environment diagnose**, use **Update yt-dlp** (footer), or open the app log viewer.
 7. **Cancel** stops the job and cleans up background processes.
 
 ---
 
 ## Limitations
 
-- YouTube player / signature changes can temporarily break or throttle downloads; keep `yt-dlp` (and Deno) updated.
+- YouTube player / signature changes can temporarily break or throttle downloads; keep `yt-dlp` (and Deno) updated (footer **Update yt-dlp** or the next app release).
 - FFmpeg must be on `PATH` (or in common install locations).
 - **Copyright & ToS**: Intended for personal / educational offline use. You are responsible for complying with copyright law and YouTube’s Terms of Service. See [Terms of Use](docs/TERMS.md).
 - DRM-protected media cannot be downloaded.

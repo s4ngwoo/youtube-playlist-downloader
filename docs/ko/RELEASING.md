@@ -18,11 +18,11 @@ Linux 공식 설치 파일은 **계획하지 않습니다** (소스 빌드만 ·
 
 ## 태그 전 체크리스트
 
-1. **버전** — `src-tauri/tauri.conf.json`의 `version`을 올린다 (관련 패키지 메타도 맞추기).
+1. **버전** — **함께** 올린다: `package.json`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json` (필요 시 `package-lock.json` / `Cargo.lock` 갱신).
 2. **CHANGELOG** — `[Unreleased]` 항목을 `docs/CHANGELOG.md` · `docs/ko/CHANGELOG.md`의 새 섹션으로 옮긴다.
 3. **README 플랫폼 표** — Official / 소스 빌드 행이 매트릭스와 일치하는지 확인.
 4. **yt-dlp 정책** — `latest` vs 고정 태그 결정 (아래).
-5. **로컬 스모크** (권장) — `npm run typecheck`, `npm run test:rust`.
+5. **로컬 스모크** (권장) — `npm run typecheck`, `npm test`, `npm run test:rust`.
 6. **태그 푸시**
 
 ```bash
