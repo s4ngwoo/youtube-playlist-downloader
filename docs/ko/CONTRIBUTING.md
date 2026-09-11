@@ -36,15 +36,17 @@ CI (`.github/workflows/ci.yml`)가 PR 및 `main` 푸시마다 실행됩니다.
 # Frontend
 npm ci
 npm run typecheck
+npm run lint
+npm run format:check
 npm test
 
 # Rust
 npm run test:rust
 # 또는:
-cd src-tauri && cargo check && cargo clippy --all-targets -- -D warnings && cargo test
+cd src-tauri && cargo fmt --check && cargo check && cargo clippy --all-targets -- -D warnings && cargo test
 ```
 
-Clippy는 모든 경고를 에러로 취급합니다 (`-D warnings`).
+Clippy는 모든 경고를 에러로 취급합니다 (`-D warnings`). 프론트 포맷은 `npm run format`, Rust는 `src-tauri/`에서 `cargo fmt`.
 
 ### 로컬 macOS 검증 패키지 (메인테이너 / AI)
 

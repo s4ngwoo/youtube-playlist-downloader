@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   frontend:
-    name: Frontend (typecheck)
+    name: Frontend (typecheck, lint, format, test)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,11 +28,17 @@ jobs:
       - name: TypeScript check
         run: npm run typecheck
 
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier check
+        run: npm run format:check
+
       - name: Unit tests
         run: npm test
 
   rust:
-    name: Rust (check, clippy, test)
+    name: Rust (fmt, check, clippy, test)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -53,7 +59,7 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
+          components: clippy, rustfmt
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -67,6 +73,9 @@ jobs:
           printf '%s\n' '#!/bin/sh' 'echo "yt-dlp CI stub"' 'exit 0' \
             > bin/yt-dlp-x86_64-unknown-linux-gnu
           chmod +x bin/yt-dlp-x86_64-unknown-linux-gnu
+
+      - name: cargo fmt
+        run: cargo fmt --check
 
       - name: cargo check
         run: cargo check

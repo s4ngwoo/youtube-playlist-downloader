@@ -35,15 +35,17 @@ CI (`.github/workflows/ci.yml`) runs on every PR and push to `main`:
 # Frontend
 npm ci
 npm run typecheck
+npm run lint
+npm run format:check
 npm test
 
 # Rust (from repo root or src-tauri/)
 npm run test:rust
 # equivalent:
-cd src-tauri && cargo check && cargo clippy --all-targets -- -D warnings && cargo test
+cd src-tauri && cargo fmt --check && cargo check && cargo clippy --all-targets -- -D warnings && cargo test
 ```
 
-Clippy treats all warnings as errors (`-D warnings`).
+Clippy treats all warnings as errors (`-D warnings`). Format frontend with `npm run format`; Rust with `cargo fmt` inside `src-tauri/`.
 
 ### Local macOS verify package (maintainers / AI)
 

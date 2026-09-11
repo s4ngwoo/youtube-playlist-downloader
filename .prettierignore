@@ -1,0 +1,7 @@
+dist
+src-tauri/target
+node_modules
+package-lock.json
+*.md
+notes
+local-packages
