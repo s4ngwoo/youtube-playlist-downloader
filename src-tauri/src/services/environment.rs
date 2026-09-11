@@ -9,6 +9,7 @@ static DENO_PATH: OnceLock<Option<PathBuf>> = OnceLock::new();
 static FFMPEG_LOCATION: OnceLock<Option<String>> = OnceLock::new();
 
 #[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EnvironmentReport {
     pub ffmpeg_found: bool,
     pub ffmpeg_location: Option<String>,
@@ -208,10 +209,7 @@ pub fn warn_if_deno_missing() {
     if get_deno_path().is_none() {
         logger::warn("environment", &deno_missing_warning());
     } else if let Some(path) = get_deno_path() {
-        logger::info(
-            "environment",
-            &format!("Deno 감지: {}", path.display()),
-        );
+        logger::info("environment", &format!("Deno 감지: {}", path.display()));
     }
 }
 
@@ -335,7 +333,10 @@ mod tests {
         }
         if !report.ffmpeg_found {
             assert!(report.warnings.iter().any(|w| w == "warn.ffmpeg_missing"));
-            assert!(report.install_hints.iter().any(|h| h == "hint.ffmpeg.macos"));
+            assert!(report
+                .install_hints
+                .iter()
+                .any(|h| h == "hint.ffmpeg.macos"));
         }
         if !report.deno_found {
             assert!(report.warnings.iter().any(|w| w == "warn.deno_missing"));

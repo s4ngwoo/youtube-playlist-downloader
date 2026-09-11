@@ -52,7 +52,8 @@ impl DownloadRegexes {
             re_playlist: Regex::new(r"\[download\] Downloading playlist:\s*(.+)").unwrap(),
             re_item: Regex::new(r"\[download\] Downloading (?:item|video)\s+(\d+)\s+of\s+(\d+)")
                 .unwrap(),
-            re_dest: Regex::new(r"(?:\[download\]|\[ExtractAudio\])\s+Destination:\s*(.+)").unwrap(),
+            re_dest: Regex::new(r"(?:\[download\]|\[ExtractAudio\])\s+Destination:\s*(.+)")
+                .unwrap(),
             re_already: Regex::new(r"\[download\]\s+(.+)\s+has already been downloaded").unwrap(),
             re_progress: Regex::new(r"\[download\]\s+(\d+(?:\.\d+)?)%").unwrap(),
             re_speed: Regex::new(r"at\s+([\d.]+[KkMmGg]?i?B/s)").unwrap(),
@@ -80,14 +81,8 @@ mod tests {
 
     #[test]
     fn clean_title_strips_ytdlp_format_tag() {
-        assert_eq!(
-            clean_title_from_destination("/dl/Hello.f140.m4a"),
-            "Hello"
-        );
-        assert_eq!(
-            clean_title_from_destination("Clip.f251.webm.part"),
-            "Clip"
-        );
+        assert_eq!(clean_title_from_destination("/dl/Hello.f140.m4a"), "Hello");
+        assert_eq!(clean_title_from_destination("Clip.f251.webm.part"), "Clip");
     }
 
     #[test]

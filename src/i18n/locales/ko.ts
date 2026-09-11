@@ -113,6 +113,7 @@ export const ko: MessageCatalog = {
   "errors.sidecarUnavailable":
     "yt-dlp 사이드카를 준비할 수 없습니다.\n필요한 파일: `{name}`\n개발 시 `src-tauri/bin/{name}` 에 배치하거나 릴리즈 번들을 사용하세요.\nhttps://github.com/yt-dlp/yt-dlp/releases",
   "errors.noItems": "다운로드할 항목이 없습니다.",
+  "errors.emptyUrl": "URL을 입력해 주세요.",
   "errors.allFailed": "모든 항목 다운로드에 실패했습니다.",
   "errors.invalidDir": "유효하지 않은 다운로드 디렉토리입니다.",
   "errors.noAudioForZip": "압축할 .m4a/.mp3 오디오 파일이 없습니다.",
@@ -124,6 +125,7 @@ export const ko: MessageCatalog = {
   "ok.downloadPartial":
     "다운로드 완료 (성공: {success}개, 실패: {fail}개 - 실패한 트랙은 재시도 버튼으로 다시 받을 수 있습니다)",
   "ok.cancelled": "진행 중인 모든 다운로드 작업이 중단되었습니다.",
+  "ok.metadataUpdated": "메타데이터를 저장했습니다.",
   "ok.zipCreated": "{count}개의 파일이 Mobile_Export.zip으로 압축되었습니다.",
   "ok.logsCleared": "로그가 초기화되었습니다.",
 

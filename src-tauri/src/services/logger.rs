@@ -96,7 +96,11 @@ pub fn read_logs(max_lines: usize) -> Vec<LogEntry> {
     };
 
     let lines: Vec<&str> = content.lines().collect();
-    let start = if lines.len() > max_lines { lines.len() - max_lines } else { 0 };
+    let start = if lines.len() > max_lines {
+        lines.len() - max_lines
+    } else {
+        0
+    };
 
     lines[start..]
         .iter()
@@ -115,7 +119,8 @@ pub fn clear_logs() -> std::io::Result<()> {
 
 /// 로그 파일 크기(바이트) 반환
 pub fn log_file_size() -> u64 {
-    LOG_PATH.get()
+    LOG_PATH
+        .get()
         .and_then(|p| fs::metadata(p).ok())
         .map(|m| m.len())
         .unwrap_or(0)

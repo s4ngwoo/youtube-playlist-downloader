@@ -72,22 +72,18 @@ fn release_asset_name() -> &'static str {
 
 pub fn download_latest_override(app: &AppHandle) -> Result<YtdlpStatus, crate::AppError> {
     let dir = sidecars_dir(app)?;
-    fs::create_dir_all(&dir).map_err(|e| {
-        crate::AppError::DownloadError(format!("error.ytdlp_update_failed:{e}"))
-    })?;
+    fs::create_dir_all(&dir)
+        .map_err(|e| crate::AppError::DownloadError(format!("error.ytdlp_update_failed:{e}")))?;
 
     let dest = override_binary_path(app)?;
     let tmp = dest.with_extension("tmp");
     let asset = release_asset_name();
-    let url = format!(
-        "https://github.com/yt-dlp/yt-dlp/releases/latest/download/{asset}"
-    );
+    let url = format!("https://github.com/yt-dlp/yt-dlp/releases/latest/download/{asset}");
 
     logger::info("ytdlp", &format!("yt-dlp 오버라이드 다운로드 시작: {url}"));
 
-    let response = reqwest::blocking::get(&url).map_err(|e| {
-        crate::AppError::DownloadError(format!("error.ytdlp_update_failed:{e}"))
-    })?;
+    let response = reqwest::blocking::get(&url)
+        .map_err(|e| crate::AppError::DownloadError(format!("error.ytdlp_update_failed:{e}")))?;
 
     if !response.status().is_success() {
         return Err(crate::AppError::DownloadError(format!(
@@ -96,9 +92,9 @@ pub fn download_latest_override(app: &AppHandle) -> Result<YtdlpStatus, crate::A
         )));
     }
 
-    let bytes = response.bytes().map_err(|e| {
-        crate::AppError::DownloadError(format!("error.ytdlp_update_failed:{e}"))
-    })?;
+    let bytes = response
+        .bytes()
+        .map_err(|e| crate::AppError::DownloadError(format!("error.ytdlp_update_failed:{e}")))?;
 
     {
         let mut file = fs::File::create(&tmp).map_err(|e| {
@@ -121,9 +117,8 @@ pub fn download_latest_override(app: &AppHandle) -> Result<YtdlpStatus, crate::A
         })?;
     }
 
-    fs::rename(&tmp, &dest).map_err(|e| {
-        crate::AppError::DownloadError(format!("error.ytdlp_update_failed:{e}"))
-    })?;
+    fs::rename(&tmp, &dest)
+        .map_err(|e| crate::AppError::DownloadError(format!("error.ytdlp_update_failed:{e}")))?;
 
     let version = read_version(&dest);
     logger::info(

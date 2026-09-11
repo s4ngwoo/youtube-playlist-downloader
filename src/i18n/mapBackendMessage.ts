@@ -21,6 +21,7 @@ export function mapBackendMessage(raw: string, tFn: TFn = translate): string {
   }
 
   if (body === "error.no_items") return tFn("errors.noItems");
+  if (body === "error.empty_url") return tFn("errors.emptyUrl");
   if (body === "error.all_failed") return tFn("errors.allFailed");
   if (body === "error.invalid_download_dir") return tFn("errors.invalidDir");
   if (body === "error.no_audio_for_zip") return tFn("errors.noAudioForZip");
@@ -36,6 +37,7 @@ export function mapBackendMessage(raw: string, tFn: TFn = translate): string {
     return tFn("ok.downloadPartial", { success, fail });
   }
   if (body === "ok.cancelled") return tFn("ok.cancelled");
+  if (body === "ok.metadata_updated") return tFn("ok.metadataUpdated");
   if (body.startsWith("ok.zip_created:")) {
     const count = body.split(":")[1] ?? "0";
     return tFn("ok.zipCreated", { count });

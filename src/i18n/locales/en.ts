@@ -113,6 +113,7 @@ export const en: MessageCatalog = {
   "errors.sidecarUnavailable":
     "Could not prepare the yt-dlp sidecar.\nExpected file: `{name}`\nFor development place it at `src-tauri/bin/{name}`, or use a release build.\nhttps://github.com/yt-dlp/yt-dlp/releases",
   "errors.noItems": "Nothing to download.",
+  "errors.emptyUrl": "Please enter a URL.",
   "errors.allFailed": "Every track failed to download.",
   "errors.invalidDir": "Invalid download directory.",
   "errors.noAudioForZip": "No .m4a/.mp3 files to zip.",
@@ -124,6 +125,7 @@ export const en: MessageCatalog = {
   "ok.downloadPartial":
     "Download finished (ok: {success}, failed: {fail} — use Retry for failed tracks)",
   "ok.cancelled": "All in-progress download work was stopped.",
+  "ok.metadataUpdated": "Metadata saved.",
   "ok.zipCreated": "Zipped {count} file(s) into Mobile_Export.zip.",
   "ok.logsCleared": "Logs cleared.",
 

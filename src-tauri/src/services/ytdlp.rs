@@ -8,9 +8,7 @@ use crate::parser::{clean_title_from_destination, DownloadRegexes};
 use crate::process::AppState;
 use crate::services::{environment, logger, ytdlp_update};
 
-fn open_ytdlp(
-    app: &tauri::AppHandle,
-) -> Result<tauri_plugin_shell::process::Command, String> {
+fn open_ytdlp(app: &tauri::AppHandle) -> Result<tauri_plugin_shell::process::Command, String> {
     if let Ok(path) = ytdlp_update::override_binary_path(app) {
         if path.is_file() {
             logger::info(
@@ -46,9 +44,56 @@ pub fn is_valid_entry(entry: &crate::models::YtDlpEntry) -> bool {
     }
 }
 
+/// Map a yt-dlp JSON dump into app playlist metadata (playlist or single video).
+pub fn playlist_metadata_from_dump(
+    dump: YtDlpDump,
+    fallback_url: &str,
+) -> crate::models::PlaylistMetadata {
+    use crate::models::{PlaylistMetadata, TrackMetadata};
+
+    let mut tracks = Vec::new();
+    let playlist_title = dump.title.unwrap_or_else(|| "Unknown".to_string());
+
+    if dump._type.as_deref() == Some("playlist") {
+        if let Some(entries) = dump.entries {
+            let valid_entries: Vec<_> = entries.into_iter().filter(is_valid_entry).collect();
+            for (idx, entry) in valid_entries.into_iter().enumerate() {
+                let id = entry.id.unwrap_or_else(|| "".into());
+                let track_url = entry
+                    .url
+                    .unwrap_or_else(|| format!("https://www.youtube.com/watch?v={}", id));
+                tracks.push(TrackMetadata {
+                    index: idx + 1,
+                    title: entry.title.unwrap_or_else(|| format!("Track {}", idx + 1)),
+                    id,
+                    url: track_url,
+                });
+            }
+        }
+    } else {
+        tracks.push(TrackMetadata {
+            index: 1,
+            title: playlist_title.clone(),
+            id: "".into(),
+            url: fallback_url.to_string(),
+        });
+    }
+
+    PlaylistMetadata {
+        title: playlist_title,
+        tracks,
+    }
+}
+
 /// yt-dlp 사이드카를 통해 URL의 flat playlist 정보를 JSON 덤프로 조회합니다.
-pub async fn fetch_playlist_dump(app: &tauri::AppHandle, url: &str) -> Result<YtDlpDump, crate::AppError> {
-    logger::info("ytdlp", &format!("플레이리스트 메타데이터 덤프 시작: {}", url));
+pub async fn fetch_playlist_dump(
+    app: &tauri::AppHandle,
+    url: &str,
+) -> Result<YtDlpDump, crate::AppError> {
+    logger::info(
+        "ytdlp",
+        &format!("플레이리스트 메타데이터 덤프 시작: {}", url),
+    );
     let dump_args = vec![
         "--flat-playlist".into(),
         "--ignore-errors".into(),
@@ -69,17 +114,25 @@ pub async fn fetch_playlist_dump(app: &tauri::AppHandle, url: &str) -> Result<Yt
     match serde_json::from_str::<YtDlpDump>(&json_str) {
         Ok(dump) => {
             let count = dump.entries.as_ref().map(|e| e.len()).unwrap_or(0);
-            logger::info("ytdlp", &format!("플레이리스트 덤프 완료: {} 개 항목 발견", count));
+            logger::info(
+                "ytdlp",
+                &format!("플레이리스트 덤프 완료: {} 개 항목 발견", count),
+            );
             Ok(dump)
         }
         Err(e) => {
             if !output.status.success() {
                 let err = String::from_utf8_lossy(&output.stderr);
                 logger::error("ytdlp", &format!("메타데이터 가져오기 실패: {}", err));
-                return Err(crate::AppError::DownloadError(format!("메타데이터 가져오기 실패: {}", err)));
+                return Err(crate::AppError::DownloadError(format!(
+                    "메타데이터 가져오기 실패: {}",
+                    err
+                )));
             }
             logger::error("ytdlp", &format!("메타데이터 파싱 실패: {e}"));
-            Err(crate::AppError::DownloadError(format!("메타데이터 파싱 실패: {e}")))
+            Err(crate::AppError::DownloadError(format!(
+                "메타데이터 파싱 실패: {e}"
+            )))
         }
     }
 }
@@ -228,7 +281,10 @@ pub async fn handle_command_events(
                     let mut err_msg = None;
                     if let Some(caps) = regexes.re_error.captures(&line) {
                         let msg = caps[1].trim().to_string();
-                        logger::error("ytdlp", &format!("[트랙 #{}] yt-dlp ERROR: {}", task.item_index, msg));
+                        logger::error(
+                            "ytdlp",
+                            &format!("[트랙 #{}] yt-dlp ERROR: {}", task.item_index, msg),
+                        );
                         err_msg = Some(msg);
                     } else if line.contains("WARNING:") {
                         logger::warn("ytdlp", &format!("[트랙 #{}] {}", task.item_index, line));
@@ -257,11 +313,20 @@ pub async fn handle_command_events(
                 exit_code = payload.code;
                 if payload.code != Some(0) {
                     exit_success = false;
-                    logger::warn("ytdlp", &format!("[트랙 #{}] 프로세스 비정상 종료 (코드: {:?})", task.item_index, payload.code));
+                    logger::warn(
+                        "ytdlp",
+                        &format!(
+                            "[트랙 #{}] 프로세스 비정상 종료 (코드: {:?})",
+                            task.item_index, payload.code
+                        ),
+                    );
                 }
             }
             CommandEvent::Error(err) => {
-                logger::error("ytdlp", &format!("[트랙 #{}] 실행 오류: {}", task.item_index, err));
+                logger::error(
+                    "ytdlp",
+                    &format!("[트랙 #{}] 실행 오류: {}", task.item_index, err),
+                );
                 let err_msg = format!("실행 오류: {err}");
                 let _ = app.emit(
                     "download-progress",
@@ -289,7 +354,10 @@ pub async fn handle_command_events(
     if exit_success {
         Ok(())
     } else {
-        Err(format!("다운로드 실패 (종료 코드: {:?})", exit_code.unwrap_or(-1)))
+        Err(format!(
+            "다운로드 실패 (종료 코드: {:?})",
+            exit_code.unwrap_or(-1)
+        ))
     }
 }
 
@@ -302,18 +370,22 @@ pub async fn process_item(
     regexes: Arc<DownloadRegexes>,
     audio_format: &str,
 ) -> Result<(), String> {
-    logger::info("download", &format!("[{}/{}] 다운로드 시작: {}", task.item_index, task.total_items, task.url));
+    logger::info(
+        "download",
+        &format!(
+            "[{}/{}] 다운로드 시작: {}",
+            task.item_index, task.total_items, task.url
+        ),
+    );
     let yt_dlp_args = build_ytdlp_args(&task, &actual_download_dir, audio_format);
 
     let command = open_ytdlp(&app)?.args(yt_dlp_args);
 
-    let (rx, child) = command
-        .spawn()
-        .map_err(|e| {
-            let msg = environment::sidecar_error_message(&e);
-            logger::error("download", &format!("[트랙 #{}] {msg}", task.item_index));
-            msg
-        })?;
+    let (rx, child) = command.spawn().map_err(|e| {
+        let msg = environment::sidecar_error_message(&e);
+        logger::error("download", &format!("[트랙 #{}] {msg}", task.item_index));
+        msg
+    })?;
 
     let pid = child.pid();
     let state = app.state::<AppState>();
@@ -324,8 +396,14 @@ pub async fn process_item(
     state.unregister_pid(pid);
 
     match &result {
-        Ok(_) => logger::info("download", &format!("[트랙 #{}] 다운로드 완료", task.item_index)),
-        Err(e) => logger::error("download", &format!("[트랙 #{}] 다운로드 실패: {}", task.item_index, e)),
+        Ok(_) => logger::info(
+            "download",
+            &format!("[트랙 #{}] 다운로드 완료", task.item_index),
+        ),
+        Err(e) => logger::error(
+            "download",
+            &format!("[트랙 #{}] 다운로드 실패: {}", task.item_index, e),
+        ),
     }
 
     result
@@ -386,7 +464,9 @@ mod tests {
     fn rejects_private_and_deleted_markers() {
         assert!(!is_valid_entry(&entry(Some("[Private video]"))));
         assert!(!is_valid_entry(&entry(Some("[Deleted video]"))));
-        assert!(!is_valid_entry(&entry(Some("this is a Private Video copy"))));
+        assert!(!is_valid_entry(&entry(Some(
+            "this is a Private Video copy"
+        ))));
         assert!(!is_valid_entry(&entry(Some("Deleted video placeholder"))));
     }
 }

@@ -1,53 +1,26 @@
-use std::sync::Arc;
 use futures::stream::{self, StreamExt};
+use std::sync::Arc;
 
 use crate::commands::utils::get_default_download_dir;
-use crate::models::{DownloadTask, PlaylistMetadata, TrackMetadata};
+use crate::models::{DownloadTask, PlaylistMetadata};
 use crate::parser::DownloadRegexes;
 use crate::process::AppState;
 use crate::services::environment;
-use crate::services::ytdlp::{fetch_playlist_dump, is_valid_entry, process_item};
 use crate::services::logger;
+use crate::services::ytdlp::{fetch_playlist_dump, playlist_metadata_from_dump, process_item};
 
 /// 플레이리스트 또는 단일 영상의 메타데이터(제목 및 트랙 목록)를 가져오는 Command
 #[tauri::command]
-pub async fn fetch_metadata(app: tauri::AppHandle, url: String) -> Result<PlaylistMetadata, crate::AppError> {
+pub async fn fetch_metadata(
+    app: tauri::AppHandle,
+    url: String,
+) -> Result<PlaylistMetadata, crate::AppError> {
     if url.trim().is_empty() {
-        return Err(crate::AppError::DownloadError("URL을 입력해 주세요.".into()));
+        return Err(crate::AppError::DownloadError("error.empty_url".into()));
     }
 
     let dump = fetch_playlist_dump(&app, &url).await?;
-    let mut tracks = Vec::new();
-    let playlist_title = dump.title.unwrap_or_else(|| "Unknown".to_string());
-
-    if dump._type.as_deref() == Some("playlist") {
-        if let Some(entries) = dump.entries {
-            let valid_entries: Vec<_> = entries.into_iter().filter(is_valid_entry).collect();
-            for (idx, entry) in valid_entries.into_iter().enumerate() {
-                let id = entry.id.unwrap_or_else(|| "".into());
-                let track_url = entry.url.unwrap_or_else(|| format!("https://www.youtube.com/watch?v={}", id));
-                tracks.push(TrackMetadata {
-                    index: idx + 1,
-                    title: entry.title.unwrap_or_else(|| format!("Track {}", idx + 1)),
-                    id,
-                    url: track_url,
-                });
-            }
-        }
-    } else {
-        // 단일 비디오
-        tracks.push(TrackMetadata {
-            index: 1,
-            title: playlist_title.clone(),
-            id: "".into(),
-            url: url.clone(),
-        });
-    }
-
-    Ok(PlaylistMetadata {
-        title: playlist_title,
-        tracks,
-    })
+    Ok(playlist_metadata_from_dump(dump, &url))
 }
 
 /// 프론트엔드에서 사용자가 다운로드를 즉시 취소할 수 있는 Command
@@ -65,9 +38,7 @@ pub struct SelectedTrack {
     pub index: usize,
 }
 
-/// 비동기 오디오(m4a) 병렬 다운로드 Command
-/// 프론트엔드가 이미 fetch_metadata로 받은 트랙 URL 목록을 직접 전달하므로
-/// 중복 메타데이터 덤프가 발생하지 않습니다.
+/// 비동기 오디오 병렬 다운로드 Command
 #[tauri::command]
 pub async fn download_audio(
     app: tauri::AppHandle,
@@ -82,7 +53,6 @@ pub async fn download_audio(
         return Err(crate::AppError::DownloadError("error.no_items".into()));
     }
 
-    // 다운로드 전 환경 검사: FFmpeg 필수, Deno는 경고만
     environment::ensure_ffmpeg_available()?;
     environment::warn_if_deno_missing();
 
@@ -100,10 +70,13 @@ pub async fn download_audio(
     let format = normalize_audio_format(audio_format.as_deref());
     let concurrency = concurrency.unwrap_or(3).clamp(1, 8);
 
-    logger::info("download", &format!(
-        "다운로드 시작 — 총 {}개 트랙, 동시성 {}, 포맷 {}, 저장 경로: {}",
-        total, concurrency, format, actual_download_dir
-    ));
+    logger::info(
+        "download",
+        &format!(
+            "다운로드 시작 — 총 {}개 트랙, 동시성 {}, 포맷 {}, 저장 경로: {}",
+            total, concurrency, format, actual_download_dir
+        ),
+    );
 
     let tasks: Vec<DownloadTask> = selected_tracks
         .into_iter()
@@ -132,7 +105,8 @@ pub async fn download_audio(
                 playlist_title,
                 regexes,
                 format.as_str(),
-            ).await
+            )
+            .await
         }
     });
 
@@ -152,9 +126,13 @@ pub async fn download_audio(
         let _ = crate::nfc::normalize_directory_nfc(std::path::Path::new(&actual_download_dir));
     }
 
-    logger::info("download", &format!(
-        "다운로드 완료 — 성공: {}개, 실패: {}개", success_count, fail_count
-    ));
+    logger::info(
+        "download",
+        &format!(
+            "다운로드 완료 — 성공: {}개, 실패: {}개",
+            success_count, fail_count
+        ),
+    );
 
     if success_count == 0 && fail_count > 0 {
         Err(crate::AppError::DownloadError("error.all_failed".into()))

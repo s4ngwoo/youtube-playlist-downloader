@@ -35,7 +35,7 @@ fn set_dock_icon() {
             let app_icon: id = msg_send![ns_image, initWithData: data];
             if !app_icon.is_null() {
                 let _: () = msg_send![ns_app, setApplicationIconImage: app_icon];
-                println!("[MacOS] Dock 아이콘이 성공적으로 설정되었습니다.");
+                crate::services::logger::info("macos", "Dock icon set");
             }
         }
     }
@@ -63,10 +63,7 @@ pub fn run() {
                 "environment",
                 &format!(
                     "시작 환경 — ffmpeg={} deno={} sidecar={} ytdlp_source={}",
-                    report
-                        .ffmpeg_location
-                        .as_deref()
-                        .unwrap_or("(없음)"),
+                    report.ffmpeg_location.as_deref().unwrap_or("(없음)"),
                     report.deno_path.as_deref().unwrap_or("(없음)"),
                     report.sidecar_expected_name,
                     report.ytdlp_source

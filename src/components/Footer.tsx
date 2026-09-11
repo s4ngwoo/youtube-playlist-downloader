@@ -30,24 +30,24 @@ export function Footer() {
       const report = await diagnoseEnvironment();
       const lines = [
         `OS: ${report.os} / ${report.arch}`,
-        `FFmpeg: ${report.ffmpeg_found ? report.ffmpeg_location : t("footer.diag.none")}`,
-        `Deno: ${report.deno_found ? report.deno_path : t("footer.diag.denoNone")}`,
-        t("footer.diag.sidecar", { name: report.sidecar_expected_name }),
+        `FFmpeg: ${report.ffmpegFound ? report.ffmpegLocation : t("footer.diag.none")}`,
+        `Deno: ${report.denoFound ? report.denoPath : t("footer.diag.denoNone")}`,
+        t("footer.diag.sidecar", { name: report.sidecarExpectedName }),
         t("footer.diag.ytdlpSource", {
-          source: sourceLabel(report.ytdlp_source),
+          source: sourceLabel(report.ytdlpSource),
         }),
         t("footer.diag.ytdlpVersion", {
-          version: report.ytdlp_version ?? t("footer.diag.none"),
+          version: report.ytdlpVersion ?? t("footer.diag.none"),
         }),
-        ...(report.ytdlp_path ? [`yt-dlp path: ${report.ytdlp_path}`] : []),
+        ...(report.ytdlpPath ? [`yt-dlp path: ${report.ytdlpPath}`] : []),
         ...(report.warnings.length
           ? ["", t("footer.diag.warnings"), ...report.warnings.map((w) => `- ${mapEnvCode(w, t)}`)]
           : ["", t("footer.diag.noWarnings")]),
-        ...(report.install_hints.length
+        ...(report.installHints.length
           ? [
               "",
               t("footer.diag.hints"),
-              ...report.install_hints.map((h) => `- ${mapEnvCode(h, t)}`),
+              ...report.installHints.map((h) => `- ${mapEnvCode(h, t)}`),
             ]
           : []),
         "",

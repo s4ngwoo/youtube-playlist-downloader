@@ -1,18 +1,18 @@
 import { invoke } from "@tauri-apps/api/core";
 
 export type EnvironmentReport = {
-  ffmpeg_found: boolean;
-  ffmpeg_location: string | null;
-  deno_found: boolean;
-  deno_path: string | null;
-  sidecar_expected_name: string;
+  ffmpegFound: boolean;
+  ffmpegLocation: string | null;
+  denoFound: boolean;
+  denoPath: string | null;
+  sidecarExpectedName: string;
   os: string;
   arch: string;
   warnings: string[];
-  install_hints: string[];
-  ytdlp_source: string;
-  ytdlp_version: string | null;
-  ytdlp_path: string | null;
+  installHints: string[];
+  ytdlpSource: string;
+  ytdlpVersion: string | null;
+  ytdlpPath: string | null;
 };
 
 export type YtdlpStatus = {
