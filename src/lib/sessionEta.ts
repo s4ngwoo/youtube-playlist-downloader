@@ -1,13 +1,7 @@
 /** Session download ETA / dual-phase progress (pure; no Tauri). */
 
 export type SessionTrackStatus =
-  | "pending"
-  | "downloading"
-  | "extracting"
-  | "converting_art"
-  | "tagging"
-  | "completed"
-  | "failed";
+  "pending" | "downloading" | "extracting" | "converting_art" | "tagging" | "completed" | "failed";
 
 export type SessionTrackInput = {
   status: SessionTrackStatus;
@@ -49,12 +43,8 @@ export function parseEtaToSeconds(eta: string | undefined | null): number | null
   const nums = parts.map((p) => Number(p));
   if (nums.some((n) => !Number.isFinite(n) || n < 0)) return null;
 
-  let sec = 0;
-  if (nums.length === 2) {
-    sec = nums[0]! * 60 + nums[1]!;
-  } else {
-    sec = nums[0]! * 3600 + nums[1]! * 60 + nums[2]!;
-  }
+  const sec =
+    nums.length === 2 ? nums[0]! * 60 + nums[1]! : nums[0]! * 3600 + nums[1]! * 60 + nums[2]!;
 
   if (sec <= 0) return null;
   return sec;

@@ -24,11 +24,7 @@ function seedPendingTracks(
     const meta = byIndex.get(sel.index);
     seeded.set(sel.index, {
       index: sel.index,
-      title: mergeTrackTitle(
-        meta?.title,
-        sel.title,
-        sel.index,
-      ),
+      title: mergeTrackTitle(meta?.title, sel.title, sel.index),
       progress: 0,
       status: "pending",
     });

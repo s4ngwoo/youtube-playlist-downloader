@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  mergeTrackTitle,
-  sortTracksForDisplay,
-  type SortableTrack,
-} from "./trackProgress";
+import { mergeTrackTitle, sortTracksForDisplay, type SortableTrack } from "./trackProgress";
 
 describe("mergeTrackTitle", () => {
   it("keeps existing real title when incoming is empty", () => {

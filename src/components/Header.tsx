@@ -114,9 +114,7 @@ export function Header({ onOpenMetadataEditor }: HeaderProps) {
             title={statusMessage || t("header.status.downloading")}
           >
             <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping shrink-0" />
-            <span className="truncate">
-              {statusMessage || t("header.status.downloading")}
-            </span>
+            <span className="truncate">{statusMessage || t("header.status.downloading")}</span>
           </span>
         )}
         {status === "completed" && (

@@ -56,7 +56,12 @@ fn classify_availability(availability: Option<&str>) -> Option<&'static str> {
 ///
 /// Title placeholders (EN/KO) first, then `availability`, then empty → unknown.
 pub fn classify_entry(entry: &crate::models::YtDlpEntry) -> &'static str {
-    if let Some(t) = entry.title.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(t) = entry
+        .title
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         let lower = t.to_lowercase();
         if title_looks_private(t, &lower) {
             return "private";
@@ -111,12 +116,7 @@ pub fn probe_targets_from_dump(dump: &YtDlpDump) -> Vec<(usize, String)> {
         if classify_entry(entry) != "unknown" {
             continue;
         }
-        if let Some(id) = entry
-            .id
-            .as_deref()
-            .map(str::trim)
-            .filter(|s| !s.is_empty())
-        {
+        if let Some(id) = entry.id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
             out.push((index, id.to_string()));
         }
     }
@@ -139,10 +139,7 @@ pub fn apply_probed_reasons(
 }
 
 /// Probe one video id with yt-dlp (no download) and classify stderr.
-pub async fn probe_video_unavailability(
-    app: &tauri::AppHandle,
-    video_id: &str,
-) -> &'static str {
+pub async fn probe_video_unavailability(app: &tauri::AppHandle, video_id: &str) -> &'static str {
     let url = format!("https://www.youtube.com/watch?v={video_id}");
     let args = vec![
         "--skip-download".into(),
@@ -183,10 +180,7 @@ pub async fn enrich_skipped_with_probe_targets(
     let mut probed: Vec<(usize, &'static str)> = Vec::with_capacity(targets.len());
     for (index, id) in targets {
         let reason = probe_video_unavailability(app, &id).await;
-        logger::info(
-            "ytdlp",
-            &format!("probe #{index} id={id} → {reason}"),
-        );
+        logger::info("ytdlp", &format!("probe #{index} id={id} → {reason}"));
         probed.push((index, reason));
     }
     apply_probed_reasons(meta, &probed);
@@ -399,10 +393,7 @@ pub async fn handle_command_events(
                             playlist_title: parse.playlist_title.clone(),
                             item_index: Some(task.item_index),
                             total_items: Some(task.total_items),
-                            item_title: parse
-                                .item_title
-                                .clone()
-                                .or_else(|| task.title.clone()),
+                            item_title: parse.item_title.clone().or_else(|| task.title.clone()),
                             track_progress: parse.track_progress,
                             track_status: parse.track_status.clone(),
                             speed: parse.speed.clone(),
@@ -443,10 +434,7 @@ pub async fn handle_command_events(
                             playlist_title: parse.playlist_title.clone(),
                             item_index: Some(task.item_index),
                             total_items: Some(task.total_items),
-                            item_title: parse
-                                .item_title
-                                .clone()
-                                .or_else(|| task.title.clone()),
+                            item_title: parse.item_title.clone().or_else(|| task.title.clone()),
                             track_progress: parse.track_progress,
                             track_status,
                             speed: parse.speed.clone(),
@@ -480,10 +468,7 @@ pub async fn handle_command_events(
                             playlist_title: parse.playlist_title.clone(),
                             item_index: Some(task.item_index),
                             total_items: Some(task.total_items),
-                            item_title: parse
-                                .item_title
-                                .clone()
-                                .or_else(|| task.title.clone()),
+                            item_title: parse.item_title.clone().or_else(|| task.title.clone()),
                             track_progress: parse.track_progress,
                             track_status: Some("failed".to_string()),
                             speed: None,
@@ -640,7 +625,8 @@ mod tests {
         };
         let args = build_ytdlp_args(&task, "/tmp", "m4a");
         assert!(
-            args.windows(2).any(|w| w[0] == "-o" && w[1] == "%(title)s.%(ext)s"),
+            args.windows(2)
+                .any(|w| w[0] == "-o" && w[1] == "%(title)s.%(ext)s"),
             "expected title-only outtmpl: {args:?}"
         );
         assert!(
@@ -706,26 +692,11 @@ mod tests {
 
     #[test]
     fn classify_korean_and_unbracketed_titles() {
-        assert_eq!(
-            classify_entry(&entry(Some("비공개 동영상"))),
-            "private"
-        );
-        assert_eq!(
-            classify_entry(&entry(Some("[비공개 동영상]"))),
-            "private"
-        );
-        assert_eq!(
-            classify_entry(&entry(Some("삭제된 동영상"))),
-            "deleted"
-        );
-        assert_eq!(
-            classify_entry(&entry(Some("Private video"))),
-            "private"
-        );
-        assert_eq!(
-            classify_entry(&entry(Some("Deleted video"))),
-            "deleted"
-        );
+        assert_eq!(classify_entry(&entry(Some("비공개 동영상"))), "private");
+        assert_eq!(classify_entry(&entry(Some("[비공개 동영상]"))), "private");
+        assert_eq!(classify_entry(&entry(Some("삭제된 동영상"))), "deleted");
+        assert_eq!(classify_entry(&entry(Some("Private video"))), "private");
+        assert_eq!(classify_entry(&entry(Some("Deleted video"))), "deleted");
     }
 
     #[test]
@@ -793,7 +764,9 @@ mod tests {
             "private"
         );
         assert_eq!(
-            classify_probe_message("ERROR: [youtube] x: Account associated with this video has been terminated"),
+            classify_probe_message(
+                "ERROR: [youtube] x: Account associated with this video has been terminated"
+            ),
             "deleted"
         );
         assert_eq!(classify_probe_message("some other warning"), "unknown");
@@ -825,10 +798,7 @@ mod tests {
         let targets = probe_targets_from_dump(&dump);
         assert_eq!(
             targets,
-            vec![
-                (2, "ssCtZ1aQy1A".into()),
-                (4, "gcKNmsEYF_8".into()),
-            ]
+            vec![(2, "ssCtZ1aQy1A".into()), (4, "gcKNmsEYF_8".into()),]
         );
     }
 

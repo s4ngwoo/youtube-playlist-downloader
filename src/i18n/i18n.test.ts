@@ -47,6 +47,20 @@ describe("mapBackendMessage", () => {
   it("falls back to generic for unknown", () => {
     expect(mapBackendMessage("weird.raw", t)).toBe('errors.generic:{"detail":"weird.raw"}');
   });
+
+  it("maps remaining download and zip codes", () => {
+    expect(mapBackendMessage("download_error: error.no_items", t)).toBe("errors.noItems");
+    expect(mapBackendMessage("error.all_failed", t)).toBe("errors.allFailed");
+    expect(mapBackendMessage("ok.cancelled", t)).toBe("ok.cancelled");
+    expect(mapBackendMessage("ok.zip_created:4", t)).toBe('ok.zipCreated:{"count":"4"}');
+  });
+
+  it("maps legacy Korean ffmpeg copy and unknown codes", () => {
+    expect(mapBackendMessage("FFmpeg를 찾을 수 없습니다", t)).toBe("errors.ffmpegMissing");
+    expect(mapBackendMessage("download_error: mystery failure", t)).toBe(
+      'errors.generic:{"detail":"mystery failure"}',
+    );
+  });
 });
 
 describe("mapEnvCode", () => {

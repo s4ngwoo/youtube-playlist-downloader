@@ -63,12 +63,16 @@ export function DownloadForm() {
   const [overallPercent, setOverallPercent] = useState(0);
   useEffect(() => {
     const raw = computeOverallPercent(trackList);
-    setOverallPercent((prev) => {
-      if (status !== "downloading" && status !== "completed") {
-        return raw;
-      }
-      return smoothOverallPercent(prev, raw);
+    // Defer so we don't sync-setState in the effect body (react-hooks/set-state-in-effect).
+    const id = requestAnimationFrame(() => {
+      setOverallPercent((prev) => {
+        if (status !== "downloading" && status !== "completed") {
+          return raw;
+        }
+        return smoothOverallPercent(prev, raw);
+      });
     });
+    return () => cancelAnimationFrame(id);
   }, [trackList, status]);
 
   const controlsDisabled = status === "downloading" || isZipping || isFetchingMetadata;

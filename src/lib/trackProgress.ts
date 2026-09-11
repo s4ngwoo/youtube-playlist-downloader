@@ -1,13 +1,7 @@
 /** Pure helpers for per-track title merge and display sort. */
 
 export type TrackStatusRank =
-  | "pending"
-  | "downloading"
-  | "extracting"
-  | "converting_art"
-  | "tagging"
-  | "completed"
-  | "failed";
+  "pending" | "downloading" | "extracting" | "converting_art" | "tagging" | "completed" | "failed";
 
 export type SortableTrack = {
   index: number;

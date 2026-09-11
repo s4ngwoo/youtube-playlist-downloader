@@ -96,11 +96,7 @@ export function useDownloadEvents() {
               const next = new Map(prev);
               const prevTrack = next.get(idx);
 
-              const currentTitle = mergeTrackTitle(
-                prevTrack?.title,
-                payload.item_title,
-                idx,
-              );
+              const currentTitle = mergeTrackTitle(prevTrack?.title, payload.item_title, idx);
 
               const progress =
                 trackStatus === "completed"
