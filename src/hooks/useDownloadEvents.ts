@@ -3,6 +3,7 @@ import { onDownloadProgress } from "../api/download";
 import { ProgressPayload, TrackItem } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 import { isPostprocessStatus } from "../lib/sessionEta";
+import { mergeTrackTitle } from "../lib/trackProgress";
 import { t } from "../i18n";
 
 /** Wall-clock start of download phase per track index (session-local). */
@@ -93,12 +94,11 @@ export function useDownloadEvents() {
               const next = new Map(prev);
               const prevTrack = next.get(idx);
 
-              const currentTitle =
-                payload.item_title ||
-                prevTrack?.title ||
-                t("tracks.fallbackTitle", {
-                  index: idx.toString().padStart(2, "0"),
-                });
+              const currentTitle = mergeTrackTitle(
+                prevTrack?.title,
+                payload.item_title,
+                idx,
+              );
 
               const progress =
                 trackStatus === "completed"

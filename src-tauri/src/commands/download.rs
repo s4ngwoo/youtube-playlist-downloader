@@ -36,6 +36,8 @@ pub fn cancel_download(state: tauri::State<'_, AppState>) -> Result<String, crat
 pub struct SelectedTrack {
     pub url: String,
     pub index: usize,
+    #[serde(default)]
+    pub title: Option<String>,
 }
 
 /// 비동기 오디오 병렬 다운로드 Command
@@ -84,6 +86,7 @@ pub async fn download_audio(
             url: st.url,
             item_index: st.index,
             total_items: total,
+            title: st.title.filter(|t| !t.trim().is_empty()),
         })
         .collect();
 
@@ -110,7 +113,8 @@ pub async fn download_audio(
         }
     });
 
-    let results: Vec<Result<(), String>> = stream.buffer_unordered(concurrency).collect().await;
+    let results: Vec<Result<(), crate::AppError>> =
+        stream.buffer_unordered(concurrency).collect().await;
 
     let mut fail_count = 0;
     let mut success_count = 0;

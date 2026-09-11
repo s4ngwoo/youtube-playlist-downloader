@@ -81,4 +81,5 @@ pub struct DownloadTask {
     pub url: String,
     pub item_index: usize,
     pub total_items: usize,
+    pub title: Option<String>,
 }

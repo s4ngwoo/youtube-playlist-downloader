@@ -8,7 +8,9 @@ use crate::parser::{apply_ytdlp_stdout_line, DownloadRegexes, ProgressParseState
 use crate::process::AppState;
 use crate::services::{environment, logger, ytdlp_update};
 
-fn open_ytdlp(app: &tauri::AppHandle) -> Result<tauri_plugin_shell::process::Command, String> {
+fn open_ytdlp(
+    app: &tauri::AppHandle,
+) -> Result<tauri_plugin_shell::process::Command, crate::AppError> {
     if let Ok(path) = ytdlp_update::override_binary_path(app) {
         if path.is_file() {
             logger::info(
@@ -21,7 +23,7 @@ fn open_ytdlp(app: &tauri::AppHandle) -> Result<tauri_plugin_shell::process::Com
     app.shell().sidecar("yt-dlp").map_err(|e| {
         let msg = environment::sidecar_error_message(&e);
         logger::error("ytdlp", &msg);
-        msg
+        crate::AppError::DownloadError(msg)
     })
 }
 
@@ -101,9 +103,7 @@ pub async fn fetch_playlist_dump(
         url.to_string(),
     ];
 
-    let dump_cmd = open_ytdlp(app)
-        .map_err(crate::AppError::DownloadError)?
-        .args(dump_args);
+    let dump_cmd = open_ytdlp(app)?.args(dump_args);
 
     let output = dump_cmd
         .output()
@@ -195,12 +195,12 @@ pub async fn handle_command_events(
     task: &DownloadTask,
     playlist_title: Option<String>,
     regexes: Arc<DownloadRegexes>,
-) -> Result<(), String> {
+) -> Result<(), crate::AppError> {
     let mut exit_success = true;
     let mut exit_code: Option<i32> = None;
 
     let mut parse = ProgressParseState {
-        item_title: None,
+        item_title: task.title.clone(),
         track_status: Some("downloading".to_string()),
         track_progress: Some(0.0),
         speed: None,
@@ -224,7 +224,10 @@ pub async fn handle_command_events(
                             playlist_title: parse.playlist_title.clone(),
                             item_index: Some(task.item_index),
                             total_items: Some(task.total_items),
-                            item_title: parse.item_title.clone(),
+                            item_title: parse
+                                .item_title
+                                .clone()
+                                .or_else(|| task.title.clone()),
                             track_progress: parse.track_progress,
                             track_status: parse.track_status.clone(),
                             speed: parse.speed.clone(),
@@ -249,18 +252,28 @@ pub async fn handle_command_events(
                         logger::warn("ytdlp", &format!("[트랙 #{}] {}", task.item_index, line));
                     }
 
+                    // Only mark failed on ERROR lines — yt-dlp writes progress noise to stderr too.
+                    let track_status = if err_msg.is_some() {
+                        Some("failed".to_string())
+                    } else {
+                        parse.track_status.clone()
+                    };
+
                     let _ = app.emit(
                         "download-progress",
                         ProgressPayload {
                             line: line.clone(),
                             message: line,
-                            is_error: true,
+                            is_error: err_msg.is_some(),
                             playlist_title: parse.playlist_title.clone(),
                             item_index: Some(task.item_index),
                             total_items: Some(task.total_items),
-                            item_title: parse.item_title.clone(),
+                            item_title: parse
+                                .item_title
+                                .clone()
+                                .or_else(|| task.title.clone()),
                             track_progress: parse.track_progress,
-                            track_status: Some("failed".to_string()),
+                            track_status,
                             speed: parse.speed.clone(),
                             eta: parse.eta.clone(),
                             error_message: err_msg,
@@ -279,6 +292,30 @@ pub async fn handle_command_events(
                             task.item_index, payload.code
                         ),
                     );
+                    let err_msg = format!(
+                        "다운로드 실패 (종료 코드: {:?})",
+                        payload.code.unwrap_or(-1)
+                    );
+                    let _ = app.emit(
+                        "download-progress",
+                        ProgressPayload {
+                            line: err_msg.clone(),
+                            message: err_msg.clone(),
+                            is_error: true,
+                            playlist_title: parse.playlist_title.clone(),
+                            item_index: Some(task.item_index),
+                            total_items: Some(task.total_items),
+                            item_title: parse
+                                .item_title
+                                .clone()
+                                .or_else(|| task.title.clone()),
+                            track_progress: parse.track_progress,
+                            track_status: Some("failed".to_string()),
+                            speed: None,
+                            eta: None,
+                            error_message: Some(err_msg),
+                        },
+                    );
                 }
             }
             CommandEvent::Error(err) => {
@@ -296,11 +333,11 @@ pub async fn handle_command_events(
                         playlist_title: parse.playlist_title.clone(),
                         item_index: Some(task.item_index),
                         total_items: Some(task.total_items),
-                        item_title: parse.item_title.clone(),
+                        item_title: parse.item_title.clone().or_else(|| task.title.clone()),
                         track_progress: parse.track_progress,
                         track_status: Some("failed".to_string()),
-                        speed: parse.speed.clone(),
-                        eta: parse.eta.clone(),
+                        speed: None,
+                        eta: None,
                         error_message: Some(err_msg.clone()),
                     },
                 );
@@ -313,10 +350,10 @@ pub async fn handle_command_events(
     if exit_success {
         Ok(())
     } else {
-        Err(format!(
+        Err(crate::AppError::DownloadError(format!(
             "다운로드 실패 (종료 코드: {:?})",
             exit_code.unwrap_or(-1)
-        ))
+        )))
     }
 }
 
@@ -328,7 +365,7 @@ pub async fn process_item(
     playlist_title: Option<String>,
     regexes: Arc<DownloadRegexes>,
     audio_format: &str,
-) -> Result<(), String> {
+) -> Result<(), crate::AppError> {
     logger::info(
         "download",
         &format!(
@@ -343,7 +380,7 @@ pub async fn process_item(
     let (rx, child) = command.spawn().map_err(|e| {
         let msg = environment::sidecar_error_message(&e);
         logger::error("download", &format!("[트랙 #{}] {msg}", task.item_index));
-        msg
+        crate::AppError::DownloadError(msg)
     })?;
 
     let pid = child.pid();
@@ -387,6 +424,7 @@ mod tests {
             url: "https://example.com/v".into(),
             item_index: 1,
             total_items: 1,
+            title: None,
         };
         let args = build_ytdlp_args(&task, "/tmp", "m4a");
         assert!(args
@@ -400,6 +438,7 @@ mod tests {
             url: "https://example.com/v".into(),
             item_index: 1,
             total_items: 1,
+            title: Some("Song".into()),
         };
         let args = build_ytdlp_args(&task, "", "mp3");
         assert!(args

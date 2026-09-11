@@ -6,6 +6,7 @@ import {
   type SelectedTrack,
 } from "../api/download";
 import { selectTracksByIndices } from "../lib/downloadSelection";
+import { mergeTrackTitle } from "../lib/trackProgress";
 import { PlaylistMetadata, TrackItem } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 import { historyService } from "../services/historyService";
@@ -23,11 +24,11 @@ function seedPendingTracks(
     const meta = byIndex.get(sel.index);
     seeded.set(sel.index, {
       index: sel.index,
-      title:
-        meta?.title ||
-        t("tracks.fallbackTitle", {
-          index: sel.index.toString().padStart(2, "0"),
-        }),
+      title: mergeTrackTitle(
+        meta?.title,
+        sel.title,
+        sel.index,
+      ),
       progress: 0,
       status: "pending",
     });

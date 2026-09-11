@@ -10,8 +10,8 @@ describe("selectTracksByIndices", () => {
 
   it("filters by index list for download/retry", () => {
     expect(selectTracksByIndices(tracks, [1, 3])).toEqual([
-      { url: "https://a", index: 1 },
-      { url: "https://c", index: 3 },
+      { url: "https://a", index: 1, title: undefined },
+      { url: "https://c", index: 3, title: undefined },
     ]);
   });
 

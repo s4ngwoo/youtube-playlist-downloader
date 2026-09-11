@@ -3,7 +3,7 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { PlaylistMetadata, ProgressPayload } from "../types/download";
 import type { AudioFormat } from "../types/settings";
 
-export type SelectedTrack = { url: string; index: number };
+export type SelectedTrack = { url: string; index: number; title?: string };
 
 export type DownloadAudioArgs = {
   downloadDir: string | null;

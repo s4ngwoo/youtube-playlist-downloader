@@ -3,6 +3,7 @@ import { ListOrdered, Disc3, AlertCircle } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import { useDownloadStore } from "../store/downloadStore";
 import { useDownloadFlow } from "../hooks/useDownloadFlow";
+import { sortTracksForDisplay } from "../lib/trackProgress";
 import { TrackRow } from "./TrackRow";
 import { useI18n } from "../i18n";
 
@@ -19,7 +20,7 @@ export function TrackList() {
   const { handleRetryFailedDownloads } = useDownloadFlow();
 
   const trackList = useMemo(() => {
-    return Array.from(tracks.values()).sort((a, b) => a.index - b.index);
+    return sortTracksForDisplay(Array.from(tracks.values()));
   }, [tracks]);
 
   const failedTracks = useMemo(() => trackList.filter((tr) => tr.status === "failed"), [trackList]);
