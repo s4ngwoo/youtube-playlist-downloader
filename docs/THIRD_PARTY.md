@@ -16,7 +16,7 @@ Korean: [ko/THIRD_PARTY.md](ko/THIRD_PARTY.md)
 - **Role:** audio extraction, format conversion, thumbnail/metadata embedding (via yt-dlp `--ffmpeg-location`)
 - **License:** **LGPL** builds only in official releases (no `--enable-gpl` / no nonfree extras in our packaging)
 - **Windows:** [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds) `*-lgpl` static archives
-- **macOS:** built from [FFmpeg](https://ffmpeg.org/) sources in CI with LGPL-compatible options (see `scripts/prepare-ffmpeg-sidecar.sh`)
+- **macOS (Apple Silicon official builds):** built from [FFmpeg](https://ffmpeg.org/) sources in CI with LGPL-compatible options (see `scripts/prepare-ffmpeg-sidecar.sh`)
 - **Source / compliance:** FFmpeg source corresponding to the bundled build is available from the upstream projects above; the prepare script records `ffmpeg-LGPL-LICENSE.txt` next to local sidecars when present
 - **Replacement:** binaries are separate sidecars beside the app executable (not statically linked into the app binary), so they can be replaced with another LGPL-compatible FFmpeg
 

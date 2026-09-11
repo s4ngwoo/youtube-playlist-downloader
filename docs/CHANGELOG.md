@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
-### Changed
-
-- Drop **Intel Mac** from the official release matrix (Apple Silicon + Windows x64 only; Intel = build from source, same as Linux)
-
 ### Notes
 
 - Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
@@ -23,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - yt-dlp stderr `WARNING:` lines no longer mark tracks as failed (only `ERROR:` does)
 - Release workflow: ensure `GITHUB_TOKEN` can create releases (`permissions: contents: write` + repo Actions workflow permissions write) — fixes `Resource not accessible by integration` that blocked `v0.4.1` asset publish
 - CI: stub `resources/libmp3lame.0.dylib` on Linux via `scripts/ci-prepare-sidecar-stubs.sh`
+
+### Changed
+
+- Official release matrix is **Apple Silicon Mac + Windows x64** only; **Intel Mac** official installers are not planned (build from source, same as Linux). GitHub Release notes and docs updated accordingly.
 
 ### Docs
 

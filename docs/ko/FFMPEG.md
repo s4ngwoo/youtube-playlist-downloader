@@ -10,11 +10,13 @@
 
 | 대상 | Chocolatey / Homebrew로 FFmpeg를 깔아야 하나? |
 | :--- | :--- |
-| **일반 사용자** — [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases)의 macOS `.dmg` / Windows `.exe`·`.msi` | **아니요.** 공식 설치본에 LGPL `ffmpeg` + `ffprobe`가 이미 포함됩니다. |
-| **소스 빌드**하는 사람 (개발자 · Linux 포함) | git에 바이너리가 안 들어 있습니다. `./scripts/prepare-ffmpeg-sidecar.sh` 실행 **또는** 시스템 FFmpeg를 대체로 사용. |
-| **Linux 일반 사용자** | 공식 설치 파일 없음. 소스 빌드(또는 CLI `yt-dlp`만 사용). |
+| **일반 사용자** — [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases)의 Apple Silicon macOS `.dmg` / Windows `.exe`·`.msi` | **아니요.** 공식 설치본에 LGPL `ffmpeg` + `ffprobe`가 이미 포함됩니다. |
+| **소스 빌드**하는 사람 | git에 바이너리가 안 들어 있습니다. `./scripts/prepare-ffmpeg-sidecar.sh` 실행 **또는** 시스템 FFmpeg를 대체로 사용. |
+| **Intel Mac** · **Linux** 일반 사용자 | 공식 설치 파일 없음. 소스 빌드(또는 CLI `yt-dlp`만 사용). |
 
 Windows에 FFmpeg를 “시스템 전역 설치”해 주는 방식이 **아닙니다.** 앱 패키지 안 **사이드카**로 들어갑니다.
+
+공식 릴리즈 매트릭스: **Apple Silicon Mac + Windows x64**만.
 
 ## 런타임에서 찾는 순서
 
@@ -33,7 +35,7 @@ Windows에 FFmpeg를 “시스템 전역 설치”해 주는 방식이 **아닙�
 | :--- | :--- | :--- |
 | **Windows x64** | BtbN **LGPL** zip (기본 `ffmpeg-master-latest-win64-lgpl.zip`) | BtbN의 floating **latest** LGPL (원하면 `FFMPEG_WIN_URL`로 핀) |
 | **macOS** (공식: Apple Silicon) | FFmpeg git 태그 `FFMPEG_TAG`(기본 `n7.1.1`)를 LGPL 옵션으로 빌드 | 워크플로에 **핀** — master 최신과 다를 수 있음 |
-| **Linux** | 공식 릴리즈 매트릭스에 없음 | — |
+| **Intel Mac** / **Linux** | 공식 릴리즈 매트릭스에 없음 | — |
 
 yt-dlp는 별도(`YTDLP_TAG`, 기본 `latest`). **인앱 FFmpeg 업데이트는 없습니다**(yt-dlp 헤더 업데이트와 다름). FFmpeg 핀을 고치려면 **앱을 새로 릴리즈**해야 합니다.
 

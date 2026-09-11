@@ -16,7 +16,7 @@
 - **역할:** 오디오 추출·변환·썸네일/메타 임베딩 (yt-dlp `--ffmpeg-location`)
 - **라이선스:** 공식 릴리즈는 **LGPL** 빌드만 사용 (`--enable-gpl` / nonfree 미사용)
 - **Windows:** [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds) `*-lgpl` 정적 아카이브
-- **macOS:** CI에서 [FFmpeg](https://ffmpeg.org/) 소스를 LGPL 호환 옵션으로 빌드 (`scripts/prepare-ffmpeg-sidecar.sh`)
+- **macOS (Apple Silicon 공식 빌드):** CI에서 [FFmpeg](https://ffmpeg.org/) 소스를 LGPL 호환 옵션으로 빌드 (`scripts/prepare-ffmpeg-sidecar.sh`)
 - **소스·준수:** 번들 버전에 대응하는 FFmpeg 소스는 위 업스트림에서 제공; 로컬 준비 시 `ffmpeg-LGPL-LICENSE.txt`를 사이드카 옆에 둘 수 있음
 - **교체:** 앱 실행 파일 옆의 별도 사이드카라 정적 링크가 아니며, 동일 인터페이스의 LGPL FFmpeg로 교체 가능
 

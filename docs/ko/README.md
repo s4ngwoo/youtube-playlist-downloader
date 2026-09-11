@@ -6,6 +6,8 @@
 
 역할별로 고르세요. 파일 전체를 나열해 두지 않습니다.
 
+**공식 설치본:** Apple Silicon macOS + Windows x64만. Intel Mac·Linux는 소스 빌드 ([README_KO](../../README_KO.md#앱-다운로드-및-지원-환경)).
+
 ---
 
 ## 사용자

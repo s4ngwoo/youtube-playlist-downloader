@@ -6,6 +6,8 @@ Project docs for **YouTube Playlist & Audio Downloader** (GPL-3.0).
 
 Start from your role below. Prefer this hub over browsing every file.
 
+**Official installers:** Apple Silicon macOS + Windows x64 only. Intel Mac and Linux are build-from-source (see [README](../README.md#download--os-support)).
+
 ---
 
 ## Users

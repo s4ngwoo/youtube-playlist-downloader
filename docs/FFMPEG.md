@@ -10,11 +10,13 @@ Related: [RELEASING.md](RELEASING.md) · [THIRD_PARTY.md](THIRD_PARTY.md) · [FA
 
 | Who | Do they need Chocolatey / Homebrew FFmpeg? |
 | :--- | :--- |
-| **End user** installing macOS `.dmg` or Windows `.exe` / `.msi` from [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases) | **No.** Official installers already include LGPL `ffmpeg` + `ffprobe` next to the app. |
-| **Developer** / anyone **building from source** (including Linux) | Git does **not** vendor the binaries. Run `./scripts/prepare-ffmpeg-sidecar.sh`, **or** rely on a system FFmpeg as fallback. |
-| **Linux end user** | No official installer. Build from source (or use CLI `yt-dlp` alone). |
+| **End user** — Apple Silicon macOS `.dmg` or Windows `.exe` / `.msi` from [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases) | **No.** Official installers already include LGPL `ffmpeg` + `ffprobe` next to the app. |
+| **Developer** / anyone **building from source** | Git does **not** vendor the binaries. Run `./scripts/prepare-ffmpeg-sidecar.sh`, **or** rely on a system FFmpeg as fallback. |
+| **Intel Mac** or **Linux** end user | No official installer. Build from source (or use CLI `yt-dlp` alone). |
 
 This is **not** “install FFmpeg into Windows for you.” The binaries live **inside the app package** as Tauri `externalBin` sidecars.
+
+Official Release matrix: **Apple Silicon Mac + Windows x64** only.
 
 ## Runtime resolution order
 
@@ -33,7 +35,7 @@ On each `v*` tag, [`.github/workflows/release.yml`](../.github/workflows/release
 | :--- | :--- | :--- |
 | **Windows x64** | Download BtbN **LGPL** zip (`ffmpeg-master-latest-win64-lgpl.zip` by default) | Tracks BtbN’s floating **latest** LGPL build unless you override `FFMPEG_WIN_URL` |
 | **macOS** (Apple Silicon official) | Build from FFmpeg git tag `FFMPEG_TAG` (default `n7.1.1`) without `--enable-gpl` | **Pinned** in the workflow — not necessarily the newest master |
-| **Linux** | Not part of the official release matrix | — |
+| **Intel Mac** / **Linux** | Not part of the official release matrix | — |
 
 yt-dlp is separate (`YTDLP_TAG`, default `latest`). There is **no** in-app FFmpeg updater (unlike yt-dlp’s header **Update yt-dlp**). Fixing a bad FFmpeg pin means a **new app release**.
 

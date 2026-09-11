@@ -16,7 +16,7 @@
 
 ## FFmpeg를 직접 설치해야 하나요? (Chocolatey / Scoop / Homebrew)
 
-**공식 macOS / Windows 설치본: 아니요.** 릴리즈에 LGPL `ffmpeg` + `ffprobe`가 앱과 함께 들어 있습니다. 일반 사용자는 Chocolatey·Scoop·winget·Homebrew로 FFmpeg를 깔 필요가 **없습니다.**
+**공식 macOS(Apple Silicon) / Windows 설치본: 아니요.** 릴리즈에 LGPL `ffmpeg` + `ffprobe`가 앱과 함께 들어 있습니다. 일반 사용자는 Chocolatey·Scoop·winget·Homebrew로 FFmpeg를 깔 필요가 **없습니다.**
 
 **소스에서 빌드**할 때(개발자·Linux): git에 바이너리가 없습니다. `./scripts/prepare-ffmpeg-sidecar.sh`를 실행하거나, 시스템 FFmpeg를 대체로 쓰세요. 자세한 내용: [FFMPEG.md](FFMPEG.md).
 

@@ -8,10 +8,6 @@
 
 ## [Unreleased]
 
-### Changed
-
-- 공식 릴리즈 매트릭스에서 **Intel Mac** 제외 (Apple Silicon + Windows x64만; Intel은 Linux와 같이 소스 빌드)
-
 ### Notes
 
 - 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
@@ -24,6 +20,10 @@
 - yt-dlp stderr `WARNING:` 줄이 트랙을 실패로 표시하지 않음 (`ERROR:`만 실패 처리)
 - 릴리즈: `GITHUB_TOKEN`이 Release를 만들 수 있게 함 (`permissions: contents: write` + Actions workflow permissions write) — `v0.4.1` 자산 게시를 막았던 `Resource not accessible by integration` 수정
 - CI: Linux에서 `resources/libmp3lame.0.dylib` stub (`scripts/ci-prepare-sidecar-stubs.sh`)
+
+### Changed
+
+- 공식 릴리즈 매트릭스는 **Apple Silicon Mac + Windows x64**만; **Intel Mac** 공식 설치 파일은 계획 없음 (Linux와 같이 소스 빌드). GitHub Release 노트·문서 반영.
 
 ### Docs
 

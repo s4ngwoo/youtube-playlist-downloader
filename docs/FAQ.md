@@ -14,7 +14,7 @@ The App keeps preferences, history, and logs **on your device**. It does not pro
 
 ## Do I need to install FFmpeg myself? (Chocolatey / Scoop / Homebrew)
 
-**Official macOS / Windows installers: no.** Releases ship LGPL `ffmpeg` + `ffprobe` inside the app. You do **not** need Chocolatey, Scoop, winget, or Homebrew for FFmpeg as an end user.
+**Official macOS (Apple Silicon) / Windows installers: no.** Releases ship LGPL `ffmpeg` + `ffprobe` inside the app. You do **not** need Chocolatey, Scoop, winget, or Homebrew for FFmpeg as an end user.
 
 **Building from source** (developers, Linux): binaries are not in git. Run `./scripts/prepare-ffmpeg-sidecar.sh`, or use a system FFmpeg as fallback. Full detail: [FFMPEG.md](FFMPEG.md).
 
