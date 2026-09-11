@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+### Fixed
+
+- Cancel stops the rest of the queue (not only in-flight PIDs) and returns `ok.cancelled` without treating the job as completed/history-worthy
+- yt-dlp stderr `WARNING:` lines no longer mark tracks as failed (only `ERROR:` does)
+
 ### Notes
 
 - Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.

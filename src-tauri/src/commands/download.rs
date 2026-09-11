@@ -50,7 +50,7 @@ pub struct SelectedTrack {
 #[tauri::command]
 pub async fn download_audio(
     app: tauri::AppHandle,
-    _state: tauri::State<'_, AppState>,
+    state: tauri::State<'_, AppState>,
     download_dir: Option<String>,
     playlist_title: Option<String>,
     selected_tracks: Vec<SelectedTrack>,
@@ -60,6 +60,9 @@ pub async fn download_audio(
     if selected_tracks.is_empty() {
         return Err(crate::AppError::DownloadError("error.no_items".into()));
     }
+
+    // 이전 취소 플래그를 지워 새 작업이 즉시 skip되지 않게 한다.
+    state.clear_cancelled();
 
     environment::ensure_ffmpeg_available()?;
     environment::warn_if_deno_missing();
@@ -98,6 +101,7 @@ pub async fn download_audio(
 
     let regexes = Arc::new(DownloadRegexes::new());
     let format_arc = Arc::new(format);
+    let cancel_state = (*state).clone();
 
     let stream = stream::iter(tasks).map(|task| {
         let app = app.clone();
@@ -105,8 +109,12 @@ pub async fn download_audio(
         let playlist_title = playlist_title.clone();
         let regexes = Arc::clone(&regexes);
         let format = Arc::clone(&format_arc);
+        let cancel_state = cancel_state.clone();
 
         async move {
+            if cancel_state.is_cancelled() {
+                return Err(crate::AppError::DownloadError("cancelled".into()));
+            }
             process_item(
                 app,
                 task,
@@ -134,6 +142,17 @@ pub async fn download_audio(
 
     if !actual_download_dir.is_empty() {
         let _ = crate::nfc::normalize_directory_nfc(std::path::Path::new(&actual_download_dir));
+    }
+
+    if cancel_state.is_cancelled() {
+        logger::info(
+            "download",
+            &format!(
+                "다운로드 취소됨 — 성공: {}개, 실패/중단: {}개",
+                success_count, fail_count
+            ),
+        );
+        return Ok("ok.cancelled".into());
     }
 
     logger::info(

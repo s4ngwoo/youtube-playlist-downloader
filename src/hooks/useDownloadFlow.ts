@@ -7,7 +7,7 @@ import {
 } from "../api/download";
 import { selectTracksByIndices } from "../lib/downloadSelection";
 import { mergeTrackTitle } from "../lib/trackProgress";
-import { PlaylistMetadata, TrackItem } from "../types/download";
+import { PlaylistMetadata, TrackItem, isCancelledDownloadOutcome } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 import { historyService } from "../services/historyService";
 import { onDownloadSessionBegin } from "./useDownloadEvents";
@@ -47,14 +47,21 @@ export function useDownloadFlow() {
       audioFormat: state.audioFormat,
     });
 
-    state.setStatus("completed");
-    state.setStatusMessage(mapBackendMessage(result || "ok.download_complete"));
+    const next = useDownloadStore.getState();
+    if (isCancelledDownloadOutcome(next.status, result)) {
+      next.setStatus("cancelled");
+      next.setStatusMessage(mapBackendMessage("ok.cancelled"));
+      return result;
+    }
+
+    next.setStatus("completed");
+    next.setStatusMessage(mapBackendMessage(result || "ok.download_complete"));
 
     if (options?.saveHistory) {
       await historyService.saveHistory(
-        (options.urlForHistory ?? state.url).trim(),
+        (options.urlForHistory ?? next.url).trim(),
         playlist.title || "Unknown Title",
-        state.downloadDir,
+        next.downloadDir,
       );
     }
 
@@ -119,6 +126,9 @@ export function useDownloadFlow() {
         saveHistory: true,
       });
     } catch (err: unknown) {
+      if (isCancelledDownloadOutcome(useDownloadStore.getState().status)) {
+        return;
+      }
       console.error("Download error:", err);
       const next = useDownloadStore.getState();
       next.setStatus("error");
@@ -193,11 +203,17 @@ export function useDownloadFlow() {
     });
 
     try {
-      await runDownload(state.fetchedPlaylist, selectedTracks);
+      const result = await runDownload(state.fetchedPlaylist, selectedTracks);
+      if (isCancelledDownloadOutcome(useDownloadStore.getState().status, result)) {
+        return;
+      }
       useDownloadStore
         .getState()
         .setStatusMessage(mapBackendMessage("ok.download_complete") || t("status.retryComplete"));
     } catch (err: unknown) {
+      if (isCancelledDownloadOutcome(useDownloadStore.getState().status)) {
+        return;
+      }
       console.error("Retry error:", err);
       const next = useDownloadStore.getState();
       next.setStatus("error");

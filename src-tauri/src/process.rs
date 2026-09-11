@@ -1,4 +1,5 @@
 use crate::services::logger;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 /// OS별 자식 프로세스 강제 종료 유틸리티
@@ -21,6 +22,8 @@ pub fn kill_process_by_pid(pid: u32) {
 #[derive(Default, Clone)]
 pub struct AppState {
     pub active_pids: Arc<Mutex<Vec<u32>>>,
+    /// 사용자가 취소를 요청하면 true. kill_all 이후에도 대기열 항목이 spawn되지 않게 한다.
+    cancelled: Arc<AtomicBool>,
 }
 
 impl AppState {
@@ -38,7 +41,16 @@ impl AppState {
         }
     }
 
+    pub fn is_cancelled(&self) -> bool {
+        self.cancelled.load(Ordering::SeqCst)
+    }
+
+    pub fn clear_cancelled(&self) {
+        self.cancelled.store(false, Ordering::SeqCst);
+    }
+
     pub fn kill_all(&self) {
+        self.cancelled.store(true, Ordering::SeqCst);
         if let Ok(mut pids) = self.active_pids.lock() {
             for &pid in pids.iter() {
                 logger::warn(
@@ -49,5 +61,28 @@ impl AppState {
             }
             pids.clear();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn kill_all_sets_cancelled_and_clear_resets_it() {
+        let state = AppState::default();
+        assert!(!state.is_cancelled());
+        state.kill_all();
+        assert!(state.is_cancelled());
+        state.clear_cancelled();
+        assert!(!state.is_cancelled());
+    }
+
+    #[test]
+    fn cloned_state_shares_cancelled_flag() {
+        let state = AppState::default();
+        let cloned = state.clone();
+        state.kill_all();
+        assert!(cloned.is_cancelled());
     }
 }

@@ -52,6 +52,14 @@ export interface LogItem {
 // 전체 다운로드 상태
 export type DownloadStatus = "idle" | "downloading" | "completed" | "error" | "cancelled";
 
+/** True when Cancel already won the race against download_audio's return. */
+export function isCancelledDownloadOutcome(
+  status: DownloadStatus,
+  result?: string | null,
+): boolean {
+  return status === "cancelled" || result === "ok.cancelled";
+}
+
 // 오디오 메타데이터 (Lofty 연동용)
 export interface AudioMetadata {
   title?: string;

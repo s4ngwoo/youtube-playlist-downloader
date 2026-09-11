@@ -419,11 +419,7 @@ pub async fn handle_command_events(
                     }
 
                     // Only mark failed on ERROR lines — yt-dlp writes progress noise to stderr too.
-                    let track_status = if err_msg.is_some() {
-                        Some("failed".to_string())
-                    } else {
-                        parse.track_status.clone()
-                    };
+                    let track_status = stderr_track_status(&err_msg, &parse.track_status);
 
                     let _ = app.emit(
                         "download-progress",
@@ -517,6 +513,18 @@ pub async fn handle_command_events(
     }
 }
 
+/// Stderr WARNING/noise must not flip the row to failed; only yt-dlp ERROR: lines do.
+fn stderr_track_status(
+    err_msg: &Option<String>,
+    current_track_status: &Option<String>,
+) -> Option<String> {
+    if err_msg.is_some() {
+        Some("failed".to_string())
+    } else {
+        current_track_status.clone()
+    }
+}
+
 /// 개별 트랙 다운로드를 위해 사이드카를 spawn하고 PID 등록/해제 및 이벤트를 처리합니다.
 pub async fn process_item(
     app: tauri::AppHandle,
@@ -526,6 +534,14 @@ pub async fn process_item(
     regexes: Arc<DownloadRegexes>,
     audio_format: &str,
 ) -> Result<(), crate::AppError> {
+    if app.state::<AppState>().is_cancelled() {
+        logger::info(
+            "download",
+            &format!("[트랙 #{}] 취소됨 — spawn 생략", task.item_index),
+        );
+        return Err(crate::AppError::DownloadError("cancelled".into()));
+    }
+
     logger::info(
         "download",
         &format!(
@@ -855,5 +871,37 @@ mod tests {
         assert_eq!(meta.skipped[0].reason, "deleted");
         assert_eq!(meta.skipped[1].reason, "private");
         assert_eq!(meta.skipped[2].reason, "private");
+    }
+
+    #[test]
+    fn warning_stderr_keeps_current_status() {
+        let current = Some("extracting".to_string());
+        assert_eq!(
+            stderr_track_status(&None, &current),
+            Some("extracting".to_string())
+        );
+    }
+
+    #[test]
+    fn error_stderr_marks_track_failed() {
+        let current = Some("downloading".to_string());
+        let err = Some("Video unavailable".to_string());
+        assert_eq!(
+            stderr_track_status(&err, &current),
+            Some("failed".to_string())
+        );
+    }
+
+    #[test]
+    fn error_regex_matches_error_not_warning() {
+        let regexes = DownloadRegexes::new();
+        assert!(regexes
+            .re_error
+            .captures("ERROR: [youtube] Sign in to confirm")
+            .is_some());
+        assert!(regexes
+            .re_error
+            .captures("WARNING: [youtube] nsig extraction failed")
+            .is_none());
     }
 }
