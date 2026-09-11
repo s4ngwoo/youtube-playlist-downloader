@@ -34,7 +34,17 @@ git tag v0.4.1
 git push origin v0.4.1
 ```
 
-7. **Verify** — On the GitHub Release page, confirm DMG (aarch64 + x64) and Windows installers uploaded; skim the workflow logs for the yt-dlp **and** FFmpeg prepare steps.
+7. **Verify** — On the GitHub Release page, confirm DMG (aarch64 + x64) and Windows installers uploaded; skim the workflow logs for the yt-dlp **and** FFmpeg prepare steps. Wait for **all** matrix jobs (do not treat one green OS as done).
+
+If a release or CI run fails in a new way, update **[RELEASE_FAILURES.md](RELEASE_FAILURES.md)** (patterns + checklist) and a private note under `notes/errors/` when useful.
+
+## Sidecar / bundle changes — avoid repeating class-A CI breaks
+
+Changing `tauri.conf.json` `externalBin` or `resources` affects **every** `cargo check` / bundle runner, including Ubuntu CI (which never ships macOS dylibs to users). Before merging:
+
+1. Extend or verify [`scripts/ci-prepare-sidecar-stubs.sh`](../scripts/ci-prepare-sidecar-stubs.sh)
+2. Align `release.yml` prepare / `test -f` / Windows resource stubs
+3. Re-read the checklist in [RELEASE_FAILURES.md](RELEASE_FAILURES.md)
 
 ## yt-dlp / FFmpeg pins
 
@@ -101,6 +111,7 @@ FFmpeg is release-bundled only (no in-app FFmpeg updater).
 
 ## Related
 
+- [RELEASE_FAILURES.md](RELEASE_FAILURES.md) — why CI/release broke repeatedly; failure classes and checklist
 - [CONTRIBUTING.md](CONTRIBUTING.md) — PR checks
 - [FAQ.md](FAQ.md) — download failures / updating yt-dlp / FFmpeg questions
 - [FFMPEG.md](FFMPEG.md) — bundled FFmpeg model for users and maintainers

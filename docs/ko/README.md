@@ -16,6 +16,7 @@
 | [SUPPORT.md](SUPPORT.md) | 지원 안내 |
 | [CHANGELOG.md](CHANGELOG.md) | 변경 이력 |
 | [RELEASING.md](RELEASING.md) | 태그 릴리즈·yt-dlp / FFmpeg 사이드카 정책 |
+| [RELEASE_FAILURES.md](RELEASE_FAILURES.md) | CI/릴리즈 반복 실패 패턴·클래스·체크리스트 |
 | [FFMPEG.md](FFMPEG.md) | 번들 LGPL FFmpeg — 일반 사용자 vs 소스 빌드, 핀, 탐색 순서 |
 | [THIRD_PARTY.md](THIRD_PARTY.md) | 번들 yt-dlp + LGPL FFmpeg 고지 |
 

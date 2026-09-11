@@ -13,6 +13,10 @@
 - 취소 시 진행 중 PID뿐 아니라 대기열 트랙도 중단하고 `ok.cancelled`로 완료/히스토리 저장을 막음
 - yt-dlp stderr `WARNING:` 줄이 트랙을 실패로 표시하지 않음 (`ERROR:`만 실패 처리)
 
+### Docs
+
+- [RELEASE_FAILURES.md](RELEASE_FAILURES.md) / [영문](../RELEASE_FAILURES.md) — CI/릴리즈 반복 실패 클래스·일반화·체크리스트; CI stub는 `scripts/ci-prepare-sidecar-stubs.sh`
+
 ### Notes
 
 - 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.

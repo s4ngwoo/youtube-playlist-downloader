@@ -102,6 +102,7 @@ This project remains **open source (GPL-3.0)**. Full docs index: [docs/README.md
 | Output filenames | [docs/FILENAMES.md](docs/FILENAMES.md) | [docs/ko/FILENAMES.md](docs/ko/FILENAMES.md) |
 | Support | [docs/SUPPORT.md](docs/SUPPORT.md) | [docs/ko/SUPPORT.md](docs/ko/SUPPORT.md) |
 | Releasing | [docs/RELEASING.md](docs/RELEASING.md) | [docs/ko/RELEASING.md](docs/ko/RELEASING.md) |
+| Release failures (patterns) | [docs/RELEASE_FAILURES.md](docs/RELEASE_FAILURES.md) | [docs/ko/RELEASE_FAILURES.md](docs/ko/RELEASE_FAILURES.md) |
 | Third-party | [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) | [docs/ko/THIRD_PARTY.md](docs/ko/THIRD_PARTY.md) |
 | Changelog | [docs/CHANGELOG.md](docs/CHANGELOG.md) | [docs/ko/CHANGELOG.md](docs/ko/CHANGELOG.md) |
 

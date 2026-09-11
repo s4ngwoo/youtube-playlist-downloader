@@ -19,6 +19,7 @@ Project docs for **YouTube Playlist & Audio Downloader** (open source, GPL-3.0).
 | [SUPPORT.md](SUPPORT.md) | Getting help |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 | [RELEASING.md](RELEASING.md) | Tag releases and yt-dlp / FFmpeg sidecar policy |
+| [RELEASE_FAILURES.md](RELEASE_FAILURES.md) | Recurring CI/release break patterns, classes, checklist |
 | [FFMPEG.md](FFMPEG.md) | Bundled LGPL FFmpeg — end users vs source build, pins, resolution order |
 | [THIRD_PARTY.md](THIRD_PARTY.md) | Bundled yt-dlp + LGPL FFmpeg notices |
 
@@ -37,6 +38,7 @@ Project docs for **YouTube Playlist & Audio Downloader** (open source, GPL-3.0).
 | [SUPPORT.md](ko/SUPPORT.md) | 지원 안내 |
 | [CHANGELOG.md](ko/CHANGELOG.md) | 변경 이력 |
 | [RELEASING.md](ko/RELEASING.md) | 태그 릴리즈·yt-dlp / FFmpeg 사이드카 정책 |
+| [RELEASE_FAILURES.md](ko/RELEASE_FAILURES.md) | CI/릴리즈 반복 실패 패턴·클래스·체크리스트 |
 | [FFMPEG.md](ko/FFMPEG.md) | 번들 LGPL FFmpeg — 일반 사용자 vs 소스 빌드, 핀, 탐색 순서 |
 | [THIRD_PARTY.md](ko/THIRD_PARTY.md) | 번들 yt-dlp + LGPL FFmpeg 고지 |
 

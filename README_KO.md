@@ -102,6 +102,7 @@ SmartScreen이 뜨면 **추가 정보 → 실행**을 선택하세요.
 | 저장 파일명 | [docs/ko/FILENAMES.md](docs/ko/FILENAMES.md) | [docs/FILENAMES.md](docs/FILENAMES.md) |
 | 지원 | [docs/ko/SUPPORT.md](docs/ko/SUPPORT.md) | [docs/SUPPORT.md](docs/SUPPORT.md) |
 | 릴리즈 | [docs/ko/RELEASING.md](docs/ko/RELEASING.md) | [docs/RELEASING.md](docs/RELEASING.md) |
+| 릴리즈 실패 패턴 | [docs/ko/RELEASE_FAILURES.md](docs/ko/RELEASE_FAILURES.md) | [docs/RELEASE_FAILURES.md](docs/RELEASE_FAILURES.md) |
 | 서드파티 | [docs/ko/THIRD_PARTY.md](docs/ko/THIRD_PARTY.md) | [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) |
 | 변경 이력 | [docs/ko/CHANGELOG.md](docs/ko/CHANGELOG.md) | [docs/CHANGELOG.md](docs/CHANGELOG.md) |
 

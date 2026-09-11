@@ -25,7 +25,17 @@ Linux 공식 설치 파일은 **계획 없음**. 서드파티 고지: [THIRD_PAR
 3. **README 플랫폼 표** — 매트릭스와 일치하는지 확인  
 4. **yt-dlp / FFmpeg 핀** — `YTDLP_TAG` / `FFMPEG_TAG`  
 5. **로컬 스모크** (권장) — `npm run typecheck` · `npm test` · `npm run test:rust`  
-6. 태그 푸시 후 릴리즈 자산·워크플로 로그(yt-dlp **및** FFmpeg 준비 단계) 확인  
+6. 태그 푸시 후 릴리즈 자산·워크플로 로그(yt-dlp **및** FFmpeg 준비 단계) 확인. 매트릭스 **전 OS**가 끝날 때까지 기다릴 것(한 OS 초록 ≠ 완료).  
+
+새 방식으로 CI/릴리즈가 깨지면 **[RELEASE_FAILURES.md](RELEASE_FAILURES.md)** 와 필요 시 `notes/errors/` 를 갱신합니다.
+
+## 사이드카·번들 변경 시 (클래스 A CI 재발 방지)
+
+`tauri.conf.json`의 `externalBin` / `resources`를 바꾸면 Ubuntu CI의 `cargo check`도 영향받습니다(사용자에게 Linux 설치본을 안 줘도 동일). 머지 전:
+
+1. [`scripts/ci-prepare-sidecar-stubs.sh`](../../scripts/ci-prepare-sidecar-stubs.sh) 확장·검증  
+2. `release.yml` prepare / `test -f` / Windows 리소스 stub 정렬  
+3. [RELEASE_FAILURES.md](RELEASE_FAILURES.md) 체크리스트 재확인  
 
 ## 핀 정책
 
@@ -45,4 +55,5 @@ FFmpeg는 릴리즈 번들만 제공(인앱 FFmpeg 업데이트 없음).
 
 ## 관련
 
+- [RELEASE_FAILURES.md](RELEASE_FAILURES.md) — CI/릴리즈 반복 실패 원인·체크리스트
 - [CONTRIBUTING.md](CONTRIBUTING.md) · [FAQ.md](FAQ.md) · [FFMPEG.md](FFMPEG.md) · [THIRD_PARTY.md](THIRD_PARTY.md) · [CHANGELOG.md](CHANGELOG.md)

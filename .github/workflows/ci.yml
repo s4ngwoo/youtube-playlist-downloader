@@ -68,21 +68,8 @@ jobs:
       # tauri.conf.json externalBin + resources require these paths at build-script time;
       # unit tests do not invoke the binaries, so stubs are enough for CI.
       - name: Prepare yt-dlp / FFmpeg sidecar stubs
-        run: |
-          mkdir -p bin resources
-          printf '%s\n' '#!/bin/sh' 'echo "yt-dlp CI stub"' 'exit 0' \
-            > bin/yt-dlp-x86_64-unknown-linux-gnu
-          printf '%s\n' '#!/bin/sh' 'echo "ffmpeg CI stub"' 'exit 0' \
-            > bin/ffmpeg-x86_64-unknown-linux-gnu
-          printf '%s\n' '#!/bin/sh' 'echo "ffprobe CI stub"' 'exit 0' \
-            > bin/ffprobe-x86_64-unknown-linux-gnu
-          chmod +x bin/yt-dlp-x86_64-unknown-linux-gnu \
-            bin/ffmpeg-x86_64-unknown-linux-gnu \
-            bin/ffprobe-x86_64-unknown-linux-gnu
-          # macOS-only resource listed in tauri.conf.json; stub on Linux CI.
-          if [[ ! -f resources/libmp3lame.0.dylib ]]; then
-            : > resources/libmp3lame.0.dylib
-          fi
+        working-directory: .
+        run: ./scripts/ci-prepare-sidecar-stubs.sh
 
       - name: cargo fmt
         run: cargo fmt --check
