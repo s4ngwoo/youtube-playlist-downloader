@@ -49,7 +49,7 @@ Pre-built binaries are available on **[GitHub Releases](https://github.com/s4ngw
 
 ### First launch on macOS
 
-This open-source build is not notarized with a paid Apple Developer certificate. Gatekeeper may block the first launch.
+This open-source build is **not** Apple-notarized and notarization is **not planned** (no paid Developer account). Gatekeeper may block the first launch.
 
 1. Open the `.dmg` and drag the app into **Applications**.
 2. In **Applications**, **right-click (or Control-click) → Open**.
@@ -248,11 +248,12 @@ npm run tauri build
 
 - [x] More output formats — **m4a / mp3** (FLAC, WAV, OPUS later)
 - [x] Broader concurrent download controls — **1–8 workers**
-- [ ] In-app yt-dlp auto-update
+- [x] In-app yt-dlp update — app-data override (footer); separate from release-bundled sidecar
 - [ ] Richer download history / folder shortcuts
 - [ ] Built-in mini audio preview player
 - [x] Official Intel macOS release binaries
 - [x] Linux official binaries — **not planned** (distro fragmentation; CLI yt-dlp covers most Linux users)
+- [x] Apple Notarization — **not planned** (no paid Apple Developer account; Gatekeeper steps remain in README)
 
 ---
 

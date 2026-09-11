@@ -1,4 +1,5 @@
 import { Edit3, CheckCircle2 } from "lucide-react";
+import { useI18n } from "../../i18n";
 import { AudioFileEntry, AudioMetadata } from "../../types/download";
 
 interface MetadataGridViewProps {
@@ -9,17 +10,19 @@ interface MetadataGridViewProps {
 }
 
 export function MetadataGridView({ fileList, modifiedFiles, onGridChange, onEditSingle }: MetadataGridViewProps) {
+  const { t } = useI18n();
+
   return (
     <div className="overflow-x-auto border border-neutral-800 rounded-xl bg-neutral-950 custom-scrollbar">
       <table className="w-full text-left text-sm text-neutral-300">
         <thead className="bg-neutral-900 text-neutral-400 font-medium">
           <tr>
-            <th className="px-4 py-3 border-b border-neutral-800 truncate max-w-[200px]">파일명</th>
-            <th className="px-4 py-3 border-b border-neutral-800 min-w-[150px]">제목</th>
-            <th className="px-4 py-3 border-b border-neutral-800 min-w-[120px]">아티스트</th>
-            <th className="px-4 py-3 border-b border-neutral-800 min-w-[120px]">앨범</th>
-            <th className="px-4 py-3 border-b border-neutral-800 w-24 text-center">상태</th>
-            <th className="px-4 py-3 border-b border-neutral-800 w-24 text-center">편집</th>
+            <th className="px-4 py-3 border-b border-neutral-800 truncate max-w-[200px]">{t("meta.col.file")}</th>
+            <th className="px-4 py-3 border-b border-neutral-800 min-w-[150px]">{t("meta.col.title")}</th>
+            <th className="px-4 py-3 border-b border-neutral-800 min-w-[120px]">{t("meta.col.artist")}</th>
+            <th className="px-4 py-3 border-b border-neutral-800 min-w-[120px]">{t("meta.col.album")}</th>
+            <th className="px-4 py-3 border-b border-neutral-800 w-24 text-center">{t("meta.col.status")}</th>
+            <th className="px-4 py-3 border-b border-neutral-800 w-24 text-center">{t("meta.col.edit")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-800/50">
@@ -36,7 +39,7 @@ export function MetadataGridView({ fileList, modifiedFiles, onGridChange, onEdit
                     value={file.metadata.title || ""}
                     onChange={(e) => onGridChange(file.file_path, "title", e.target.value)}
                     className="w-full bg-transparent border border-transparent hover:border-neutral-700 focus:border-rose-500/50 rounded px-2 py-1 outline-none transition-colors"
-                    placeholder="제목"
+                    placeholder={t("meta.ph.titleShort")}
                   />
                 </td>
                 <td className="px-4 py-2">
@@ -45,7 +48,7 @@ export function MetadataGridView({ fileList, modifiedFiles, onGridChange, onEdit
                     value={file.metadata.artist || ""}
                     onChange={(e) => onGridChange(file.file_path, "artist", e.target.value)}
                     className="w-full bg-transparent border border-transparent hover:border-neutral-700 focus:border-rose-500/50 rounded px-2 py-1 outline-none transition-colors"
-                    placeholder="아티스트"
+                    placeholder={t("meta.ph.artistShort")}
                   />
                 </td>
                 <td className="px-4 py-2">
@@ -54,17 +57,17 @@ export function MetadataGridView({ fileList, modifiedFiles, onGridChange, onEdit
                     value={file.metadata.album || ""}
                     onChange={(e) => onGridChange(file.file_path, "album", e.target.value)}
                     className="w-full bg-transparent border border-transparent hover:border-neutral-700 focus:border-rose-500/50 rounded px-2 py-1 outline-none transition-colors"
-                    placeholder="앨범"
+                    placeholder={t("meta.ph.albumShort")}
                   />
                 </td>
                 <td className="px-4 py-3 text-center">
                   {isModified ? (
                     <span className="text-amber-500 text-xs font-medium flex items-center justify-center gap-1">
-                      <Edit3 className="w-3 h-3" /> 수정됨
+                      <Edit3 className="w-3 h-3" /> {t("meta.status.modified")}
                     </span>
                   ) : (
                     <span className="text-neutral-500 text-xs flex items-center justify-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> 원본
+                      <CheckCircle2 className="w-3 h-3" /> {t("meta.status.original")}
                     </span>
                   )}
                 </td>
@@ -73,7 +76,7 @@ export function MetadataGridView({ fileList, modifiedFiles, onGridChange, onEdit
                     onClick={() => onEditSingle(file)}
                     className="px-3 py-1 bg-neutral-800 hover:bg-neutral-700 text-white rounded text-xs transition-colors"
                   >
-                    상세
+                    {t("meta.detail")}
                   </button>
                 </td>
               </tr>

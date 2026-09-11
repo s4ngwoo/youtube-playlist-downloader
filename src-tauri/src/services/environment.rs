@@ -19,6 +19,9 @@ pub struct EnvironmentReport {
     pub arch: String,
     pub warnings: Vec<String>,
     pub install_hints: Vec<String>,
+    pub ytdlp_source: String,
+    pub ytdlp_version: Option<String>,
+    pub ytdlp_path: Option<String>,
 }
 
 fn executable_name(base: &str) -> String {
@@ -240,21 +243,26 @@ pub fn sidecar_error_message(raw: impl std::fmt::Display) -> String {
 }
 
 /// 환경 진단 스냅샷 (UI / 로그용)
-pub fn collect_environment_report() -> EnvironmentReport {
+/// `warnings` / `install_hints`는 FE i18n용 안정 코드.
+pub fn collect_environment_report(
+    ytdlp_source: String,
+    ytdlp_version: Option<String>,
+    ytdlp_path: Option<String>,
+) -> EnvironmentReport {
     let ffmpeg_location = get_ffmpeg_location().map(|s| s.to_string());
     let deno_path = get_deno_path().map(|p| p.to_string_lossy().to_string());
     let mut warnings = Vec::new();
     let mut install_hints = Vec::new();
 
     if ffmpeg_location.is_none() {
-        warnings.push("FFmpeg 미발견 — 다운로드가 실패합니다.".into());
-        install_hints.push("macOS: brew install ffmpeg".into());
-        install_hints.push("Windows: choco install ffmpeg 또는 scoop install ffmpeg".into());
+        warnings.push("warn.ffmpeg_missing".into());
+        install_hints.push("hint.ffmpeg.macos".into());
+        install_hints.push("hint.ffmpeg.windows".into());
     }
     if deno_path.is_none() {
-        warnings.push(deno_missing_warning());
-        install_hints.push("macOS: brew install deno".into());
-        install_hints.push("Windows: choco install deno".into());
+        warnings.push("warn.deno_missing".into());
+        install_hints.push("hint.deno.macos".into());
+        install_hints.push("hint.deno.windows".into());
     }
 
     EnvironmentReport {
@@ -267,6 +275,9 @@ pub fn collect_environment_report() -> EnvironmentReport {
         arch: std::env::consts::ARCH.to_string(),
         warnings,
         install_hints,
+        ytdlp_source,
+        ytdlp_version,
+        ytdlp_path,
     }
 }
 
@@ -303,5 +314,31 @@ mod tests {
         let msg = deno_missing_warning();
         assert!(msg.contains("Deno"));
         assert!(!msg.contains("실패합니다")); // soft warning, not hard fail copy
+    }
+
+    #[test]
+    fn environment_report_uses_stable_codes_when_missing() {
+        // Force-path: if tools are missing on CI/dev machines, codes must be stable.
+        // When present, arrays may be empty — that's fine.
+        let report = collect_environment_report("bundled".into(), None, None);
+        for w in &report.warnings {
+            assert!(
+                w.starts_with("warn."),
+                "warning should be a stable code, got {w}"
+            );
+        }
+        for h in &report.install_hints {
+            assert!(
+                h.starts_with("hint."),
+                "hint should be a stable code, got {h}"
+            );
+        }
+        if !report.ffmpeg_found {
+            assert!(report.warnings.iter().any(|w| w == "warn.ffmpeg_missing"));
+            assert!(report.install_hints.iter().any(|h| h == "hint.ffmpeg.macos"));
+        }
+        if !report.deno_found {
+            assert!(report.warnings.iter().any(|w| w == "warn.deno_missing"));
+        }
     }
 }

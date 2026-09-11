@@ -16,16 +16,17 @@
 
 ## macOS에서 “개발자를 확인할 수 없음”이라고 나와요
 
-릴리즈 빌드가 Apple Notarization을 거치지 않았을 수 있습니다. **우클릭 → 열기**(또는 개인정보 보호 및 보안의 **확인 없이 열기**)를 사용하세요. 절차는 [README_KO.md](../../README_KO.md)에 있습니다.
+이 프로젝트는 Apple Notarization을 **하지 않습니다**(유료 개발자 계정 없음). **우클릭 → 열기**(또는 개인정보 보호 및 보안의 **확인 없이 열기**)를 사용하세요. 절차는 [README_KO.md](../../README_KO.md)에 있습니다.
 
 ## 다운로드가 느리거나 실패해요
 
-1. `yt-dlp` 사이드카를 최신으로 업데이트 (메인테이너: [RELEASING.md](RELEASING.md))  
-2. **Deno**를 설치하고 `PATH`에 두기  
-3. **FFmpeg** 설치 확인 (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin` 또는 PATH)  
-4. 하단 **환경 진단** 버튼으로 FFmpeg/Deno/사이드카 기대 파일명 확인  
-5. 앱 **로그 뷰어**에서 오류 확인  
-6. 나중에 다시 시도 — YouTube 측 변경으로 일시적으로 깨질 수 있음  
+1. 하단 **yt-dlp 업데이트** 버튼 사용 (앱 데이터에 최신 바이너리 오버라이드; 릴리즈 번들 사이드카는 덮어쓰지 않음)  
+2. 또는 다음 앱 릴리즈를 기다림 (번들 사이드카 갱신 — 메인테이너: [RELEASING.md](RELEASING.md))  
+3. **Deno**를 설치하고 `PATH`에 두기  
+4. **FFmpeg** 설치 확인 (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin` 또는 PATH)  
+5. 하단 **환경 진단**으로 yt-dlp 소스/버전·FFmpeg/Deno 확인  
+6. 앱 **로그 뷰어**에서 오류 확인  
+7. 나중에 다시 시도 — YouTube 측 변경으로 일시적으로 깨질 수 있음  
 
 ## 공식 설치 파일은 어떤 플랫폼인가요?
 

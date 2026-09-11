@@ -87,25 +87,25 @@ export const TrackRow = React.memo(function TrackRow({
               {track.status === "completed" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded-md font-mono">
                   <CheckCircle2 className="w-3 h-3" />
-                  Completed
+                  {t("track.advanced.completed")}
                 </span>
               )}
               {track.status === "tagging" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 bg-amber-950/40 border border-amber-800/50 px-2 py-0.5 rounded-md font-mono">
                   <Sparkles className="w-3 h-3" />
-                  Embedding Metadata
+                  {t("track.advanced.tagging")}
                 </span>
               )}
               {track.status === "converting_art" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-400 bg-indigo-950/40 border border-indigo-800/50 px-2 py-0.5 rounded-md font-mono">
                   <Sparkles className="w-3 h-3" />
-                  Converting Thumbnail
+                  {t("track.advanced.convertingArt")}
                 </span>
               )}
               {track.status === "extracting" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-400 bg-purple-950/40 border border-purple-800/50 px-2 py-0.5 rounded-md font-mono">
                   <Music2 className="w-3 h-3" />
-                  Extracting Audio
+                  {t("track.advanced.extracting")}
                 </span>
               )}
               {track.status === "downloading" && (
@@ -124,12 +124,12 @@ export const TrackRow = React.memo(function TrackRow({
               {track.status === "failed" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-400 bg-rose-950/40 border border-rose-800/50 px-2 py-0.5 rounded-md font-mono">
                   <AlertCircle className="w-3 h-3" />
-                  Failed
+                  {t("track.advanced.failed")}
                 </span>
               )}
               {track.status === "pending" && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-500 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-mono">
-                  Pending in Queue
+                  {t("track.advanced.pending")}
                 </span>
               )}
             </>

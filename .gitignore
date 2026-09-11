@@ -19,6 +19,10 @@ dist-ssr
 notes/
 notes/**
 
+# Local macOS verify packages (DMG). Not for GitHub Releases.
+local-packages/
+local-packages/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

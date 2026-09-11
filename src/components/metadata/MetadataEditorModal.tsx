@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Save, FolderOpen, Music, Loader2, ArrowLeft } from "lucide-react";
+import { useI18n } from "../../i18n";
 import { useMetadata } from "../../hooks/useMetadata";
 import { MetadataGridView } from "./MetadataGridView";
 import { MetadataSingleView } from "./MetadataSingleView";
@@ -11,6 +12,7 @@ interface MetadataEditorModalProps {
 }
 
 export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModalProps) {
+  const { t } = useI18n();
   const [viewMode, setViewMode] = useState<"grid" | "single">("grid");
   const [activeFile, setActiveFile] = useState<string>("");
   const [activeMetadata, setActiveMetadata] = useState<AudioMetadata>({});
@@ -53,13 +55,13 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
 
   const handleSaveAll = async () => {
     await saveAllMetadata();
-    alert("모든 변경사항이 저장되었습니다!");
+    alert(t("meta.savedAll"));
   };
 
   const handleSaveSingle = async () => {
     if (!activeFile) return;
     await saveSingleMetadata(activeFile, activeMetadata);
-    alert("메타데이터가 성공적으로 저장되었습니다!");
+    alert(t("meta.savedOne"));
     setViewMode("grid");
   };
 
@@ -104,7 +106,7 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
               <button
                 onClick={() => setViewMode("grid")}
                 className="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition-colors mr-2"
-                title="목록으로 돌아가기"
+                title={t("meta.backToList")}
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
@@ -113,7 +115,7 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
               <Music className="w-5 h-5 text-rose-500" />
             </div>
             <h2 className="text-lg font-bold text-white">
-              메타데이터 에디터 {viewMode === "grid" ? "(일괄 편집)" : "(상세 편집)"}
+              {viewMode === "grid" ? t("meta.title.grid") : t("meta.title.single")}
             </h2>
           </div>
           <button
@@ -134,10 +136,10 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
                   className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl flex items-center gap-2 transition-colors shrink-0 text-sm font-medium"
                 >
                   <FolderOpen className="w-4 h-4" />
-                  개별 파일 열기
+                  {t("meta.openFile")}
                 </button>
                 <span className="text-sm text-neutral-400">
-                  {downloadDir ? `디렉토리: ${downloadDir}` : ""}
+                  {downloadDir ? t("meta.directory", { path: downloadDir }) : ""}
                 </span>
               </div>
 
@@ -148,8 +150,8 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
               ) : fileList.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-neutral-500 gap-2">
                   <Music className="w-12 h-12 mb-2 opacity-20" />
-                  <p>이 디렉토리에 오디오 파일이 없습니다.</p>
-                  <p className="text-sm">직접 개별 파일을 열어주세요.</p>
+                  <p>{t("meta.empty")}</p>
+                  <p className="text-sm">{t("meta.emptyHint")}</p>
                 </div>
               ) : (
                 <MetadataGridView 
@@ -178,7 +180,7 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
             onClick={onClose}
             className="px-5 py-2.5 rounded-xl font-medium transition-all text-neutral-300 hover:bg-neutral-800"
           >
-            취소
+            {t("meta.cancel")}
           </button>
           
           {viewMode === "grid" ? (
@@ -192,7 +194,9 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              {modifiedFiles.size > 0 ? `${modifiedFiles.size}개 일괄 저장` : "저장할 내용 없음"}
+              {modifiedFiles.size > 0
+                ? t("meta.saveAll", { count: modifiedFiles.size })
+                : t("meta.saveNone")}
             </button>
           ) : (
             <button
@@ -205,7 +209,7 @@ export function MetadataEditorModal({ onClose, downloadDir }: MetadataEditorModa
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              저장하기
+              {t("meta.save")}
             </button>
           )}
         </div>

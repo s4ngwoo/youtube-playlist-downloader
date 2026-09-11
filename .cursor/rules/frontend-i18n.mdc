@@ -1,0 +1,14 @@
+---
+description: Frontend i18n, settings, and React patterns for this app
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend
+
+- i18n: add keys to **both** `src/i18n/locales/ko.ts` and `en.ts`; use `useI18n().t` for user-visible strings
+- Map backend codes with `mapBackendMessage` / env codes with `mapEnvCode` — do not show raw KO from Rust in the UI
+- Settings helpers live in `src/types/settings.ts`; persist via `settingsService.ts`
+- Tests: pure helpers with vitest (`npm test`); no Tauri mock E2E in scope by default
+- Preserve existing dark UI / layout patterns; avoid generic redesign unless asked
+- Zustand store + hooks pattern (`useDownloadActions`, `useDownloadEvents`) — keep new flow consistent

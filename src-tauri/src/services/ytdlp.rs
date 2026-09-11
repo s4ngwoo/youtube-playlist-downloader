@@ -6,7 +6,26 @@ use tauri_plugin_shell::ShellExt;
 use crate::models::{DownloadTask, ProgressPayload, YtDlpDump};
 use crate::parser::{clean_title_from_destination, DownloadRegexes};
 use crate::process::AppState;
-use crate::services::{environment, logger};
+use crate::services::{environment, logger, ytdlp_update};
+
+fn open_ytdlp(
+    app: &tauri::AppHandle,
+) -> Result<tauri_plugin_shell::process::Command, String> {
+    if let Ok(path) = ytdlp_update::override_binary_path(app) {
+        if path.is_file() {
+            logger::info(
+                "ytdlp",
+                &format!("오버라이드 yt-dlp 사용: {}", path.display()),
+            );
+            return Ok(app.shell().command(path.to_string_lossy().as_ref()));
+        }
+    }
+    app.shell().sidecar("yt-dlp").map_err(|e| {
+        let msg = environment::sidecar_error_message(&e);
+        logger::error("ytdlp", &msg);
+        msg
+    })
+}
 
 /// yt-dlp 덤프 엔트리가 유효하고 다운로드 가능한 정상 영상인지 검증합니다.
 /// 비공개/삭제/비활성화된 영상(제목이 없거나 [Private video] 등)은 제외합니다.
@@ -37,14 +56,8 @@ pub async fn fetch_playlist_dump(app: &tauri::AppHandle, url: &str) -> Result<Yt
         url.to_string(),
     ];
 
-    let dump_cmd = app
-        .shell()
-        .sidecar("yt-dlp")
-        .map_err(|e| {
-            let msg = environment::sidecar_error_message(&e);
-            logger::error("ytdlp", &msg);
-            crate::AppError::DownloadError(msg)
-        })?
+    let dump_cmd = open_ytdlp(app)
+        .map_err(crate::AppError::DownloadError)?
         .args(dump_args);
 
     let output = dump_cmd
@@ -292,15 +305,7 @@ pub async fn process_item(
     logger::info("download", &format!("[{}/{}] 다운로드 시작: {}", task.item_index, task.total_items, task.url));
     let yt_dlp_args = build_ytdlp_args(&task, &actual_download_dir, audio_format);
 
-    let command = app
-        .shell()
-        .sidecar("yt-dlp")
-        .map_err(|e| {
-            let msg = environment::sidecar_error_message(&e);
-            logger::error("download", &format!("[트랙 #{}] {msg}", task.item_index));
-            msg
-        })?
-        .args(yt_dlp_args);
+    let command = open_ytdlp(&app)?.args(yt_dlp_args);
 
     let (rx, child) = command
         .spawn()

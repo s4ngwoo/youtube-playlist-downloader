@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - [RELEASING.md](RELEASING.md) / [ko/RELEASING.md](ko/RELEASING.md) — tag checklist and yt-dlp sidecar pin/renew procedure
 - Frontend EN/KO i18n (header language switch; catalogs in `src/i18n/`); locale stored in `settings.json`
 - Stable Rust IPC message codes (`error.*` / `ok.*`) mapped on the frontend for bilingual errors
+- Frontend `vitest` for settings/i18n pure helpers (`npm test`); CI frontend job runs tests
+- One-click **yt-dlp update** (footer): downloads latest GitHub asset into app-data `sidecars/` override; runtime prefers override over bundled sidecar (`update_ytdlp` / `ytdlp_status`)
+- Environment diagnose returns stable warning/hint codes plus yt-dlp source/version; metadata editor / log viewer / advanced track labels fully i18n
 
 ### Changed
 
@@ -33,6 +36,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 - Release workflow downloads yt-dlp via configurable `YTDLP_TAG` (`latest` or a pinned tag)
 - **Linux official installers are not planned** (build from source / CLI yt-dlp); README, FAQ, RELEASING updated
 - Contributing: project map including i18n locale files and settings fields
+- CI clippy uses `-D warnings`; Contributing sync
+- **Apple Notarization permanently out of scope** (cost); Gatekeeper docs retained
+- Documented in-app yt-dlp update as app-data override (separate from release-bundled sidecar)
+- Documented **local verify DMG** workflow: gitignored `local-packages/` + `npm run package:local-dmg` ([CONTRIBUTING.md](CONTRIBUTING.md))
+
+### Fixed
+
+- Declared direct `chrono` dependency used by the app logger (release build)
 
 ### Removed
 

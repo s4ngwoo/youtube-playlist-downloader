@@ -25,6 +25,16 @@
           "name": "yt-dlp",
           "sidecar": true,
           "args": true
+        },
+        {
+          "name": "ytdlp-override",
+          "cmd": "$APPLOCALDATA/sidecars/yt-dlp",
+          "args": true
+        },
+        {
+          "name": "ytdlp-override-exe",
+          "cmd": "$APPLOCALDATA/sidecars/yt-dlp.exe",
+          "args": true
         }
       ]
     },
@@ -39,6 +49,16 @@
         {
           "name": "yt-dlp",
           "sidecar": true,
+          "args": true
+        },
+        {
+          "name": "ytdlp-override",
+          "cmd": "$APPLOCALDATA/sidecars/yt-dlp",
+          "args": true
+        },
+        {
+          "name": "ytdlp-override-exe",
+          "cmd": "$APPLOCALDATA/sidecars/yt-dlp.exe",
           "args": true
         }
       ]

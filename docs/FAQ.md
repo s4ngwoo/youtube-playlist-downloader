@@ -12,18 +12,19 @@ Yes. Source and binaries (when published) are available under **GPL-3.0**. See [
 
 The App keeps preferences, history, and logs **on your device**. It does not provide developer analytics accounts. Downloads contact YouTube as part of normal operation. Details: [PRIVACY.md](PRIVACY.md).
 
-## Why does macOS say the developer cannot be verified?
-
-Release builds may not be Apple-notarized. Use **right-click → Open** (or **Open Anyway** in Privacy & Security). Steps are in the [README](../README.md).
-
 ## Downloads are slow or failing
 
-1. Update the `yt-dlp` sidecar to the latest release (maintainers: [RELEASING.md](RELEASING.md))  
-2. Install **Deno** and ensure it is on your `PATH`  
-3. Confirm **FFmpeg** is installed (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin`, or PATH)  
-4. Use the in-app **환경 진단 (Environment diagnose)** button in the footer  
-5. Check the in-app **log viewer** for errors  
-6. Retry later — YouTube-side changes can cause temporary breakage  
+1. Use the footer **Update yt-dlp** button (installs a newer binary under app data; does not rewrite the release-bundled sidecar)  
+2. Or wait for the next app release, which re-bundles yt-dlp (maintainers: [RELEASING.md](RELEASING.md))  
+3. Install **Deno** and ensure it is on your `PATH`  
+4. Confirm **FFmpeg** is installed (Windows: Chocolatey/Scoop/`C:\ffmpeg\bin`, or PATH)  
+5. Use **Environment diagnose** in the footer (shows yt-dlp source/version plus FFmpeg/Deno)  
+6. Check the in-app **log viewer** for errors  
+7. Retry later — YouTube-side changes can cause temporary breakage  
+
+## Why does macOS say the developer cannot be verified?
+
+This project **does not** use Apple Notarization (no paid Apple Developer account). Use **right-click → Open** (or **Open Anyway** in Privacy & Security). Steps are in the [README](../README.md).
 
 ## Which platforms have official installers?
 

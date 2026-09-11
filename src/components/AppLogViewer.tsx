@@ -11,6 +11,7 @@ import {
   Filter,
   ChevronDown,
 } from "lucide-react";
+import { useI18n } from "../i18n";
 
 type LogLevel = "INFO" | "WARN" | "ERROR";
 type FilterMode = "ALL" | "WARN_ERROR" | "ERROR";
@@ -47,6 +48,7 @@ const LEVEL_CONFIG: Record<
 };
 
 export function AppLogViewer() {
+  const { t, locale } = useI18n();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [filter, setFilter] = useState<FilterMode>("ALL");
   const [logPath, setLogPath] = useState<string>("");
@@ -123,9 +125,9 @@ export function AppLogViewer() {
   const warnCount = logs.filter((l) => l.level === "WARN").length;
 
   const filterLabels: Record<FilterMode, string> = {
-    ALL: "전체",
-    WARN_ERROR: "경고 이상",
-    ERROR: "에러만",
+    ALL: t("log.filter.all"),
+    WARN_ERROR: t("log.filter.warnError"),
+    ERROR: t("log.filter.error"),
   };
 
   return (
@@ -137,7 +139,7 @@ export function AppLogViewer() {
             <Info className="w-4 h-4 text-sky-400/80" />
           </div>
           <div>
-            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">정보</p>
+            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">{t("log.info")}</p>
             <p className="text-lg font-bold text-neutral-200 leading-none mt-0.5">
               {logs.filter((l) => l.level === "INFO").length}
             </p>
@@ -148,7 +150,7 @@ export function AppLogViewer() {
             <AlertTriangle className="w-4 h-4 text-amber-400" />
           </div>
           <div>
-            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">경고</p>
+            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">{t("log.warn")}</p>
             <p className="text-lg font-bold text-amber-400 leading-none mt-0.5">
               {warnCount}
             </p>
@@ -159,7 +161,7 @@ export function AppLogViewer() {
             <AlertCircle className="w-4 h-4 text-rose-400" />
           </div>
           <div>
-            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">에러</p>
+            <p className="text-[10px] text-neutral-500 font-mono uppercase tracking-wider">{t("log.error")}</p>
             <p className="text-lg font-bold text-rose-400 leading-none mt-0.5">
               {errorCount}
             </p>
@@ -173,14 +175,18 @@ export function AppLogViewer() {
         <div className="bg-neutral-950 px-4 py-2.5 border-b border-neutral-800/90 flex items-center justify-between gap-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-neutral-300 font-mono">
-              앱 로그
+              {t("log.title")}
             </span>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono">
               {filteredLogs.length} / {logs.length}
             </span>
             {lastRefreshed && (
               <span className="text-[10px] text-neutral-600 font-mono hidden sm:block">
-                갱신: {lastRefreshed.toLocaleTimeString("ko-KR")}
+                {t("log.refreshed", {
+                  time: lastRefreshed.toLocaleTimeString(
+                    locale === "en" ? "en-US" : "ko-KR"
+                  ),
+                })}
               </span>
             )}
           </div>
@@ -221,7 +227,7 @@ export function AppLogViewer() {
             <button
               onClick={fetchLogs}
               disabled={isLoading}
-              title="새로고침"
+              title={t("log.refresh")}
               className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
@@ -230,7 +236,7 @@ export function AppLogViewer() {
             <button
               onClick={handleOpenFile}
               disabled={!logPath}
-              title="로그 파일 열기"
+              title={t("log.openFile")}
               className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-all cursor-pointer disabled:opacity-50"
             >
               <FolderOpen className="w-3.5 h-3.5" />
@@ -238,7 +244,7 @@ export function AppLogViewer() {
 
             <button
               onClick={handleClearLogs}
-              title="로그 초기화"
+              title={t("log.clear")}
               className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-950/30 transition-all cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -256,8 +262,8 @@ export function AppLogViewer() {
               <Info className="w-8 h-8 opacity-30" />
               <p className="text-xs text-center">
                 {logs.length === 0
-                  ? "로그가 없습니다. 다운로드를 시작하면 여기에 기록됩니다."
-                  : "해당 필터 조건에 맞는 로그가 없습니다."}
+                  ? t("log.empty")
+                  : t("log.emptyFilter")}
               </p>
             </div>
           ) : (

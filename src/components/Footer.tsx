@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Mail, FileText, Stethoscope } from "lucide-react";
+import { Mail, FileText, Stethoscope, RefreshCw } from "lucide-react";
 import { GithubIcon } from "./icons/GithubIcon";
 import { invoke } from "@tauri-apps/api/core";
 import { useI18n } from "../i18n";
+import { mapEnvCode } from "../i18n/mapEnvCode";
+import { mapBackendMessage } from "../i18n/mapBackendMessage";
 
 type EnvironmentReport = {
   ffmpeg_found: boolean;
@@ -14,10 +17,21 @@ type EnvironmentReport = {
   arch: string;
   warnings: string[];
   install_hints: string[];
+  ytdlp_source: string;
+  ytdlp_version: string | null;
+  ytdlp_path: string | null;
+};
+
+type YtdlpStatus = {
+  source: string;
+  version: string | null;
+  path: string | null;
+  overridePath: string;
 };
 
 export function Footer() {
   const { t } = useI18n();
+  const [ytdlpBusy, setYtdlpBusy] = useState(false);
 
   const openLogWindow = async () => {
     try {
@@ -25,6 +39,12 @@ export function Footer() {
     } catch (err) {
       console.error("Failed to open log window:", err);
     }
+  };
+
+  const sourceLabel = (source: string) => {
+    if (source === "override") return t("footer.diag.source.override");
+    if (source === "bundled") return t("footer.diag.source.bundled");
+    return source;
   };
 
   const runEnvironmentDiagnose = async () => {
@@ -41,11 +61,28 @@ export function Footer() {
           report.deno_found ? report.deno_path : t("footer.diag.denoNone")
         }`,
         t("footer.diag.sidecar", { name: report.sidecar_expected_name }),
+        t("footer.diag.ytdlpSource", {
+          source: sourceLabel(report.ytdlp_source),
+        }),
+        t("footer.diag.ytdlpVersion", {
+          version: report.ytdlp_version ?? t("footer.diag.none"),
+        }),
+        ...(report.ytdlp_path
+          ? [`yt-dlp path: ${report.ytdlp_path}`]
+          : []),
         ...(report.warnings.length
-          ? ["", t("footer.diag.warnings"), ...report.warnings.map((w) => `- ${w}`)]
+          ? [
+              "",
+              t("footer.diag.warnings"),
+              ...report.warnings.map((w) => `- ${mapEnvCode(w, t)}`),
+            ]
           : ["", t("footer.diag.noWarnings")]),
         ...(report.install_hints.length
-          ? ["", t("footer.diag.hints"), ...report.install_hints.map((h) => `- ${h}`)]
+          ? [
+              "",
+              t("footer.diag.hints"),
+              ...report.install_hints.map((h) => `- ${mapEnvCode(h, t)}`),
+            ]
           : []),
         "",
         t("footer.diag.logNote"),
@@ -53,7 +90,34 @@ export function Footer() {
       window.alert(lines.join("\n"));
     } catch (err) {
       console.error("Environment diagnose failed:", err);
-      window.alert(t("footer.diag.failed", { error: String(err) }));
+      window.alert(
+        t("footer.diag.failed", {
+          error: mapBackendMessage(String(err), t),
+        })
+      );
+    }
+  };
+
+  const updateYtdlp = async () => {
+    if (ytdlpBusy) return;
+    setYtdlpBusy(true);
+    try {
+      const status = await invoke<YtdlpStatus>("update_ytdlp");
+      window.alert(
+        t("footer.ytdlpUpdateOk", {
+          version: status.version ?? t("footer.diag.none"),
+          path: status.path ?? status.overridePath,
+        })
+      );
+    } catch (err) {
+      console.error("yt-dlp update failed:", err);
+      window.alert(
+        t("footer.ytdlpUpdateFailed", {
+          error: mapBackendMessage(String(err), t),
+        })
+      );
+    } finally {
+      setYtdlpBusy(false);
     }
   };
 
@@ -91,7 +155,19 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap justify-center">
+        <button
+          type="button"
+          onClick={updateYtdlp}
+          disabled={ytdlpBusy}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+          title={t("footer.ytdlpUpdateTitle")}
+        >
+          <RefreshCw
+            className={`w-3.5 h-3.5 ${ytdlpBusy ? "animate-spin" : ""}`}
+          />
+          {ytdlpBusy ? t("footer.ytdlpUpdating") : t("footer.ytdlpUpdate")}
+        </button>
         <button
           type="button"
           onClick={runEnvironmentDiagnose}

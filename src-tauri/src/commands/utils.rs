@@ -129,14 +129,21 @@ pub async fn open_log_window(app: tauri::AppHandle) -> Result<(), crate::AppErro
     Ok(())
 }
 
-/// 환경 진단 (FFmpeg / Deno / 사이드카 기대 파일명)
+/// 환경 진단 (FFmpeg / Deno / 사이드카 · yt-dlp 오버라이드)
 #[tauri::command]
-pub fn diagnose_environment() -> Result<crate::services::environment::EnvironmentReport, crate::AppError> {
-    let report = crate::services::environment::collect_environment_report();
+pub fn diagnose_environment(
+    app: tauri::AppHandle,
+) -> Result<crate::services::environment::EnvironmentReport, crate::AppError> {
+    let ytdlp = crate::services::ytdlp_update::status(&app)?;
+    let report = crate::services::environment::collect_environment_report(
+        ytdlp.source,
+        ytdlp.version,
+        ytdlp.path,
+    );
     logger::info(
         "environment",
         &format!(
-            "환경 진단 — os={}/{} ffmpeg={} deno={} sidecar={}",
+            "환경 진단 — os={}/{} ffmpeg={} deno={} sidecar={} ytdlp_source={} ytdlp_version={}",
             report.os,
             report.arch,
             report
@@ -144,12 +151,30 @@ pub fn diagnose_environment() -> Result<crate::services::environment::Environmen
                 .as_deref()
                 .unwrap_or("(없음)"),
             report.deno_path.as_deref().unwrap_or("(없음)"),
-            report.sidecar_expected_name
+            report.sidecar_expected_name,
+            report.ytdlp_source,
+            report.ytdlp_version.as_deref().unwrap_or("(unknown)")
         ),
     );
     for w in &report.warnings {
         logger::warn("environment", w);
     }
     Ok(report)
+}
+
+/// 현재 yt-dlp 소스(번들/오버라이드)·버전
+#[tauri::command]
+pub fn ytdlp_status(
+    app: tauri::AppHandle,
+) -> Result<crate::services::ytdlp_update::YtdlpStatus, crate::AppError> {
+    crate::services::ytdlp_update::status(&app)
+}
+
+/// GitHub latest 자산으로 앱 데이터 오버라이드 바이너리 설치
+#[tauri::command]
+pub fn update_ytdlp(
+    app: tauri::AppHandle,
+) -> Result<crate::services::ytdlp_update::YtdlpStatus, crate::AppError> {
+    crate::services::ytdlp_update::download_latest_override(&app)
 }
 

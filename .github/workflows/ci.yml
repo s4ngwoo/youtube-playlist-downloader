@@ -28,6 +28,9 @@ jobs:
       - name: TypeScript check
         run: npm run typecheck
 
+      - name: Unit tests
+        run: npm test
+
   rust:
     name: Rust (check, clippy, test)
     runs-on: ubuntu-latest
@@ -68,10 +71,9 @@ jobs:
       - name: cargo check
         run: cargo check
 
-      # Progressive: run clippy without -D warnings so existing style lints
-      # do not block PRs yet; correctness still surfaces as warnings in logs.
+      # Fail on any clippy warning (style + correctness).
       - name: cargo clippy
-        run: cargo clippy --all-targets -- -W clippy::correctness -W clippy::suspicious
+        run: cargo clippy --all-targets -- -D warnings
 
       - name: cargo test
         run: cargo test

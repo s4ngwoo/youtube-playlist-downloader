@@ -1,0 +1,15 @@
+---
+description: Tauri IPC, capabilities, and Rust service boundaries
+globs: src-tauri/**/*
+alwaysApply: false
+---
+
+# Rust / Tauri backend
+
+- Keep `commands/` thin; put logic in `services/`
+- New IPC: implement command → register in `lib.rs` `generate_handler!` → adjust `capabilities/default.json` if shell/fs needed
+- User-facing errors prefer stable codes (`error.*` / `ok.*`); FE maps via `src/i18n/mapBackendMessage.ts`
+- Env diagnose warnings/hints use codes (`warn.*` / `hint.*`) → `mapEnvCode`
+- yt-dlp: prefer app-data override via `ytdlp_update::override_binary_path`, else bundled sidecar
+- Clippy in CI: `cargo clippy --all-targets -- -D warnings`
+- Sidecar name uses target triple, e.g. `yt-dlp-aarch64-apple-darwin`

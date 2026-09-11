@@ -1,0 +1,17 @@
+---
+description: Build a local macOS DMG into gitignored local-packages when feature-like changes need install verification
+alwaysApply: true
+---
+
+# Local verify DMG
+
+When a change is **feature-like** and needs a manual install/run check (not unit tests alone):
+
+1. Ensure a yt-dlp sidecar exists for this machine under `src-tauri/bin/`
+2. Run `npm run package:local-dmg`
+3. Output lands in **`local-packages/`** (gitignored) — e.g. `YYYY-MM-DD-YoutubePlaylistDownloader-arm64.dmg`
+4. Do **not** commit the DMG or treat it as a GitHub Release asset
+
+Documented for humans in `docs/CONTRIBUTING.md` (KO: `docs/ko/CONTRIBUTING.md`) and distinguished from tagged releases in `docs/RELEASING.md`.
+
+Script fallback: if Tauri `bundle/dmg` fails, `scripts/copy-local-dmg.mjs` builds a UDZO DMG from `bundle/macos/*.app` via `hdiutil`.

@@ -75,8 +75,12 @@ chmod +x src-tauri/bin/yt-dlp-aarch64-apple-darwin
 
 ## 이 체크리스트 범위 밖
 
-- **앱 내 / 원클릭 yt-dlp 갱신** — 제품 로드맵. 릴리즈는 사이드카를 다시 번들한다.
-- **Apple Notarization** — 선택; 유료 Apple Developer 계정 필요. Gatekeeper 첫 실행 안내는 README·릴리즈 노트에 유지.
+- **Apple Notarization** — **영구 제외** (비용 · 유료 Apple Developer 계정 없음). Gatekeeper 첫 실행 안내는 README·릴리즈 노트에 유지. “연기”가 아님.
+- **`local-packages/` DMG** — 로컬 검증용만 (gitignore). [CONTRIBUTING.md](CONTRIBUTING.md) 참고. 태그 릴리즈가 아니면 GitHub Release 자산으로 올리지 않는다.
+
+## 앱 내 yt-dlp 갱신 vs 릴리즈 사이드카
+
+사용자는 푸터 **yt-dlp 업데이트**로 최신 바이너리를 받을 수 있다. 이는 앱 로컬 데이터 `sidecars/` **오버라이드**이며, 릴리즈에 포함된 `externalBin` 사이드카를 덮어쓰지 않는다. 다음 GitHub Release의 번들 사이드카는 사용자 오버라이드와 별개로 고정/최신 정책에 따라 다시 패키징된다.
 
 ## 관련 문서
 

@@ -28,14 +28,37 @@ CI (`.github/workflows/ci.yml`) runs on every PR and push to `main`:
 # Frontend
 npm ci
 npm run typecheck
+npm test
 
 # Rust (from repo root or src-tauri/)
 npm run test:rust
 # equivalent:
-cd src-tauri && cargo check && cargo clippy --all-targets -- -W clippy::correctness -W clippy::suspicious && cargo test
+cd src-tauri && cargo check && cargo clippy --all-targets -- -D warnings && cargo test
 ```
 
-Clippy is enforced progressively (correctness/suspicious warnings); full `-D warnings` is not required yet.
+Clippy treats all warnings as errors (`-D warnings`).
+
+### Local macOS verify package (maintainers / AI)
+
+When a change is **feature-like** and needs a manual install check (not just unit tests), build a DMG into the gitignored folder **`local-packages/`** (never commit these files; they are not GitHub Release assets).
+
+```bash
+# Requires yt-dlp sidecar under src-tauri/bin/ for this machine's triple
+npm run package:local-dmg
+# → local-packages/<dated>-YoutubePlaylistDownloader-<arch>.dmg
+# (copies Tauri DMG when available; otherwise builds a UDZO DMG from the .app via hdiutil)
+```
+
+Or manually:
+
+```bash
+npm run tauri build
+mkdir -p local-packages
+cp src-tauri/target/release/bundle/dmg/*.dmg \
+  "local-packages/$(date +%Y-%m-%d)-YoutubePlaylistDownloader-$(uname -m).dmg"
+```
+
+See also [RELEASING.md](RELEASING.md) (official tags vs local verify).
 
 ### Where things live
 
@@ -46,6 +69,7 @@ Clippy is enforced progressively (correctness/suspicious warnings); full `-D war
 | UI strings (EN/KO) | `src/i18n/locales/` — add keys to **both** `ko.ts` and `en.ts` |
 | Settings | `settings.json` via plugin-store (`locale`, concurrency, format, folder) |
 | Sidecar | `src-tauri/bin/yt-dlp-<target-triple>` (see README) |
+| Agent rules | `.cursor/rules/*.mdc` (project conventions for Cursor) |
 
 Run checks from the **repo root**. CI mirrors the commands above on Ubuntu (Rust uses a stub sidecar file — see `.github/workflows/ci.yml`).
 

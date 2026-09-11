@@ -30,14 +30,37 @@ CI (`.github/workflows/ci.yml`)가 PR 및 `main` 푸시마다 실행됩니다.
 # Frontend
 npm ci
 npm run typecheck
+npm test
 
 # Rust
 npm run test:rust
 # 또는:
-cd src-tauri && cargo check && cargo clippy --all-targets -- -W clippy::correctness -W clippy::suspicious && cargo test
+cd src-tauri && cargo check && cargo clippy --all-targets -- -D warnings && cargo test
 ```
 
-Clippy는 점진 적용(correctness/suspicious). 아직 전체 `-D warnings`는 강제하지 않습니다.
+Clippy는 모든 경고를 에러로 취급합니다 (`-D warnings`).
+
+### 로컬 macOS 검증 패키지 (메인테이너 / AI)
+
+**기능처럼 수동 설치 확인이 필요한 변경**이면, 단위 테스트만으로 끝내지 말고 gitignore된 **`local-packages/`** 에 DMG를 둡니다(커밋·GitHub Release 자산 아님).
+
+```bash
+# 이 머신용 yt-dlp 사이드카가 src-tauri/bin/ 에 있어야 함
+npm run package:local-dmg
+# → local-packages/<날짜>-YoutubePlaylistDownloader-<arch>.dmg
+# (Tauri DMG가 있으면 복사, 없으면 .app에서 hdiutil UDZO 생성)
+```
+
+또는:
+
+```bash
+npm run tauri build
+mkdir -p local-packages
+cp src-tauri/target/release/bundle/dmg/*.dmg \
+  "local-packages/$(date +%Y-%m-%d)-YoutubePlaylistDownloader-$(uname -m).dmg"
+```
+
+공식 태그 릴리즈와의 차이는 [RELEASING.md](RELEASING.md) 참고.
 
 ### 어디에 무엇이 있는지
 
@@ -48,6 +71,7 @@ Clippy는 점진 적용(correctness/suspicious). 아직 전체 `-D warnings`는 
 | UI 문자열 (EN/KO) | `src/i18n/locales/` — 키를 **ko.ts와 en.ts 모두**에 추가 |
 | 설정 | plugin-store `settings.json` (`locale`, 동시성, 포맷, 폴더) |
 | 사이드카 | `src-tauri/bin/yt-dlp-<target-triple>` (README 참고) |
+| 에이전트 규칙 | `.cursor/rules/*.mdc` (Cursor용 프로젝트 컨벤션) |
 
 검사는 **레포 루트**에서 실행하세요. CI는 위 명령을 Ubuntu에서 그대로 돌립니다(Rust는 사이드카 stub — `.github/workflows/ci.yml`).
 

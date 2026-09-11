@@ -36,7 +36,9 @@ tauri-plugin-fs = "2.5.2"
 thiserror = "2.0.20"
 futures = "0.3.34"
 tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros"] }
-chrono = { version = "0.4", features = ["serde"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "blocking"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc = "0.2.7"

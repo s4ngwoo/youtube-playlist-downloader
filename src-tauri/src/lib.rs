@@ -50,17 +50,26 @@ pub fn run() {
                 services::logger::init(log_dir);
             }
             // 시작 시 환경 스냅샷 + Deno 경고(치명 아님)
-            let report = services::environment::collect_environment_report();
+            let ytdlp = services::ytdlp_update::status(app.handle()).ok();
+            let report = services::environment::collect_environment_report(
+                ytdlp
+                    .as_ref()
+                    .map(|s| s.source.clone())
+                    .unwrap_or_else(|| "bundled".into()),
+                ytdlp.as_ref().and_then(|s| s.version.clone()),
+                ytdlp.as_ref().and_then(|s| s.path.clone()),
+            );
             services::logger::info(
                 "environment",
                 &format!(
-                    "시작 환경 — ffmpeg={} deno={} sidecar={}",
+                    "시작 환경 — ffmpeg={} deno={} sidecar={} ytdlp_source={}",
                     report
                         .ffmpeg_location
                         .as_deref()
                         .unwrap_or("(없음)"),
                     report.deno_path.as_deref().unwrap_or("(없음)"),
-                    report.sidecar_expected_name
+                    report.sidecar_expected_name,
+                    report.ytdlp_source
                 ),
             );
             services::environment::warn_if_deno_missing();
@@ -87,6 +96,8 @@ pub fn run() {
             commands::utils::clear_app_logs,
             commands::utils::open_log_window,
             commands::utils::diagnose_environment,
+            commands::utils::ytdlp_status,
+            commands::utils::update_ytdlp,
             commands::metadata::read_metadata,
             commands::metadata::write_metadata,
             commands::metadata::list_audio_files

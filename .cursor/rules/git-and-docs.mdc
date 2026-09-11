@@ -1,0 +1,28 @@
+---
+description: Git, public vs private docs, and what must never be committed
+alwaysApply: true
+---
+
+# Git & documentation
+
+## Never commit
+
+- `notes/` / `notes/**` — private AI/dev notes
+- `local-packages/` / `local-packages/**` — local verify DMGs
+- Secrets, `.env`, personal absolute paths, large sidecars unless the project explicitly vendors them
+
+## Commits / push
+
+- Create commits or push **only when the user asks**
+- Prefer conventional style already used: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`
+
+## Public vs private docs
+
+| Path | Publish? |
+| :--- | :---: |
+| `README.md`, `README_KO.md`, `docs/`, `docs/ko/` | Yes |
+| `notes/`, `local-packages/` | No |
+
+- Product KO README is root `README_KO.md`; other KO docs are `docs/ko/<same-basename>.md`
+- Policy/user-facing wording changes go in **public** docs; use `notes/` for internal plans/logs
+- After a quality phase: update `notes/*` as needed **and** public CHANGELOG/README when user-visible

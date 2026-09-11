@@ -32,6 +32,15 @@ export function mapBackendMessage(
   if (body === "error.invalid_download_dir") return tFn("errors.invalidDir");
   if (body === "error.no_audio_for_zip") return tFn("errors.noAudioForZip");
   if (body === "error.logger_not_ready") return tFn("errors.loggerNotReady");
+  if (
+    body === "error.ytdlp_update_failed" ||
+    body.startsWith("error.ytdlp_update_failed:")
+  ) {
+    const detail = body.includes(":")
+      ? body.slice("error.ytdlp_update_failed:".length)
+      : "";
+    return tFn("errors.ytdlpUpdateFailed", { detail: detail || body });
+  }
 
   if (body === "ok.download_complete") return tFn("ok.downloadComplete");
   if (body.startsWith("ok.download_partial:")) {

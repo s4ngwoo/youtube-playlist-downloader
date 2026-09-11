@@ -1,0 +1,25 @@
+---
+description: Project overview, stack, platforms, and hard product constraints
+alwaysApply: true
+---
+
+# YouTube Playlist Downloader — core
+
+- Tauri v2 desktop app: React 19 + TS + Vite + Tailwind 4 + Zustand / Rust backend
+- GPL-3.0, no telemetry/accounts; personal offline use framing
+- Settings in `settings.json` (plugin-store): folder, concurrency 1–8 (default 3), `m4a`|`mp3`, `locale` `ko`|`en`
+- Official releases: Apple Silicon + Intel Mac + Windows x64. **Linux official binaries: not planned.** **Apple Notarization: not planned** (Gatekeeper docs only).
+- yt-dlp is bundled as sidecar; in-app update writes **app-data override** under `sidecars/` (does not rewrite the release bundle)
+- Prefer Korean communication with the maintainer; keep changes focused (no drive-by refactors)
+
+## Entry points
+
+| Task | Where |
+| :--- | :--- |
+| Download UX | `src/hooks/useDownloadActions.ts`, `src/store/downloadStore.ts` |
+| yt-dlp / progress | `src-tauri/src/services/ytdlp.rs`, `ytdlp_update.rs` |
+| Env diagnose | `src-tauri/src/services/environment.rs`, `src/components/Footer.tsx` |
+| i18n | `src/i18n/` (`ko.ts` + `en.ts` always both) |
+| Release | `.github/workflows/release.yml`, `docs/RELEASING.md` |
+
+Private detail lives in gitignored `notes/` (e.g. `notes/ai-context.md`). Do not commit `notes/`.

@@ -75,8 +75,12 @@ Do **not** commit large sidecars unless the project explicitly decides to vendor
 
 ## Not covered by this checklist
 
-- **In-app / one-click yt-dlp update** — still a product roadmap item; releases re-bundle a fresh sidecar instead.
-- **Apple Notarization** — optional; needs a paid Apple Developer account. Current first-launch Gatekeeper steps stay in the README / release notes.
+- **Apple Notarization** — **out of scope permanently** (cost / no paid Apple Developer account). First-launch Gatekeeper steps stay in the README / release notes. Do not treat as deferred work.
+- **`local-packages/` DMGs** — local verify builds only (gitignored). See [CONTRIBUTING.md](CONTRIBUTING.md). Do not upload these as release assets unless intentionally cutting a tagged release.
+
+## In-app yt-dlp update vs release sidecar
+
+Users can install a newer yt-dlp via the footer **Update yt-dlp** action. That writes an **override** under the app local data `sidecars/` directory and prefers it at runtime. It does **not** rewrite the release-bundled `externalBin` sidecar. The next GitHub Release still ships its own pinned/latest sidecar independently of any user’s override.
 
 ## Related
 

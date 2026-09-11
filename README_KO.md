@@ -50,7 +50,7 @@
 
 ### macOS 첫 실행 ("확인되지 않은 개발자")
 
-유료 Apple 개발자 인증(Notarization)을 거치지 않은 오픈소스 빌드이므로 Gatekeeper 경고가 날 수 있습니다.
+유료 Apple 개발자 인증(Notarization)은 **하지 않습니다**(계정·비용 없음). Gatekeeper 경고가 날 수 있습니다.
 
 1. `.dmg`를 열고 앱을 **응용 프로그램**으로 드래그합니다.
 2. 응용 프로그램에서 **우클릭(또는 Control+클릭) → 열기**를 선택합니다.
@@ -249,11 +249,12 @@ npm run tauri build
 
 - [x] 오디오 포맷 선택 — **m4a / mp3** (FLAC, WAV, OPUS는 추후)
 - [x] 동시 다운로드 수 설정 — **1–8**
-- [ ] 앱 내 yt-dlp 자동 업데이트
+- [x] 앱 내 yt-dlp 업데이트 — 앱 데이터 오버라이드(푸터); 릴리즈 번들 사이드카와는 별개
 - [ ] 히스토리·폴더 바로가기 강화
 - [ ] 내장 미니 오디오 프리뷰
 - [x] Intel macOS 공식 릴리즈 바이너리
 - [x] Linux 공식 바이너리 — **계획 없음** (배포판 파편화 · CLI yt-dlp로 충분)
+- [x] Apple Notarization — **하지 않음** (유료 개발자 계정 없음; Gatekeeper 안내는 README 유지)
 
 ---
 

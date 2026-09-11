@@ -23,6 +23,9 @@
 - [RELEASING.md](RELEASING.md) / [영문](../RELEASING.md) — 태그 체크리스트·yt-dlp 사이드카 고정/갱신
 - 프론트 EN/KO i18n (헤더 언어 전환; `src/i18n/`); `settings.json`에 locale 저장
 - Rust IPC 안정 코드(`error.*` / `ok.*`) + 프론트 매핑으로 이중 언어 에러
+- 프론트 `vitest` (settings/i18n 순수 헬퍼; `npm test`); CI frontend job에 테스트 포함
+- **yt-dlp 원클릭 업데이트**(푸터): GitHub latest 자산을 앱 데이터 `sidecars/` 오버라이드로 설치; 런타임이 번들보다 오버라이드 우선 (`update_ytdlp` / `ytdlp_status`)
+- 환경 진단: 경고/힌트 안정 코드 + yt-dlp 소스/버전; 메타 에디터·로그 뷰어·advanced 라벨 i18n 완료
 
 ### Changed
 
@@ -34,6 +37,14 @@
 - 릴리즈 워크플로가 `YTDLP_TAG`(`latest` 또는 고정 태그)로 yt-dlp를 받도록 정리
 - **Linux 공식 설치 파일은 계획하지 않음** (소스 빌드 / CLI yt-dlp); README·FAQ·RELEASING 반영
 - 기여 가이드: i18n 로케일 파일·설정 필드 맵 보강
+- CI clippy `-D warnings`; CONTRIBUTING 동기화
+- **Apple Notarization 영구 제외**(비용); Gatekeeper 안내는 유지
+- 앱 내 yt-dlp 갱신 = 앱 데이터 오버라이드(릴리즈 번들 사이드카와 별개) 문서화
+- **로컬 검증 DMG** 절차 문서화: gitignore `local-packages/` + `npm run package:local-dmg` ([CONTRIBUTING.md](CONTRIBUTING.md))
+
+### Fixed
+
+- 앱 로거가 쓰는 `chrono`를 Cargo 직접 의존성으로 선언 (릴리즈 빌드)
 
 ### Removed
 
