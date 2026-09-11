@@ -12,14 +12,25 @@
 
 - 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.
 
+## [0.4.1] - 2026-09-11
+
+### Fixed
+
+- Windows 릴리즈 prepare가 FFmpeg 출력 경로를 덮어쓰던 문제 수정 (BtbN 추출 디렉터리 vs 사이드카 경로) — Tauri `externalBin`용 `ffmpeg-*.exe` 복구
+- macOS 번들 FFmpeg가 `--disable-autodetect` + `libmp3lame`를 `@executable_path/../Resources/`로 재작성(Tauri resources로 dylib 포함); Homebrew 절대 경로가 남으면 prepare 실패
+
+### Docs
+
+- FAQ / FFMPEG / CONTRIBUTING / CONCURRENCY / 문서 인덱스 교차 링크; KO CHANGELOG 깨진 상대 경로 수정
+
 ## [0.4.0] - 2026-09-11
 
 ### Added
 
 - **LGPL FFmpeg / ffprobe** 사이드카 번들 (공식 빌드는 별도 시스템 설치 불필요); 런타임은 번들 우선 → 시스템 PATH
 - `scripts/prepare-ffmpeg-sidecar.sh` — Windows: BtbN `*-lgpl` · macOS: LGPL 소스 빌드
-- 서드파티 고지: [THIRD_PARTY.md](THIRD_PARTY.md) / [ko](ko/THIRD_PARTY.md)
-- 번들 FFmpeg 사용자·메인테이너 가이드: [FFMPEG.md](FFMPEG.md) / [ko](ko/FFMPEG.md); FAQ에 설치 vs 소스 빌드·버전 핀 항목
+- 서드파티 고지: [THIRD_PARTY.md](THIRD_PARTY.md) / [FFMPEG.md](FFMPEG.md)
+- 번들 FFmpeg 사용자·메인테이너 가이드: [FFMPEG.md](FFMPEG.md); FAQ에 설치 vs 소스 빌드·버전 핀 항목
 
 ### Changed
 
@@ -146,7 +157,8 @@ Tauri v2 기반 공개 데스크톱 앱 초기 라인.
 
 - 정확한 태그 날짜와 에셋 이름: [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases)
 
-[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.4.1
 [0.4.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.4.0
 [0.3.1]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.1
 [0.3.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.0

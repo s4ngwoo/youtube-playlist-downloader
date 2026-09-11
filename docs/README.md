@@ -36,7 +36,9 @@ Project docs for **YouTube Playlist & Audio Downloader** (open source, GPL-3.0).
 | [FILENAMES.md](ko/FILENAMES.md) | 출력 파일명 — 제목만, no-overwrites |
 | [SUPPORT.md](ko/SUPPORT.md) | 지원 안내 |
 | [CHANGELOG.md](ko/CHANGELOG.md) | 변경 이력 |
-| [RELEASING.md](ko/RELEASING.md) | 태그 릴리즈·yt-dlp 사이드카 정책 |
+| [RELEASING.md](ko/RELEASING.md) | 태그 릴리즈·yt-dlp / FFmpeg 사이드카 정책 |
+| [FFMPEG.md](ko/FFMPEG.md) | 번들 LGPL FFmpeg — 일반 사용자 vs 소스 빌드, 핀, 탐색 순서 |
+| [THIRD_PARTY.md](ko/THIRD_PARTY.md) | 번들 yt-dlp + LGPL FFmpeg 고지 |
 
 ## READMEs
 

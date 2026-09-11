@@ -64,13 +64,14 @@ Do **not** require live YouTube or GUI E2E in PRs by default. Place new unit tes
 When a change is **feature-like** and needs a manual install check (not just unit tests), build a DMG into the gitignored folder **`local-packages/`** (never commit these files; they are not GitHub Release assets).
 
 ```bash
-# Requires yt-dlp sidecar under `src-tauri/bin/` for this machine's triple
+# Requires yt-dlp + FFmpeg/ffprobe sidecars under `src-tauri/bin/` for this machine's triple
+# (FFmpeg: ./scripts/prepare-ffmpeg-sidecar.sh — see FFMPEG.md)
 npm run package:local-dmg
 # → local-packages/<dated>-YoutubePlaylistDownloader-<arch>.dmg
 # (copies Tauri DMG when available; otherwise builds a UDZO DMG from the .app via hdiutil)
 ```
 
-**Sidecar triple caution:** `tauri build` / `package:local-dmg` resolve `yt-dlp-<rustc-host-triple>`. On Apple Silicon that is `yt-dlp-aarch64-apple-darwin`. An Intel-named binary, a Windows `.exe`, or the CI placeholder will not satisfy a local arm64 package. Match the name to `rustc -vV` → `host:`; do not copy another machine’s `bin/` folder blindly.
+**Sidecar triple caution:** `tauri build` / `package:local-dmg` resolve `yt-dlp-<rustc-host-triple>` and matching `ffmpeg-` / `ffprobe-` triples. On Apple Silicon that is `…-aarch64-apple-darwin`. An Intel-named binary, a Windows `.exe`, or the CI placeholder will not satisfy a local arm64 package. Match the name to `rustc -vV` → `host:`; do not copy another machine’s `bin/` folder blindly.
 
 Or manually:
 
@@ -91,14 +92,14 @@ See also [RELEASING.md](RELEASING.md) (official tags vs local verify).
 | Rust / Tauri | `src-tauri/` |
 | UI strings (EN/KO) | `src/i18n/locales/` — add keys to **both** `ko.ts` and `en.ts` |
 | Settings | `settings.json` via plugin-store (`locale`, concurrency, format, folder) |
-| Sidecar | `src-tauri/bin/yt-dlp-<target-triple>` (see README) |
+| Sidecar | `src-tauri/bin/yt-dlp-<triple>`, `ffmpeg-<triple>`, `ffprobe-<triple>` (see [FFMPEG.md](FFMPEG.md)) |
 | Agent rules | `.cursor/rules/*.mdc` (project conventions for Cursor) |
 
 Run checks from the **repo root**. CI mirrors the commands above on Ubuntu (Rust uses a stub sidecar file — see `.github/workflows/ci.yml`).
 
 ## Cutting a release
 
-Maintainers: see **[RELEASING.md](RELEASING.md)** for the `v*` tag workflow, platform matrix, and how to pin/renew the bundled yt-dlp sidecar.
+Maintainers: see **[RELEASING.md](RELEASING.md)** for the `v*` tag workflow, platform matrix, and how to pin/renew the bundled yt-dlp / FFmpeg sidecars ([FFMPEG.md](FFMPEG.md)).
 
 ## Project conventions
 

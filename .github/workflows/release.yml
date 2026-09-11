@@ -82,7 +82,23 @@ jobs:
           FFMPEG_TAG: ${{ env.FFMPEG_TAG }}
         run: |
           bash scripts/prepare-ffmpeg-sidecar.sh
-          ls -lh src-tauri/bin/ffmpeg-* src-tauri/bin/ffprobe-* || true
+          TRIPLE="${{ matrix.ffmpeg_triple }}"
+          case "$TRIPLE" in
+            *-pc-windows-*) EXT=".exe" ;;
+            *) EXT="" ;;
+          esac
+          test -f "src-tauri/bin/ffmpeg-${TRIPLE}${EXT}"
+          test -f "src-tauri/bin/ffprobe-${TRIPLE}${EXT}"
+          ls -lh "src-tauri/bin/ffmpeg-${TRIPLE}${EXT}" "src-tauri/bin/ffprobe-${TRIPLE}${EXT}"
+          if [[ -z "$EXT" ]]; then
+            "src-tauri/bin/ffmpeg-${TRIPLE}" -version | head -n 2
+          else
+            # Tauri resources path must exist on every platform (macOS ships real lame dylib).
+            mkdir -p src-tauri/resources
+            if [[ ! -f src-tauri/resources/libmp3lame.0.dylib ]]; then
+              : > src-tauri/resources/libmp3lame.0.dylib
+            fi
+          fi
 
       - name: Build and Release with Tauri Action
         uses: tauri-apps/tauri-action@v0

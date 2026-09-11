@@ -35,5 +35,6 @@ Concurrency helps most when you have **spare bandwidth and spare CPU**, and many
 ## Related
 
 - FAQ: [FAQ.md](FAQ.md)  
+- FFmpeg bundling: [FFMPEG.md](FFMPEG.md)  
 - Filenames: [FILENAMES.md](FILENAMES.md)  
 - Korean: [ko/CONCURRENCY.md](ko/CONCURRENCY.md)

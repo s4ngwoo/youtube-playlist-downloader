@@ -53,8 +53,8 @@ Mitigation: pin known-good versions in `release.yml` / prepare-script env, smoke
 ./scripts/prepare-ffmpeg-sidecar.sh   # or: npm run prepare:ffmpeg
 ```
 
-- **Windows:** downloads LGPL zip (no Chocolatey required for this script)
-- **macOS:** LGPL source build (needs Homebrew deps such as `nasm`, `lame`)
+- **Windows:** downloads LGPL zip (no Chocolatey required for this script). Sidecars must be static/self-contained (BtbN `*-lgpl`).
+- **macOS:** LGPL source build with `--disable-autodetect`, then `install_name_tool` so `libmp3lame` loads from `Contents/Resources/` (no Homebrew required at runtime). Prepare fails if absolute `/opt/homebrew` or `/usr/local` dylib paths remain.
 - Place yt-dlp sidecar separately (see README)
 
 Do not commit large binaries under `src-tauri/bin/` (gitignored except placeholders / license text).

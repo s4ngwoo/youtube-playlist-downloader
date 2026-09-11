@@ -53,8 +53,8 @@ yt-dlp는 별도(`YTDLP_TAG`, 기본 `latest`). **인앱 FFmpeg 업데이트는 
 ./scripts/prepare-ffmpeg-sidecar.sh   # 또는: npm run prepare:ffmpeg
 ```
 
-- **Windows:** LGPL zip 다운로드 (이 스크립트는 Chocolatey 불필요)
-- **macOS:** LGPL 소스 빌드 (`nasm`, `lame` 등 Homebrew 의존)
+- **Windows:** LGPL zip 다운로드 (이 스크립트는 Chocolatey 불필요). BtbN `*-lgpl` 정적 빌드.
+- **macOS:** `--disable-autodetect` 후 `install_name_tool`로 `libmp3lame`를 `Contents/Resources/`에서 로드(런타임 Homebrew 불필요). `/opt/homebrew`·`/usr/local` 절대 경로가 남으면 prepare 실패.
 - yt-dlp 사이드카는 별도 배치 (README)
 
 `src-tauri/bin/`의 큰 바이너리는 커밋하지 않습니다(placeholder·라이선스 텍스트 제외).

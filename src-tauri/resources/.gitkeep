@@ -1,0 +1,2 @@
+# macOS: scripts/prepare-ffmpeg-sidecar.sh writes libmp3lame.0.dylib here for Tauri Resources.
+# The .dylib itself is gitignored.

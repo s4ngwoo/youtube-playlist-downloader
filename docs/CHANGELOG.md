@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 - Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
 
+## [0.4.1] - 2026-09-11
+
+### Fixed
+
+- Windows release prepare script no longer overwrites the FFmpeg output path (BtbN extract dir vs sidecar path) — restores `ffmpeg-*.exe` for Tauri `externalBin`
+- macOS bundled FFmpeg uses `--disable-autodetect` and rewrites `libmp3lame` to `@executable_path/../Resources/` (dylib shipped via Tauri resources); prepare fails if absolute Homebrew paths remain
+
+### Docs
+
+- FAQ / FFMPEG / CONTRIBUTING / CONCURRENCY / docs index cross-links; fix broken KO changelog relative links
+
 ## [0.4.0] - 2026-09-11
 
 ### Added
@@ -145,7 +156,8 @@ Initial public desktop app release line (Tauri v2).
 
 - Exact tag dates and asset names: see [GitHub Releases](https://github.com/s4ngwoo/youtube-playlist-downloader/releases).
 
-[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/s4ngwoo/youtube-playlist-downloader/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.4.1
 [0.4.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.4.0
 [0.3.1]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.1
 [0.3.0]: https://github.com/s4ngwoo/youtube-playlist-downloader/releases/tag/v0.3.0
