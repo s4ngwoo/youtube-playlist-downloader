@@ -20,6 +20,7 @@
 ### Fixed
 
 - 건너뛴 플레이리스트 항목: 제목(EN/KO)·`availability`·null 슬롯으로 비공개/삭제 분류 — 가짜 “기타(unknown)” 감소
+- 히스토리 「폴더」가 reveal-in-dir 사용 (`opener:default` 허용); `openPath`는 거부되어 항상 실패했음
 
 ### Changed
 
@@ -29,7 +30,7 @@
 
 ### Notes
 
-- 작업 큐: 로컬 DMG 스모크 후 **Sprint 4** 잔여 — 히스토리 폴더 열기 실패·고급 모드 터미널형·오디오 추출 시 자막 **기본 OFF**.
+- 작업 큐: 로컬 DMG 스모크 후 **Sprint 4** 잔여 — 고급 모드 터미널형·오디오 추출 시 자막 **기본 OFF**.
 - 후순위: yt-dlp 받기/후처리 2패스 (A2-pipe); Wave D는 수요 시.
 
 ## [0.2.0] - 2026-09-11

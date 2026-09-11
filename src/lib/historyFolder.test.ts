@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveHistoryFolder } from "./historyFolder";
+import { HISTORY_FOLDER_OPEN_VIA, resolveHistoryFolder } from "./historyFolder";
 
 describe("resolveHistoryFolder", () => {
   it("prefers item downloadDir", () => {
@@ -14,5 +14,11 @@ describe("resolveHistoryFolder", () => {
   it("returns null when neither available", () => {
     expect(resolveHistoryFolder({}, "")).toBeNull();
     expect(resolveHistoryFolder({}, undefined)).toBeNull();
+  });
+});
+
+describe("HISTORY_FOLDER_OPEN_VIA", () => {
+  it("uses reveal-in-dir (opener:default has no open-path)", () => {
+    expect(HISTORY_FOLDER_OPEN_VIA).toBe("reveal-in-dir");
   });
 });

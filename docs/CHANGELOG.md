@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 ### Fixed
 
 - Skipped playlist entries: classify private/deleted via title (EN/KO), `availability`, and null slots — fewer false “unknown” labels
+- History “Folder” uses reveal-in-dir (allowed by `opener:default`); `openPath` was denied and always failed
 
 ### Changed
 
@@ -28,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ### Notes
 
-- Work queue (maintainer): **Sprint 4** remaining after local DMG smoke — history folder open failure, Advanced mode terminal-like progress, default **off** for subtitle download on audio extracts.
+- Work queue (maintainer): **Sprint 4** remaining after local DMG smoke — Advanced mode terminal-like progress, default **off** for subtitle download on audio extracts.
 - Deferred: split yt-dlp into download-only then post-process passes (A2-pipe); Wave D extras on demand.
 
 ## [0.2.0] - 2026-09-11

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { DownloadHistoryItem } from "../types/history";
 import { Trash2, Download, Clock, FolderOpen } from "lucide-react";
-import { openPath } from "@tauri-apps/plugin-opener";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { historyService } from "../services/historyService";
 import { resolveHistoryFolder } from "../lib/historyFolder";
 import { useDownloadStore } from "../store/downloadStore";
@@ -46,7 +46,8 @@ export function HistoryTab({ onLoadUrl }: HistoryTabProps) {
       return;
     }
     try {
-      await openPath(folder);
+      // opener:default allows reveal-item-in-dir, not open-path
+      await revealItemInDir(folder);
     } catch (err) {
       console.error("Open history folder failed:", err);
       alert(t("history.openFolderFailed"));
