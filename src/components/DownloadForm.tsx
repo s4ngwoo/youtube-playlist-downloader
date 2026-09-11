@@ -4,6 +4,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useDownloadStore } from "../store/downloadStore";
 import { useDownloadFlow } from "../hooks/useDownloadFlow";
 import { useSettingsActions } from "../hooks/useSettingsActions";
+import { computeSessionProgress } from "../lib/sessionEta";
 import { AudioFormat, MAX_CONCURRENCY, MIN_CONCURRENCY } from "../types/settings";
 import { useI18n } from "../i18n";
 
@@ -18,11 +19,10 @@ export function DownloadForm() {
     status,
     statusMessage,
     totalItems,
-    currentSpeed,
-    currentEta,
     isZipping,
     tracks,
     isFetchingMetadata,
+    avgDownloadSec,
   } = useDownloadStore(
     useShallow((s) => ({
       url: s.url,
@@ -33,11 +33,10 @@ export function DownloadForm() {
       status: s.status,
       statusMessage: s.statusMessage,
       totalItems: s.totalItems,
-      currentSpeed: s.currentSpeed,
-      currentEta: s.currentEta,
       isZipping: s.isZipping,
       tracks: s.tracks,
       isFetchingMetadata: s.isFetchingMetadata,
+      avgDownloadSec: s.avgDownloadSec,
     })),
   );
 
@@ -54,25 +53,20 @@ export function DownloadForm() {
   } = useDownloadFlow();
 
   const trackList = useMemo(() => Array.from(tracks.values()), [tracks]);
-  const completedCount = useMemo(
-    () => trackList.filter((tr) => tr.status === "completed").length,
-    [trackList],
+  const sessionProgress = useMemo(
+    () => computeSessionProgress(trackList, concurrency, avgDownloadSec),
+    [trackList, concurrency, avgDownloadSec],
   );
+  const completedCount = sessionProgress.completedCount;
+  const progressDenom = trackList.length > 0 ? trackList.length : totalItems;
   const overallPercent = useMemo(() => {
-    if (totalItems <= 0) return 0;
-    let totalProgressSum = 0;
-    for (let i = 1; i <= totalItems; i++) {
-      const track = tracks.get(i);
-      if (track) {
-        if (track.status === "completed") {
-          totalProgressSum += 100;
-        } else {
-          totalProgressSum += track.progress;
-        }
-      }
-    }
-    return Math.min(100, Math.max(0, totalProgressSum / totalItems));
-  }, [tracks, totalItems]);
+    if (progressDenom <= 0) return 0;
+    const sum = trackList.reduce(
+      (acc, tr) => acc + (tr.status === "completed" ? 100 : tr.progress),
+      0,
+    );
+    return Math.min(100, Math.max(0, sum / progressDenom));
+  }, [trackList, progressDenom]);
 
   const controlsDisabled = status === "downloading" || isZipping || isFetchingMetadata;
 
@@ -200,10 +194,10 @@ export function DownloadForm() {
             <span className="truncate">{statusMessage}</span>
           </span>
           <span className="font-mono text-neutral-200 font-semibold text-sm shrink-0">
-            {totalItems > 0
+            {progressDenom > 0
               ? t("form.progressDone", {
                   done: completedCount,
-                  total: totalItems,
+                  total: progressDenom,
                   percent: overallPercent.toFixed(1),
                 })
               : `${overallPercent.toFixed(1)}%`}
@@ -221,22 +215,41 @@ export function DownloadForm() {
           </div>
         </div>
 
-        {(currentSpeed || currentEta) && status === "downloading" && (
-          <div className="flex items-center gap-4 text-xs text-neutral-400 font-mono mt-0.5">
-            {currentSpeed && (
-              <span className="flex items-center gap-1">
-                <Download className="w-3 h-3 text-neutral-500" />
-                {t("form.speed")} <span className="text-neutral-200">{currentSpeed}</span>
-              </span>
-            )}
-            {currentEta && (
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3 text-neutral-500" />
-                {t("form.eta")} <span className="text-neutral-200">{currentEta}</span>
-              </span>
-            )}
-          </div>
-        )}
+        {status === "downloading" &&
+          (sessionProgress.hasDownloadWork ||
+            sessionProgress.postprocessOnly ||
+            sessionProgress.speedDisplay ||
+            sessionProgress.etaDisplay) && (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-400 font-mono mt-0.5">
+              {sessionProgress.hasDownloadWork && progressDenom > 0 && (
+                <span className="text-neutral-300">
+                  {t("form.receiving", {
+                    recv: sessionProgress.receivingCount,
+                    total: progressDenom,
+                  })}
+                </span>
+              )}
+              {sessionProgress.postprocessCount > 0 && (
+                <span className="text-purple-300/90 animate-pulse">
+                  {t("form.postprocess", { count: sessionProgress.postprocessCount })}
+                </span>
+              )}
+              {sessionProgress.speedDisplay && (
+                <span className="flex items-center gap-1">
+                  <Download className="w-3 h-3 text-neutral-500" />
+                  {t("form.speed")}{" "}
+                  <span className="text-neutral-200">{sessionProgress.speedDisplay}</span>
+                </span>
+              )}
+              {sessionProgress.etaDisplay && (
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-neutral-500" />
+                  {t("form.eta")}{" "}
+                  <span className="text-neutral-200">{sessionProgress.etaDisplay}</span>
+                </span>
+              )}
+            </div>
+          )}
       </div>
     </section>
   );

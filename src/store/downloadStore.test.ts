@@ -20,6 +20,8 @@ describe("beginDownloadSession", () => {
       totalItems: 5,
       currentSpeed: "1MB/s",
       currentEta: "00:01",
+      avgDownloadSec: 42,
+      downloadSampleCount: 3,
       statusMessage: "prev",
     });
   });
@@ -33,6 +35,17 @@ describe("beginDownloadSession", () => {
     expect(s.totalItems).toBe(0);
     expect(s.currentSpeed).toBe("");
     expect(s.currentEta).toBe("");
+    expect(s.avgDownloadSec).toBeNull();
+    expect(s.downloadSampleCount).toBe(0);
     expect(s.statusMessage).toBe("");
+  });
+
+  it("recordDownloadSample updates rolling average", () => {
+    useDownloadStore.getState().beginDownloadSession();
+    useDownloadStore.getState().recordDownloadSample(10);
+    useDownloadStore.getState().recordDownloadSample(20);
+    const s = useDownloadStore.getState();
+    expect(s.downloadSampleCount).toBe(2);
+    expect(s.avgDownloadSec).toBe(15);
   });
 });

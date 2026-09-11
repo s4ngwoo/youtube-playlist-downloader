@@ -33,6 +33,9 @@ export const en: MessageCatalog = {
   "form.progressDone": "{done}/{total} done ({percent}%)",
   "form.speed": "Speed:",
   "form.eta": "ETA:",
+  "form.receiving": "Receiving {recv}/{total}",
+  "form.postprocess": "Post-processing {count}",
+  "status.preparingDownloads": "Preparing {count} track(s)...",
 
   "tracks.title": "Per-track progress",
   "tracks.basic": "Basic",
@@ -74,6 +77,8 @@ export const en: MessageCatalog = {
   "footer.githubTitle": "Open GitHub profile",
   "footer.diag.none": "not found",
   "footer.diag.os": "OS: {os} / {arch}",
+  "footer.diag.ffmpeg": "FFmpeg: {value}",
+  "footer.diag.deno": "Deno: {value}",
   "footer.diag.ytdlpPath": "yt-dlp path: {path}",
   "footer.diag.denoNone": "not found (recommended)",
   "footer.diag.sidecar": "Expected yt-dlp sidecar: {name}",

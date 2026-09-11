@@ -2,7 +2,30 @@ import { useEffect } from "react";
 import { onDownloadProgress } from "../api/download";
 import { ProgressPayload, TrackItem } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
+import { isPostprocessStatus } from "../lib/sessionEta";
 import { t } from "../i18n";
+
+/** Wall-clock start of download phase per track index (session-local). */
+const downloadPhaseStartedAt = new Map<number, number>();
+
+function clearSessionTiming() {
+  downloadPhaseStartedAt.clear();
+}
+
+export function resetDownloadPhaseTimingForTests() {
+  clearSessionTiming();
+}
+
+function resolveTrackStatus(payload: ProgressPayload): TrackItem["status"] {
+  if (payload.track_status === "completed") return "completed";
+  if (payload.track_status === "tagging") return "tagging";
+  if (payload.track_status === "converting_art") return "converting_art";
+  if (payload.track_status === "extracting") return "extracting";
+  if (payload.track_status === "failed") return "failed";
+  if (payload.track_status === "pending") return "pending";
+  if (payload.track_progress != null && payload.track_progress >= 100) return "extracting";
+  return "downloading";
+}
 
 export function useDownloadEvents() {
   useEffect(() => {
@@ -38,52 +61,69 @@ export function useDownloadEvents() {
             store.setTotalItems(payload.total_items);
           }
 
-          if (payload.speed) store.setCurrentSpeed(payload.speed);
-          if (payload.eta) store.setCurrentEta(payload.eta);
-
           const idx = payload.item_index;
           if (idx !== undefined && idx !== null && idx > 0) {
+            const trackStatus = resolveTrackStatus(payload);
+            const nowMs = Date.now();
+            const existing = store.tracks.get(idx);
+            const prevStatus = existing?.status;
+
+            if (trackStatus === "downloading" && !downloadPhaseStartedAt.has(idx)) {
+              downloadPhaseStartedAt.set(idx, nowMs);
+            }
+
+            const leavingDownload =
+              prevStatus === "downloading" &&
+              trackStatus !== "downloading" &&
+              trackStatus !== "pending";
+
+            if (leavingDownload) {
+              const started = downloadPhaseStartedAt.get(idx);
+              if (started != null) {
+                store.recordDownloadSample((nowMs - started) / 1000);
+                downloadPhaseStartedAt.delete(idx);
+              }
+            }
+
+            if (trackStatus === "completed" || trackStatus === "failed") {
+              downloadPhaseStartedAt.delete(idx);
+            }
+
             store.setTracks((prev) => {
               const next = new Map(prev);
-              const existing = next.get(idx);
+              const prevTrack = next.get(idx);
 
               const currentTitle =
                 payload.item_title ||
-                existing?.title ||
+                prevTrack?.title ||
                 t("tracks.fallbackTitle", {
                   index: idx.toString().padStart(2, "0"),
                 });
-
-              let trackStatus: TrackItem["status"] = "downloading";
-              if (payload.track_status === "completed") {
-                trackStatus = "completed";
-              } else if (payload.track_status === "tagging") {
-                trackStatus = "tagging";
-              } else if (payload.track_status === "converting_art") {
-                trackStatus = "converting_art";
-              } else if (payload.track_status === "extracting") {
-                trackStatus = "extracting";
-              } else if (payload.track_status === "failed") {
-                trackStatus = "failed";
-              } else if (payload.track_progress && payload.track_progress >= 100) {
-                trackStatus = "extracting";
-              }
 
               const progress =
                 trackStatus === "completed"
                   ? 100
                   : payload.track_progress !== undefined && payload.track_progress !== null
                     ? payload.track_progress
-                    : existing?.progress || 0;
+                    : prevTrack?.progress || 0;
+
+              const inPostOrDone =
+                isPostprocessStatus(trackStatus) ||
+                trackStatus === "completed" ||
+                trackStatus === "failed";
 
               next.set(idx, {
                 index: idx,
                 title: currentTitle,
                 progress,
                 status: trackStatus,
-                speed: payload.speed || existing?.speed,
-                eta: payload.eta || existing?.eta,
-                error_message: payload.error_message || existing?.error_message,
+                speed: inPostOrDone ? undefined : payload.speed || prevTrack?.speed,
+                eta: inPostOrDone
+                  ? undefined
+                  : trackStatus === "downloading"
+                    ? payload.eta || prevTrack?.eta
+                    : undefined,
+                error_message: payload.error_message || prevTrack?.error_message,
               });
 
               return next;
@@ -115,4 +155,9 @@ export function useDownloadEvents() {
       if (unlisten) unlisten();
     };
   }, []);
+}
+
+/** Clear timing map when a new download session begins (call from flow). */
+export function onDownloadSessionBegin() {
+  clearSessionTiming();
 }

@@ -3,6 +3,7 @@ import { CheckCircle2, Sparkles, Music2, Download, AlertCircle } from "lucide-re
 import { TrackItem as TrackItemType } from "../types/download";
 import { useI18n } from "../i18n";
 import { mapBackendMessage } from "../i18n/mapBackendMessage";
+import { parseEtaToSeconds } from "../lib/sessionEta";
 
 interface TrackRowProps {
   track: TrackItemType;
@@ -99,9 +100,19 @@ export const TrackRow = React.memo(function TrackRow({ track, viewMode }: TrackR
               )}
               {track.status === "downloading" && (
                 <div className="flex items-center gap-2">
-                  {track.speed && track.eta && (
+                  {track.speed && parseEtaToSeconds(track.eta) != null && (
                     <span className="text-[10px] text-neutral-400 font-mono tracking-tighter">
                       {track.speed} | ETA: {track.eta}
+                    </span>
+                  )}
+                  {!track.speed && parseEtaToSeconds(track.eta) != null && (
+                    <span className="text-[10px] text-neutral-400 font-mono tracking-tighter">
+                      ETA: {track.eta}
+                    </span>
+                  )}
+                  {track.speed && parseEtaToSeconds(track.eta) == null && (
+                    <span className="text-[10px] text-neutral-400 font-mono tracking-tighter">
+                      {track.speed}
                     </span>
                   )}
                   <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-400 bg-blue-950/40 border border-blue-800/50 px-2 py-0.5 rounded-md font-mono">

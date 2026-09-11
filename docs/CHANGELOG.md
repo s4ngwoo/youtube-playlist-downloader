@@ -11,10 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 - Frontend ESLint/Prettier gates and CI `cargo fmt --check` (contributor path in CONTRIBUTING)
 - CONTRIBUTING section on what to unit-test (pure helpers / parsers; no live YouTube E2E by default)
+- Session download ETA estimate (`~M:SS`) from download-phase work only; post-process count when extract/tag remains (no fake `00:00` sticky ETA)
 
 ### Changed
 
 - Track title fallback and environment-diagnose labels follow EN/KO i18n (no hard-coded Korean/English fragments)
+- Overall progress averages selected tracks in the store map (not a dense `1..N` index loop)
+
+### Notes
+
+- Work queue (maintainer): **A4→A5→A1→A3** next (**A2 done**), then private/deleted (B), history/filters (C), extras (D).
+- Planned UX: keep playlist title on failure (not only “Track #N”); sort failed rows to top (e.g. HTTP 403). 403 root cause remains yt-dlp/YouTube (R1), not a DRM bypass.
+- Deferred: split yt-dlp into download-only then post-process passes (A2-pipe).
 
 ## [0.2.0] - 2026-09-11
 

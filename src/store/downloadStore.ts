@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { DownloadStatus, TrackItem, LogItem } from "../types/download";
 import { AudioFormat, DEFAULT_SETTINGS, clampConcurrency } from "../types/settings";
+import { nextRollingAvgDownloadSec } from "../lib/sessionEta";
 
 interface DownloadState {
   url: string;
@@ -30,6 +31,11 @@ interface DownloadState {
   setCurrentSpeed: (speed: string) => void;
   currentEta: string;
   setCurrentEta: (eta: string) => void;
+
+  /** Rolling mean of download-phase duration (seconds) for session ETA. */
+  avgDownloadSec: number | null;
+  downloadSampleCount: number;
+  recordDownloadSample: (sampleSec: number) => void;
 
   logs: LogItem[];
   addLog: (log: Omit<LogItem, "id">) => void;
@@ -86,6 +92,18 @@ export const useDownloadStore = create<DownloadState>((set) => ({
   currentEta: "",
   setCurrentEta: (eta) => set({ currentEta: eta }),
 
+  avgDownloadSec: null,
+  downloadSampleCount: 0,
+  recordDownloadSample: (sampleSec) =>
+    set((state) => {
+      const next = nextRollingAvgDownloadSec(
+        state.avgDownloadSec,
+        state.downloadSampleCount,
+        sampleSec,
+      );
+      return { avgDownloadSec: next.avg, downloadSampleCount: next.sampleCount };
+    }),
+
   logs: [],
   addLog: (log) =>
     set((state) => ({
@@ -117,6 +135,8 @@ export const useDownloadStore = create<DownloadState>((set) => ({
       totalItems: 0,
       currentSpeed: "",
       currentEta: "",
+      avgDownloadSec: null,
+      downloadSampleCount: 0,
       statusMessage: "",
     }),
 }));

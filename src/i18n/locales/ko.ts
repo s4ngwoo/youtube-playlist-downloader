@@ -33,6 +33,9 @@ export const ko: MessageCatalog = {
   "form.progressDone": "{done}/{total}곡 완료 ({percent}%)",
   "form.speed": "속도:",
   "form.eta": "남은 시간:",
+  "form.receiving": "받는 중 {recv}/{total}",
+  "form.postprocess": "후처리 {count}곡",
+  "status.preparingDownloads": "{count}곡 준비 중...",
 
   "tracks.title": "트랙별 진행 상태",
   "tracks.basic": "기본 모드",
@@ -74,6 +77,8 @@ export const ko: MessageCatalog = {
   "footer.githubTitle": "GitHub 프로필 열기",
   "footer.diag.none": "없음",
   "footer.diag.os": "OS: {os} / {arch}",
+  "footer.diag.ffmpeg": "FFmpeg: {value}",
+  "footer.diag.deno": "Deno: {value}",
   "footer.diag.ytdlpPath": "yt-dlp 경로: {path}",
   "footer.diag.denoNone": "없음 (권장)",
   "footer.diag.sidecar": "yt-dlp 사이드카 기대 파일: {name}",

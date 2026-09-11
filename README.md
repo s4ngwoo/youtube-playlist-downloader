@@ -252,16 +252,23 @@ npm run tauri build
 
 ---
 
-## Roadmap
+## 로드맵
+
+권장 순서: **실패·진행 UX → 불가 항목 → 히스토리 → 부가**
+
+1. **지금** — Batch progress & failure UX: keep real titles on failure (not “Track #N”), pin failed tracks to top; session ETA estimate for download phase + post-process counts; early activity; smoother overall progress bar  
+2. Private / deleted playlist entries — show skipped items and reasons (today filtered silently)  
+3. Richer history / folder shortcuts · failed-only filter  
+4. Built-in mini audio preview (extra formats / theme later, on demand)
+
+Already shipped:
 
 - [x] More output formats — **m4a / mp3** (FLAC, WAV, OPUS later)
 - [x] Broader concurrent download controls — **1–8 workers**
 - [x] In-app yt-dlp update — app-data override (footer); separate from release-bundled sidecar
-- [ ] Richer download history / folder shortcuts
-- [ ] Built-in mini audio preview player
 - [x] Official Intel macOS release binaries
-- [x] Linux official binaries — **not planned** (distro fragmentation; CLI yt-dlp covers most Linux users)
-- [x] Apple Notarization — **not planned** (no paid Apple Developer account; Gatekeeper steps remain in README)
+- [x] Linux official binaries — **not planned**
+- [x] Apple Notarization — **not planned** (Gatekeeper steps in README)
 
 ---
 

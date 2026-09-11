@@ -6,11 +6,34 @@ import {
   type SelectedTrack,
 } from "../api/download";
 import { selectTracksByIndices } from "../lib/downloadSelection";
-import { PlaylistMetadata } from "../types/download";
+import { PlaylistMetadata, TrackItem } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 import { historyService } from "../services/historyService";
+import { onDownloadSessionBegin } from "./useDownloadEvents";
 import { t } from "../i18n";
 import { mapBackendMessage } from "../i18n/mapBackendMessage";
+
+function seedPendingTracks(
+  selectedTracks: SelectedTrack[],
+  playlist: PlaylistMetadata,
+): Map<number, TrackItem> {
+  const byIndex = new Map(playlist.tracks.map((tr) => [tr.index, tr]));
+  const seeded = new Map<number, TrackItem>();
+  for (const sel of selectedTracks) {
+    const meta = byIndex.get(sel.index);
+    seeded.set(sel.index, {
+      index: sel.index,
+      title:
+        meta?.title ||
+        t("tracks.fallbackTitle", {
+          index: sel.index.toString().padStart(2, "0"),
+        }),
+      progress: 0,
+      status: "pending",
+    });
+  }
+  return seeded;
+}
 
 export function useDownloadFlow() {
   const runDownload = async (
@@ -86,9 +109,12 @@ export function useDownloadFlow() {
 
     const selectedTracks = selectTracksByIndices(state.fetchedPlaylist.tracks, selectedIndices);
 
+    onDownloadSessionBegin();
     state.beginDownloadSession();
+    state.setTracks(seedPendingTracks(selectedTracks, state.fetchedPlaylist));
     state.setTotalItems(selectedTracks.length);
     state.setPlaylistTitle(state.fetchedPlaylist.title);
+    state.setStatusMessage(t("status.preparingDownloads", { count: selectedTracks.length }));
 
     try {
       await runDownload(state.fetchedPlaylist, selectedTracks, {
@@ -113,6 +139,7 @@ export function useDownloadFlow() {
       next.setStatusMessage(mapBackendMessage(msg || "ok.cancelled"));
       next.setCurrentSpeed("");
       next.setCurrentEta("");
+      onDownloadSessionBegin();
     } catch (err) {
       console.error("Cancel failed:", err);
     }
@@ -159,6 +186,8 @@ export function useDownloadFlow() {
             status: "pending",
             error_message: undefined,
             progress: 0,
+            eta: undefined,
+            speed: undefined,
           });
         }
       });
