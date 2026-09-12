@@ -40,6 +40,14 @@ describe("beginDownloadSession", () => {
     expect(s.statusMessage).toBe("");
   });
 
+  it("beginDownloadInvoke isolates a later run from a stale invoke", () => {
+    const first = useDownloadStore.getState().beginDownloadInvoke();
+    const second = useDownloadStore.getState().beginDownloadInvoke();
+    expect(second).toBe(first + 1);
+    expect(useDownloadStore.getState().downloadInvokeId).toBe(second);
+    expect(first).not.toBe(second);
+  });
+
   it("recordDownloadSample updates rolling average", () => {
     useDownloadStore.getState().beginDownloadSession();
     useDownloadStore.getState().recordDownloadSample(10);

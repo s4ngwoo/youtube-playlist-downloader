@@ -61,8 +61,7 @@ pub async fn download_audio(
         return Err(crate::AppError::DownloadError("error.no_items".into()));
     }
 
-    // 이전 취소 플래그를 지워 새 작업이 즉시 skip되지 않게 한다.
-    state.clear_cancelled();
+    let job_id = state.begin_job();
 
     environment::ensure_ffmpeg_available()?;
     environment::warn_if_deno_missing();
@@ -112,7 +111,7 @@ pub async fn download_audio(
         let cancel_state = cancel_state.clone();
 
         async move {
-            if cancel_state.is_cancelled() {
+            if !cancel_state.is_current_job(job_id) {
                 return Err(crate::AppError::DownloadError("cancelled".into()));
             }
             process_item(
@@ -122,6 +121,7 @@ pub async fn download_audio(
                 playlist_title,
                 regexes,
                 format.as_str(),
+                job_id,
             )
             .await
         }
@@ -144,7 +144,7 @@ pub async fn download_audio(
         let _ = crate::nfc::normalize_directory_nfc(std::path::Path::new(&actual_download_dir));
     }
 
-    if cancel_state.is_cancelled() {
+    if !cancel_state.is_current_job(job_id) {
         logger::info(
             "download",
             &format!(

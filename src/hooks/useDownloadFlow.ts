@@ -39,6 +39,7 @@ export function useDownloadFlow() {
     options?: { saveHistory?: boolean; urlForHistory?: string },
   ) => {
     const state = useDownloadStore.getState();
+    const invokeId = state.beginDownloadInvoke();
     const result = await downloadAudio({
       downloadDir: state.downloadDir || null,
       playlistTitle: playlist.title,
@@ -48,6 +49,9 @@ export function useDownloadFlow() {
     });
 
     const next = useDownloadStore.getState();
+    if (next.downloadInvokeId !== invokeId) {
+      return result;
+    }
     if (isCancelledDownloadOutcome(next.status, result)) {
       next.setStatus("cancelled");
       next.setStatusMessage(mapBackendMessage("ok.cancelled"));

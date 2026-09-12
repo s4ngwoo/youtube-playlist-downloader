@@ -59,6 +59,13 @@ interface DownloadState {
 
   /** Start a new download run (clears tracks/progress; status → downloading). */
   beginDownloadSession: () => void;
+
+  /**
+   * Monotonic id for the in-flight `download_audio` invoke. Stale completions
+   * from a cancelled job must not overwrite a newer run.
+   */
+  downloadInvokeId: number;
+  beginDownloadInvoke: () => number;
 }
 
 export const useDownloadStore = create<DownloadState>((set) => ({
@@ -139,4 +146,14 @@ export const useDownloadStore = create<DownloadState>((set) => ({
       downloadSampleCount: 0,
       statusMessage: "",
     }),
+
+  downloadInvokeId: 0,
+  beginDownloadInvoke: () => {
+    let nextId = 0;
+    set((state) => {
+      nextId = state.downloadInvokeId + 1;
+      return { downloadInvokeId: nextId };
+    });
+    return nextId;
+  },
 }));
