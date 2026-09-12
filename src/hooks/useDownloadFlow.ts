@@ -7,12 +7,13 @@ import {
 } from "../api/download";
 import { selectTracksByIndices } from "../lib/downloadSelection";
 import { mergeTrackTitle } from "../lib/trackProgress";
-import { PlaylistMetadata, TrackItem, isCancelledDownloadOutcome } from "../types/download";
+import { PlaylistMetadata, TrackItem } from "../types/download";
 import { useDownloadStore } from "../store/downloadStore";
 import { historyService } from "../services/historyService";
 import { onDownloadSessionBegin } from "./useDownloadEvents";
 import { t } from "../i18n";
 import { mapBackendMessage } from "../i18n/mapBackendMessage";
+import { planDownloadSuccess, shouldIgnoreDownloadFailure } from "../lib/downloadOutcome";
 
 function seedPendingTracks(
   selectedTracks: SelectedTrack[],
@@ -48,18 +49,13 @@ export function useDownloadFlow() {
     });
 
     const next = useDownloadStore.getState();
-    if (isCancelledDownloadOutcome(next.status, result)) {
-      next.setStatus("cancelled");
-      next.setStatusMessage(mapBackendMessage("ok.cancelled"));
-      return result;
-    }
+    const plan = planDownloadSuccess(next.status, result, options);
+    next.setStatus(plan.status);
+    next.setStatusMessage(mapBackendMessage(plan.messageCode));
 
-    next.setStatus("completed");
-    next.setStatusMessage(mapBackendMessage(result || "ok.download_complete"));
-
-    if (options?.saveHistory) {
+    if (plan.saveHistory) {
       await historyService.saveHistory(
-        (options.urlForHistory ?? next.url).trim(),
+        (options?.urlForHistory ?? next.url).trim(),
         playlist.title || "Unknown Title",
         next.downloadDir,
       );
@@ -126,7 +122,7 @@ export function useDownloadFlow() {
         saveHistory: true,
       });
     } catch (err: unknown) {
-      if (isCancelledDownloadOutcome(useDownloadStore.getState().status)) {
+      if (shouldIgnoreDownloadFailure(useDownloadStore.getState().status)) {
         return;
       }
       console.error("Download error:", err);
@@ -203,15 +199,15 @@ export function useDownloadFlow() {
     });
 
     try {
-      const result = await runDownload(state.fetchedPlaylist, selectedTracks);
-      if (isCancelledDownloadOutcome(useDownloadStore.getState().status, result)) {
+      await runDownload(state.fetchedPlaylist, selectedTracks);
+      if (shouldIgnoreDownloadFailure(useDownloadStore.getState().status)) {
         return;
       }
       useDownloadStore
         .getState()
         .setStatusMessage(mapBackendMessage("ok.download_complete") || t("status.retryComplete"));
     } catch (err: unknown) {
-      if (isCancelledDownloadOutcome(useDownloadStore.getState().status)) {
+      if (shouldIgnoreDownloadFailure(useDownloadStore.getState().status)) {
         return;
       }
       console.error("Retry error:", err);
