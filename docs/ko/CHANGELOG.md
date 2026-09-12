@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- 취소 직후 재시도/새 다운로드가 이전 대기열을 다시 살리지 않음: `download_audio`마다 job generation을 두고, 이전 invoke가 UI를 취소/완료로 덮어쓰지 않음
+
 ### Notes
 
 - 후순위 아이디어: 받기/후처리 분리 · 미니 플레이어/테마/추가 포맷 · 자막 ON 옵션 · YouTube/yt-dlp 깨짐 시 안내 강화.

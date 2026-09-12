@@ -5,7 +5,7 @@ use tauri_plugin_shell::ShellExt;
 
 use crate::models::{DownloadTask, ProgressPayload, YtDlpDump};
 use crate::parser::{apply_ytdlp_stdout_line, DownloadRegexes, ProgressParseState};
-use crate::process::AppState;
+use crate::process::{kill_process_by_pid, AppState};
 use crate::services::{environment, logger, ytdlp_update};
 
 fn open_ytdlp(
@@ -533,8 +533,9 @@ pub async fn process_item(
     playlist_title: Option<String>,
     regexes: Arc<DownloadRegexes>,
     audio_format: &str,
+    job_id: u64,
 ) -> Result<(), crate::AppError> {
-    if app.state::<AppState>().is_cancelled() {
+    if !app.state::<AppState>().is_current_job(job_id) {
         logger::info(
             "download",
             &format!("[트랙 #{}] 취소됨 — spawn 생략", task.item_index),
@@ -562,6 +563,15 @@ pub async fn process_item(
     let pid = child.pid();
     let state = app.state::<AppState>();
     state.register_pid(pid);
+    if !state.is_current_job(job_id) {
+        logger::info(
+            "download",
+            &format!("[트랙 #{}] 취소됨 — spawn 직후 종료", task.item_index),
+        );
+        kill_process_by_pid(pid);
+        state.unregister_pid(pid);
+        return Err(crate::AppError::DownloadError("cancelled".into()));
+    }
 
     let result = handle_command_events(app.clone(), rx, &task, playlist_title, regexes).await;
 

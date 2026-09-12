@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/) where rel
 
 ## [Unreleased]
 
+### Fixed
+
+- Cancel + immediate retry/new download no longer resumes the cancelled queue: each `download_audio` has a job generation, and a stale invoke cannot flip the UI to cancelled/completed
+
 ### Notes
 
 - Deferred ideas: split download vs post-process passes; mini player / theme / extra formats; optional subtitle ON; clearer YouTube/yt-dlp breakage handling when it occurs.
