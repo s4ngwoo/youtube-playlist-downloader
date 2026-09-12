@@ -152,17 +152,36 @@ pub async fn download_audio(
                 success_count, fail_count
             ),
         );
-        return Ok("ok.cancelled".into());
+    } else {
+        logger::info(
+            "download",
+            &format!(
+                "다운로드 완료 — 성공: {}개, 실패: {}개",
+                success_count, fail_count
+            ),
+        );
     }
 
-    logger::info(
-        "download",
-        &format!(
-            "다운로드 완료 — 성공: {}개, 실패: {}개",
-            success_count, fail_count
-        ),
-    );
+    summarize_download_results(success_count, fail_count, cancel_state.is_cancelled())
+}
 
+fn normalize_audio_format(raw: Option<&str>) -> String {
+    match raw.map(|s| s.trim().to_ascii_lowercase()).as_deref() {
+        Some("mp3") => "mp3".into(),
+        _ => "m4a".into(),
+    }
+}
+
+/// Cancel must win even when every queued spawn failed as `cancelled`.
+/// Otherwise buffer_unordered reports `error.all_failed` after the user hit Cancel.
+fn summarize_download_results(
+    success_count: usize,
+    fail_count: usize,
+    cancelled: bool,
+) -> Result<String, crate::AppError> {
+    if cancelled {
+        return Ok("ok.cancelled".into());
+    }
     if success_count == 0 && fail_count > 0 {
         Err(crate::AppError::DownloadError("error.all_failed".into()))
     } else if fail_count > 0 {
@@ -172,9 +191,57 @@ pub async fn download_audio(
     }
 }
 
-fn normalize_audio_format(raw: Option<&str>) -> String {
-    match raw.map(|s| s.trim().to_ascii_lowercase()).as_deref() {
-        Some("mp3") => "mp3".into(),
-        _ => "m4a".into(),
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cancelled_wins_over_all_failed() {
+        assert_eq!(
+            summarize_download_results(0, 8, true).unwrap(),
+            "ok.cancelled"
+        );
+    }
+
+    #[test]
+    fn cancelled_wins_over_partial_success() {
+        assert_eq!(
+            summarize_download_results(2, 3, true).unwrap(),
+            "ok.cancelled"
+        );
+    }
+
+    #[test]
+    fn all_failed_without_cancel() {
+        match summarize_download_results(0, 3, false) {
+            Err(crate::AppError::DownloadError(msg)) => assert_eq!(msg, "error.all_failed"),
+            other => panic!("unexpected {other:?}"),
+        }
+    }
+
+    #[test]
+    fn partial_and_complete_without_cancel() {
+        assert_eq!(
+            summarize_download_results(2, 1, false).unwrap(),
+            "ok.download_partial:2:1"
+        );
+        assert_eq!(
+            summarize_download_results(3, 0, false).unwrap(),
+            "ok.download_complete"
+        );
+        assert_eq!(
+            summarize_download_results(0, 0, false).unwrap(),
+            "ok.download_complete"
+        );
+    }
+
+    #[test]
+    fn normalize_audio_format_defaults_unknown_to_m4a() {
+        assert_eq!(normalize_audio_format(None), "m4a");
+        assert_eq!(normalize_audio_format(Some("")), "m4a");
+        assert_eq!(normalize_audio_format(Some("m4a")), "m4a");
+        assert_eq!(normalize_audio_format(Some("wav")), "m4a");
+        assert_eq!(normalize_audio_format(Some("MP3")), "mp3");
+        assert_eq!(normalize_audio_format(Some(" mp3 ")), "mp3");
     }
 }
