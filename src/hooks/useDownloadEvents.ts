@@ -19,7 +19,8 @@ export function resetDownloadPhaseTimingForTests() {
   clearSessionTiming();
 }
 
-function resolveTrackStatus(payload: ProgressPayload): TrackItem["status"] {
+/** Map a yt-dlp progress payload to the frontend track status union. */
+export function resolveTrackStatus(payload: ProgressPayload): TrackItem["status"] {
   if (payload.track_status === "completed") return "completed";
   if (payload.track_status === "tagging") return "tagging";
   if (payload.track_status === "converting_art") return "converting_art";

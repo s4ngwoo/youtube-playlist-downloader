@@ -14,7 +14,8 @@ import { onDownloadSessionBegin } from "./useDownloadEvents";
 import { t } from "../i18n";
 import { mapBackendMessage } from "../i18n/mapBackendMessage";
 
-function seedPendingTracks(
+/** Seed the track map for the selected indexes before download_audio starts. */
+export function seedPendingTracks(
   selectedTracks: SelectedTrack[],
   playlist: PlaylistMetadata,
 ): Map<number, TrackItem> {

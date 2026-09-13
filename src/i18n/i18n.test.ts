@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { translate } from "./index";
 import { mapBackendMessage } from "./mapBackendMessage";
 import { mapEnvCode } from "./mapEnvCode";
+import { en } from "./locales/en";
+import { ko } from "./locales/ko";
 
 describe("translate", () => {
   it("fills placeholders", () => {
@@ -94,5 +96,18 @@ describe("mapEnvCode", () => {
 
   it("maps empty-ish codes safely", () => {
     expect(mapEnvCode("", t)).toBe("");
+  });
+
+  it("maps remaining diagnose codes", () => {
+    expect(mapEnvCode("warn.deno_missing", t)).toBe("env.warn.denoMissing");
+    expect(mapEnvCode("hint.ffmpeg.macos", t)).toBe("env.hint.ffmpegMacos");
+    expect(mapEnvCode("hint.ffmpeg.windows", t)).toBe("env.hint.ffmpegWindows");
+    expect(mapEnvCode("hint.deno.windows", t)).toBe("env.hint.denoWindows");
+  });
+});
+
+describe("locale catalogs", () => {
+  it("keeps ko and en on the same key set", () => {
+    expect(Object.keys(ko).sort()).toEqual(Object.keys(en).sort());
   });
 });
