@@ -18,6 +18,13 @@ describe("parseEtaToSeconds", () => {
     expect(parseEtaToSeconds("0:00")).toBeNull();
     expect(parseEtaToSeconds(undefined)).toBeNull();
   });
+
+  it("rejects malformed or negative ETA text", () => {
+    expect(parseEtaToSeconds("soon")).toBeNull();
+    expect(parseEtaToSeconds("1:02:03:04")).toBeNull();
+    expect(parseEtaToSeconds("-1:00")).toBeNull();
+    expect(parseEtaToSeconds("NaN:10")).toBeNull();
+  });
 });
 
 describe("formatEtaSeconds", () => {
@@ -93,6 +100,22 @@ describe("computeSessionProgress", () => {
     expect(p.speedDisplay).toBeNull();
     expect(p.postprocessCount).toBe(2);
     expect(p.hasDownloadWork).toBe(false);
+  });
+
+  it("all-failed playlist hides ETA and is not postprocess-only", () => {
+    const p = computeSessionProgress(
+      [
+        { status: "failed", progress: 0 },
+        { status: "failed", progress: 0 },
+      ],
+      3,
+      90,
+    );
+    expect(p.failedCount).toBe(2);
+    expect(p.hasDownloadWork).toBe(false);
+    expect(p.postprocessOnly).toBe(false);
+    expect(p.etaDisplay).toBeNull();
+    expect(p.speedDisplay).toBeNull();
   });
 
   it("ignores postprocess fake percent for ETA", () => {

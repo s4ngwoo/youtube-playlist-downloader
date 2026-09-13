@@ -261,4 +261,51 @@ mod tests {
         );
         assert_eq!(clean_title_from_destination("Song.webm.temp"), "Song");
     }
+
+    #[test]
+    fn apply_stdout_line_marks_already_downloaded_complete() {
+        let re = DownloadRegexes::new();
+        let mut state = ProgressParseState::default();
+        apply_ytdlp_stdout_line(
+            "[download] /tmp/Song.m4a has already been downloaded",
+            &re,
+            &mut state,
+        );
+        assert_eq!(state.item_title.as_deref(), Some("Song"));
+        assert_eq!(state.track_status.as_deref(), Some("completed"));
+        assert_eq!(state.track_progress, Some(100.0));
+    }
+
+    #[test]
+    fn apply_stdout_line_advances_postprocess_and_completion() {
+        let re = DownloadRegexes::new();
+        let mut state = ProgressParseState::default();
+
+        apply_ytdlp_stdout_line("[download] 100% of 10.00MiB", &re, &mut state);
+        assert_eq!(state.track_progress, Some(100.0));
+        assert_eq!(state.track_status.as_deref(), Some("downloaded"));
+
+        apply_ytdlp_stdout_line(
+            "[ThumbnailsConvertor] Converting thumbnail",
+            &re,
+            &mut state,
+        );
+        assert_eq!(state.track_status.as_deref(), Some("converting_art"));
+        assert_eq!(state.track_progress, Some(95.0));
+
+        apply_ytdlp_stdout_line("[EmbedThumbnail] Embedding thumbnail", &re, &mut state);
+        assert_eq!(state.track_status.as_deref(), Some("tagging"));
+        assert_eq!(state.track_progress, Some(98.0));
+
+        apply_ytdlp_stdout_line(
+            "[Metadata] Adding metadata to: /tmp/Song.m4a",
+            &re,
+            &mut state,
+        );
+        assert_eq!(state.track_status.as_deref(), Some("tagging"));
+
+        apply_ytdlp_stdout_line("Deleting original file /tmp/Song.webm", &re, &mut state);
+        assert_eq!(state.track_status.as_deref(), Some("completed"));
+        assert_eq!(state.track_progress, Some(100.0));
+    }
 }
