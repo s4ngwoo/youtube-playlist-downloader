@@ -189,26 +189,58 @@ fn bundled_ffmpeg_dirs() -> Vec<PathBuf> {
     dirs
 }
 
+/// Prefer release-layout `ffmpeg` over the triple-suffixed sidecar in the same directory.
+fn pick_ffmpeg_in_dir(
+    dir: &Path,
+    exe_name: &str,
+    triple_name: &str,
+    source: &'static str,
+) -> Option<FfmpegResolve> {
+    if dir.join(exe_name).is_file() {
+        return Some(FfmpegResolve {
+            location: dir.to_string_lossy().to_string(),
+            source,
+        });
+    }
+    if source == "bundled" {
+        let triple_path = dir.join(triple_name);
+        if triple_path.is_file() {
+            return Some(FfmpegResolve {
+                location: triple_path.to_string_lossy().to_string(),
+                source,
+            });
+        }
+    }
+    None
+}
+
+fn resolve_ffmpeg_from_search_dirs(
+    bundled_dirs: &[PathBuf],
+    system_dirs: &[PathBuf],
+    exe_name: &str,
+    triple_name: &str,
+) -> Option<FfmpegResolve> {
+    for dir in bundled_dirs {
+        if let Some(found) = pick_ffmpeg_in_dir(dir, exe_name, triple_name, "bundled") {
+            return Some(found);
+        }
+    }
+    for dir in system_dirs {
+        if let Some(found) = pick_ffmpeg_in_dir(dir, exe_name, triple_name, "system") {
+            return Some(found);
+        }
+    }
+    None
+}
+
 fn resolve_ffmpeg() -> Option<FfmpegResolve> {
     let exe_name = executable_name("ffmpeg");
     let triple_name = expected_ffmpeg_sidecar_name();
 
-    for dir in bundled_ffmpeg_dirs() {
-        // Prefer plain `ffmpeg` / `ffmpeg.exe` (release layout after Tauri strips the triple).
-        if dir.join(&exe_name).is_file() {
-            return Some(FfmpegResolve {
-                location: dir.to_string_lossy().to_string(),
-                source: "bundled",
-            });
-        }
-        // Dev: `ffmpeg-<triple>` — pass the binary path (yt-dlp accepts file or directory).
-        let triple_path = dir.join(&triple_name);
-        if triple_path.is_file() {
-            return Some(FfmpegResolve {
-                location: triple_path.to_string_lossy().to_string(),
-                source: "bundled",
-            });
-        }
+    if let Some(found) =
+        resolve_ffmpeg_from_search_dirs(&bundled_ffmpeg_dirs(), &[], &exe_name, &triple_name)
+    {
+        return Some(found);
     }
 
     if let Some(from_path) = find_in_path("ffmpeg") {
@@ -220,13 +252,10 @@ fn resolve_ffmpeg() -> Option<FfmpegResolve> {
         }
     }
 
-    for dir in ffmpeg_candidate_dirs() {
-        if dir.join(&exe_name).is_file() {
-            return Some(FfmpegResolve {
-                location: dir.to_string_lossy().to_string(),
-                source: "system",
-            });
-        }
+    if let Some(found) =
+        resolve_ffmpeg_from_search_dirs(&[], &ffmpeg_candidate_dirs(), &exe_name, &triple_name)
+    {
+        return Some(found);
     }
 
     // Last resort: ffmpeg on PATH without resolved absolute path
@@ -446,5 +475,75 @@ mod tests {
             assert!(report.warnings.iter().any(|w| w == "warn.deno_missing"));
         }
         assert!(!report.ffmpeg_expected_name.is_empty());
+    }
+
+    fn touch(path: &std::path::Path) {
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent).unwrap();
+        }
+        std::fs::write(path, []).unwrap();
+    }
+
+    #[test]
+    fn pick_ffmpeg_prefers_plain_name_over_triple_in_the_same_dir() {
+        let dir = tempfile::tempdir().unwrap();
+        let exe_name = executable_name("ffmpeg");
+        let triple_name = "ffmpeg-x86_64-unknown-linux-gnu";
+        touch(&dir.path().join(&exe_name));
+        touch(&dir.path().join(triple_name));
+
+        let found = pick_ffmpeg_in_dir(dir.path(), &exe_name, triple_name, "bundled").unwrap();
+        assert_eq!(found.source, "bundled");
+        assert_eq!(found.location, dir.path().to_string_lossy().to_string());
+        assert!(!found.location.ends_with(triple_name));
+    }
+
+    #[test]
+    fn pick_ffmpeg_uses_triple_file_path_when_plain_name_is_absent() {
+        let dir = tempfile::tempdir().unwrap();
+        let exe_name = executable_name("ffmpeg");
+        let triple_name = "ffmpeg-aarch64-apple-darwin";
+        let triple_path = dir.path().join(triple_name);
+        touch(&triple_path);
+
+        let found = pick_ffmpeg_in_dir(dir.path(), &exe_name, triple_name, "bundled").unwrap();
+        assert_eq!(found.source, "bundled");
+        assert_eq!(found.location, triple_path.to_string_lossy().to_string());
+    }
+
+    #[test]
+    fn system_pick_ignores_triple_sidecar_names() {
+        let dir = tempfile::tempdir().unwrap();
+        let exe_name = executable_name("ffmpeg");
+        let triple_name = "ffmpeg-x86_64-unknown-linux-gnu";
+        touch(&dir.path().join(triple_name));
+
+        assert!(pick_ffmpeg_in_dir(dir.path(), &exe_name, triple_name, "system").is_none());
+    }
+
+    #[test]
+    fn bundled_search_dirs_win_over_system_dirs() {
+        let bundled = tempfile::tempdir().unwrap();
+        let system = tempfile::tempdir().unwrap();
+        let exe_name = executable_name("ffmpeg");
+        let triple_name = "ffmpeg-x86_64-pc-windows-msvc.exe";
+        touch(&bundled.path().join(&exe_name));
+        touch(&system.path().join(&exe_name));
+
+        let found = resolve_ffmpeg_from_search_dirs(
+            &[bundled.path().to_path_buf()],
+            &[system.path().to_path_buf()],
+            &exe_name,
+            triple_name,
+        )
+        .unwrap();
+        assert_eq!(found.source, "bundled");
+        assert_eq!(found.location, bundled.path().to_string_lossy().to_string());
+    }
+
+    #[test]
+    fn empty_search_dirs_yield_none() {
+        let exe_name = executable_name("ffmpeg");
+        assert!(resolve_ffmpeg_from_search_dirs(&[], &[], &exe_name, "ffmpeg-triple").is_none());
     }
 }

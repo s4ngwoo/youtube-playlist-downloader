@@ -26,3 +26,27 @@ impl Serialize for AppError {
         serializer.serialize_str(self.to_string().as_ref())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn download_error_serializes_with_stable_prefix() {
+        let json = serde_json::to_string(&AppError::DownloadError("error.ffmpeg_missing".into()))
+            .expect("serialize");
+        assert_eq!(json, "\"download_error: error.ffmpeg_missing\"");
+    }
+
+    #[test]
+    fn metadata_and_filesystem_errors_keep_prefixes() {
+        assert_eq!(
+            serde_json::to_string(&AppError::MetadataError("bad tag".into())).unwrap(),
+            "\"metadata_error: bad tag\""
+        );
+        assert_eq!(
+            serde_json::to_string(&AppError::FileSystemError("enoent".into())).unwrap(),
+            "\"filesystem_error: enoent\""
+        );
+    }
+}
